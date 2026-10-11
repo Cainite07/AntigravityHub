@@ -1,0 +1,6 @@
+{
+  "name": "antigravity-window-fix",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": { "@electron/asar": "4.3.0" }
+}

@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
+import remarkRehype from 'remark-rehype';
+import rehypeStringify from 'rehype-stringify';
+const markdown = '并伴随 4~5 个 200~400 MB 的渲染/插件子进程\n\n~~正常删除线~~\n\n`4~5`\n\n```txt\n200~400\n```';
+const render = async (singleTilde) => String(await unified().use(remarkParse).use(remarkGfm, { singleTilde }).use(remarkRehype).use(rehypeStringify).process(markdown));
+const before = await render(true);
+const after = await render(false);
+assert(before.includes('<del>5 个 200</del>'));
+assert(after.includes('4~5 个 200~400 MB'));
+assert(after.includes('<del>正常删除线</del>'));
+assert(after.includes('<code>4~5</code>'));
+assert(after.includes('200~400\n</code>'));
+console.log(JSON.stringify({ passed: true, after }));

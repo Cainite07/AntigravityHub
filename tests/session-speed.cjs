@@ -1,0 +1,33 @@
+const assert=require('node:assert/strict');
+const {seconds,sessionSpeed,createSpeedCollector}=require('../src/AntigravityHub/integration/hub-hud-main.js');
+const id='00000000-0000-0000-0000-000000000001',id2='00000000-0000-0000-0000-000000000002';
+const row=(messageId,usage,duration,ttft=99)=>({chatModel:{usage:{messageId,...usage},streamingDuration:duration,timeToFirstToken:ttft}});
+const data=rows=>({trajectory:{cascadeId:id,generatorMetadata:rows},numTotalGeneratorMetadata:rows.length});
+(async()=>{
+ assert.equal(seconds({seconds:'1',nanos:500000000}),1.5);assert.equal(seconds({seconds:2,nanos:-1}),null);
+ const a=row('a',{outputTokens:200,responseOutputTokens:100,thinkingOutputTokens:100},'1s');
+ const b=row('b',{outputTokens:100,responseOutputTokens:100},'9s');
+ const result=sessionSpeed(data([a,b,a,row('missing',{outputTokens:100},null),row('bad',{outputTokens:2,thinkingOutputTokens:3},'1s')]),id);
+ assert.equal(result.tps,20);assert.equal(result.samples,2);assert.equal(result.basis,'response');
+ assert.equal(sessionSpeed(data([row('f',{outputTokens:50},'2s')]),id).basis,'all-output');
+ assert.equal(sessionSpeed(data([row('sub',{outputTokens:100,thinkingOutputTokens:80},'2s')]),id).tps,10);
+ assert.equal(sessionSpeed(data([row('n',{outputTokens:10},'0s')]),id),null);
+ assert.equal(sessionSpeed(data([a]),id2),null);
+ assert.equal(sessionSpeed({...data([a]),numTotalGeneratorMetadata:2},id),null);
+ let now=0,calls=0,backend={pid:1,port:12000,csrf:'test-only'},complete;
+ const collector=createSpeedCollector({server:()=>backend,now:()=>now,call:async(server,method,body)=>{
+  calls++;if(method==='GetCascadeTrajectory')return{...data([a]),numTotalGeneratorMetadata:2};
+  assert.equal(body.generatorMetadataOffset,1);return {generatorMetadatas:[b]};
+ }});
+ assert.equal((await collector.read(id,'account-1')).tps,20);assert.equal(calls,2);
+ await collector.read(id,'account-1');assert.equal(calls,2);
+ await collector.read(id,'account-2');assert.equal(calls,4);
+ collector.clear();await collector.read(id,'account-1');assert.equal(calls,6);
+ backend={pid:2,port:12001,csrf:'test-only-2'};await collector.read(id,'account-1');assert.equal(calls,8);
+ const delayed=createSpeedCollector({server:()=>backend,call:()=>new Promise(r=>complete=r)});
+ const flight=delayed.read(id,'account');delayed.clear();complete(data([a]));assert.equal(await flight,null);
+ const incomplete=createSpeedCollector({server:()=>backend,call:async(s,m)=>m==='GetCascadeTrajectory'?{...data([a]),numTotalGeneratorMetadata:2}:{generatorMetadatas:[]}});
+ assert.equal(await incomplete.read(id,'account'),null);
+ assert.equal(await collector.read('invalid','account'),null);assert.equal(await collector.read(id,null),null);
+ console.log('PASS: weighted session TPS, TTFT exclusion, body/thinking basis, deduplication, malformed timing, pagination, account/backend isolation, bounded cache and stale-flight rejection.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AntigravityHub</title>
+  <script src="theme.js"></script>
+  <style>
+    :root {
+      --bg-paper: #F7F5EE;
+      --paper-card: #FAF8F2;
+      --paper-border: #DDD3C2;
+      --paper-border-dark: #C9BEA8;
+      --paper-subtle: #EFE9DD;
+      --ink-primary: #1E1D1A;
+      --ink-secondary: #5A5348;
+      --ink-muted: #8A8172;
+      --ink-accent: #8C3F2B;
+      --ink-green: #3C804F;
+      --fluid-slide: cubic-bezier(0.16, 1, 0.3, 1);
+      --spring-pill: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --gentle-hover: cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    *, *::before, *::after, input, button, select, textarea {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: "Microsoft YaHei UI", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    input, input::placeholder, textarea, textarea::placeholder, button {
+      font-family: "Microsoft YaHei UI", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      color: var(--text-9c9484);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-f7f5ee);
+      color: var(--text-1e1d1a);
+      overflow: hidden;
+    }
+
+    /* 优化数字排版：采用现代平滑 UI 字体与 Tabular-Nums 对齐，坚决不用生硬打字机粗糙点阵字体 */
+    .num-cell, .font-num {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", sans-serif !important;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+      letter-spacing: -0.015em;
+    }
+
+    /* 纸张质感卡片 */
+    .paper-card {
+      background-color: var(--paper-card);
+      border: 1px solid var(--paper-border);
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(36, 34, 32, 0.04), 0 0 1px rgba(36, 34, 32, 0.04);
+      transition: transform 0.22s var(--fluid-slide), box-shadow 0.22s var(--fluid-slide), border-color 0.2s ease;
+    }
+
+    .paper-card:hover {
+      box-shadow: 0 6px 18px rgba(36, 34, 32, 0.06), 0 1px 3px rgba(36, 34, 32, 0.03);
+      border-color: var(--paper-border-dark);
+    }
+
+    .paper-sidebar {
+      background-color: var(--bg-f0eae0);
+      border-right: 1px solid var(--border-dfd5c3);
+    }
+
+    .paper-header {
+      background-color: var(--bg-f7f5ee);
+      border-bottom: 1px solid var(--border-e8dfce);
+    }
+
+    .badge-tier-pro {
+      background: var(--bg-241f19) !important;
+      color: var(--text-eed28b) !important;
+      border: 1px solid var(--border-c9a44b) !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+    .badge-tier-ultra {
+      background: var(--bg-182230) !important;
+      color: var(--text-9ec7ff) !important;
+      border: 1px solid var(--border-4d73aa) !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+    .badge-tier-free {
+      background: var(--bg-e4d9c8) !important;
+      color: var(--text-7b705f) !important;
+      border: 1px solid var(--border-cfc1ab) !important;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    .paper-hero {
+      background: linear-gradient(135deg, var(--bg-faf8f2) 0%, var(--bg-f3ede2) 100%);
+      border: 1px solid var(--border-dfd6c5);
+      border-radius: 20px;
+      box-shadow: 0 2px 6px rgba(36, 34, 32, 0.03);
+    }
+
+    .ink-solid {
+      background-color: var(--bg-1e1d1a);
+      color: var(--text-faf8f3);
+    }
+
+    .ink-pill {
+      background-color: var(--bg-24221f);
+      color: var(--text-f7f5ee);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: var(--bg-d8cfbe);
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: var(--bg-c4b9a5);
+    }
+
+    /* 侧边栏导航选项 */
+    .nav-item {
+      color: var(--text-5c5549);
+      position: relative;
+      transition: color 0.16s ease, background-color 0.16s ease;
+      cursor: pointer;
+    }
+    .nav-item:hover:not(.active) {
+      color: var(--text-1e1d1a);
+      background-color: rgba(0, 0, 0, 0.038);
+    }
+    .nav-item.active {
+      color: var(--text-ffffff) !important;
+    }
+    .nav-item.active span,
+    .nav-item.active svg {
+      color: var(--text-ffffff) !important;
+      fill: none;
+    }
+    .nav-item.active .badge-count {
+      background-color: var(--bg-38342e) !important;
+      color: var(--text-ffffff) !important;
+    }
+
+    /* 页面弹性滑移换屏 */
+    /* 1. 首次冷启动：0.42s 摄影镜头微焦合焦展开 (纯光学合焦 blur 5px -> 0px，满幅 100% 绝对无白框) */
+    .window-entrance {
+      animation: windowEntrance 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      will-change: opacity, filter;
+    }
+    @keyframes windowEntrance {
+      0% {
+        opacity: 0.2;
+        filter: blur(5px);
+      }
+      100% {
+        opacity: 1;
+        filter: blur(0px);
+      }
+    }
+
+    /* 2. 任务栏还原唤醒：0.22s 丝滑微聚焦 (blur 2.5px -> 0px, opacity 0.9 -> 1)，整窗由 Windows DWM 硬件缩放，绝无白框露白 */
+    .window-restored-focus {
+      animation: windowRestoredFocus 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      will-change: opacity, filter;
+    }
+    @keyframes windowRestoredFocus {
+      0% {
+        opacity: 0.9;
+        filter: blur(2.5px);
+      }
+      100% {
+        opacity: 1;
+        filter: blur(0px);
+      }
+    }
+.page-slide-in {
+      animation: fluidPageEntrance 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fluidPageEntrance {
+      0% {
+        opacity: 0;
+        transform: translateY(14px) scale(0.99);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .gentle-bounce {
+      transition: transform 0.2s var(--gentle-hover), box-shadow 0.2s var(--gentle-hover);
+    }
+    .gentle-bounce:hover {
+      transform: translateY(-1.5px);
+    }
+    .gentle-bounce:active {
+      transform: translateY(0.5px) scale(0.985);
+    }
+
+    /* 热力图网格 */
+    .heat-col {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .heat-dot {
+      width: 10.5px;
+      height: 10.5px;
+      border-radius: 2.5px;
+      transition: transform 0.15s ease, background-color 0.2s ease;
+    }
+    .heat-dot:hover {
+      transform: scale(1.35);
+      z-index: 10;
+    }
+
+    .heat-l-0 { background-color: var(--bg-e8e0d0); }
+    .heat-l-1 { background-color: var(--bg-c2d9c6); }
+    .heat-l-2 { background-color: var(--bg-7db58b); }
+    .heat-l-3 { background-color: var(--bg-3c804f); }
+    .heat-l-4 { background-color: var(--bg-1f522e); }
+
+    /* 月度日历单元格：精巧雅致设计 */
+    .cal-day-cell {
+      transition: all 0.18s var(--gentle-hover);
+      border-radius: 9px;
+      cursor: pointer;
+    }
+    .cal-day-cell:hover {
+      transform: translateY(-1.5px) scale(1.025);
+      box-shadow: 0 4px 12px rgba(30, 29, 26, 0.08);
+      z-index: 20;
+    }
+
+    #floating-tooltip {
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s var(--gentle-hover);
+      box-shadow: 0 8px 24px rgba(30, 29, 26, 0.14), 0 1px 3px rgba(30, 29, 26, 0.06);
+    }
+
+    .modal-backdrop {
+      background-color: rgba(30, 28, 25, 0.45);
+      backdrop-filter: blur(4px);
+    }
+
+    /* 自定义宣纸下拉菜单浮层 */
+    #month-dropdown-menu {
+      box-shadow: 0 10px 30px rgba(36, 32, 26, 0.12), 0 2px 6px rgba(36, 32, 26, 0.04);
+    }
+
+
+    .settings-header-icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:var(--ink-primary); color:var(--paper-card); }
+    .settings-icon { width:18px; height:18px; flex:none; }
+    .settings-dialog { width:520px; max-width:calc(100vw - 32px); max-height:calc(100vh - 32px); }
+    .settings-dialog .setting-group { gap:8px; padding:12px 14px; }
+    .settings-dialog .setting-group-title { font-size:11px; letter-spacing:.02em; text-transform:none; }
+    .settings-dialog .setting-item { min-height:30px; }
+    .settings-dialog .setting-item.bordered { padding-top:8px; }
+    .client-settings-group .setting-item:first-of-type .setting-item-name { font-size:13px; }
+    .client-setting-note { margin:3px 0 0; font-size:10px; line-height:1.5; color:var(--ink-muted); }
+    .client-size-fields { display:flex; align-items:center; gap:10px; font-size:10px; color:var(--ink-muted); }
+    .client-size-fields label { display:flex; align-items:center; gap:8px; }
+    .client-size-fields input { width:78px; padding:5px 8px; background:var(--bg-faf8f2); color:var(--ink-primary); border:1px solid var(--paper-border); border-radius:7px; font-variant-numeric:tabular-nums; }
+    .client-size-fields input:disabled { opacity:.45; }
+    .client-size-error { margin:0; font-size:10px; color:var(--text-9e6c18); }
+    .client-size-error:empty { display:none; }
+    .client-restart-dialog { width:440px; max-width:calc(100vw - 32px); padding:20px; position:relative; }
+    .client-restart-dialog h2 { margin:0 28px 14px 0; font-size:15px; color:var(--ink-primary); font-weight:700; }
+    .client-restart-row { display:flex; align-items:center; justify-content:space-between; gap:18px; }
+    .client-restart-row p { margin:0; font-size:12px; line-height:1.6; color:var(--ink-muted); }
+    .client-restart-button { flex:none; display:flex; align-items:center; gap:6px; padding:7px 10px; border:1px solid var(--paper-border); border-radius:9px; background:var(--bg-eae2d3); color:var(--ink-primary); font-size:11px; font-weight:600; cursor:pointer; transition:background .15s; }
+    .client-restart-button:hover { background:var(--bg-e5dcb9); }
+    .client-restart-button:disabled { opacity:.55; cursor:wait; }
+    .client-restart-dismiss { position:absolute; top:14px; right:14px; border:0; background:transparent; color:var(--ink-muted); width:26px; height:26px; border-radius:7px; cursor:pointer; }
+    .client-restart-dismiss:hover { background:var(--bg-eae2d3); }
+    .client-restart-dismiss:disabled { opacity:.35; cursor:wait; }
+    @media(max-width:420px) { .client-restart-row { align-items:flex-start; flex-direction:column; gap:12px; } }
+
+    /* 系统设置组件样式 */
+    .setting-group {
+      background: var(--bg-ffffff);
+      border: 1px solid var(--paper-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .setting-group-title {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .setting-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 32px;
+    }
+    .setting-item.bordered {
+      border-top: 1px solid var(--paper-subtle);
+      padding-top: 10px;
+    }
+    .setting-item-text {
+      flex: 1;
+      padding-right: 8px;
+    }
+    .setting-item-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--ink-primary);
+    }
+    .setting-item-desc {
+      font-size: 10px;
+      color: var(--ink-muted);
+      margin-top: 1px;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--bg-d3c9b6);
+      transition: 0.2s;
+      border-radius: 20px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.2s;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    input:checked + .slider {
+      background-color: var(--ink-primary);
+    }
+    input:checked + .slider:before {
+      transform: translateX(16px);
+    }
+    .pill-selector {
+      display: inline-flex;
+      background: var(--bg-eae3d5);
+      border: 1px solid var(--border-d5cbb8);
+      border-radius: 8px;
+      padding: 2px;
+      flex-shrink: 0;
+    }
+    .pill-opt {
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--ink-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .pill-opt.active {
+      background: var(--ink-primary);
+      color: var(--text-ffffff);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .hotkey-recorder {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 78px;
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      font-family: monospace;
+      background: var(--bg-faf6ed);
+      border: 1.5px solid var(--border-d8cebc);
+      border-radius: 7px;
+      color: var(--ink-primary);
+      cursor: pointer;
+      transition: all 0.18s;
+      outline: none;
+    }
+    .hotkey-recorder:hover {
+      border-color: var(--paper-border-dark);
+      background: var(--bg-ffffff);
+    }
+    .hotkey-recorder.recording {
+      border-color: var(--ink-accent);
+      background: var(--bg-fff5f2);
+      color: var(--ink-accent);
+      box-shadow: 0 0 0 2px rgba(140, 63, 43, 0.18);
+    }
+    .btn-action {
+      padding: 3px 9px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid var(--paper-border);
+      background: var(--bg-faf8f2);
+      border-radius: 7px;
+      cursor: pointer;
+      color: var(--ink-secondary);
+      transition: all 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-action:hover {
+      background: var(--bg-efe9dd);
+      color: var(--ink-primary);
+      border-color: var(--paper-border-dark);
+    }
+  </style>
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="utilities.css">
+</head>
+<body class="p-0 m-0 bg-[var(--bg-f0eae0)] overflow-hidden">
+
+  <!-- 全窗口容器 (精致内嵌边框与圆润质感) -->
+  <div id="app-root" class="w-full h-screen relative flex overflow-hidden rounded-[20px] border border-[color:var(--border-ddd4c4)] window-entrance">
+
+    <!-- 窗口四边缘与四角无痕拉伸热区 (最大化时自动隐藏，绝不遮挡右上角控制按键) -->
+    <div id="window-resize-edges" class="pointer-events-auto">
+      <!-- 顶部：left-6 到 right-[140px]，完美避开右上角窗口控制按钮 -->
+      <div onmousedown="triggerResize('top', event)" ondblclick="toggleMaximize()" class="fixed top-0 left-6 right-[140px] h-2.5 cursor-ns-resize z-40"></div>
+      <!-- 底部 -->
+      <div onmousedown="triggerResize('bottom', event)" class="fixed bottom-0 left-6 right-6 h-3 cursor-ns-resize z-40"></div>
+      <!-- 左边缘 -->
+      <div onmousedown="triggerResize('left', event)" class="fixed top-6 bottom-6 left-0 w-3 cursor-ew-resize z-40"></div>
+      <!-- 右边缘 -->
+      <div onmousedown="triggerResize('right', event)" class="fixed top-6 bottom-6 right-0 w-3 cursor-ew-resize z-40"></div>
+      <!-- 左上角 -->
+      <div onmousedown="triggerResize('top-left', event)" class="fixed top-0 left-0 w-6 h-6 cursor-nwse-resize z-40"></div>
+      <!-- 右上角 -->
+      <div onmousedown="triggerResize('top-right', event)" class="fixed top-0 right-0 w-4 h-4 cursor-nesw-resize z-30"></div>
+      <!-- 左下角 -->
+      <div onmousedown="triggerResize('bottom-left', event)" class="fixed bottom-0 left-0 w-6 h-6 cursor-nesw-resize z-40"></div>
+      <!-- 右下角 -->
+      <div onmousedown="triggerResize('bottom-right', event)" class="fixed bottom-0 right-0 w-6 h-6 cursor-nwse-resize z-40"></div>
+    </div>
+
+    <div class="flex flex-1 h-full overflow-hidden">
+
+      <!-- ==================== 左侧侧边栏 (全面统一图二精巧风格) ==================== -->
+      <aside class="w-68 paper-sidebar flex flex-col justify-between p-3.5 shrink-0 z-20 shadow-xs h-full">
+        <div class="space-y-3.5 flex flex-col flex-1 min-h-0">
+          
+          <!-- 用户身份卡片 (移除多余邮箱，紧凑精炼) -->
+          <div class="flex items-center space-x-3 px-3.5 py-2.5 bg-gradient-to-b from-[var(--bg-24211d)] to-[var(--bg-181614)] border-1.5 border-[color:var(--border-3e382e)] rounded-2xl shrink-0 shadow-[0_4px_16px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.08)] hover:border-[color:var(--border-52493c)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.22)] transition-all duration-300">
+            <div class="relative group shrink-0">
+              <img id="sidebar-avatar" 
+                   src="./avatar.svg" 
+                   class="w-9 h-9 rounded-full border-1.5 border-[color:var(--border-3e382e)] ring-2 tone-ring-bfa882-50 object-cover shadow-xs" 
+                   alt="Avatar">
+              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[var(--bg-2e8b57)] ring-2 ring-[color:var(--border-181614)] shadow-xs"></span>
+            </div>
+            <div class="overflow-hidden flex-1 flex items-center justify-between gap-2">
+              <div class="overflow-hidden">
+                <span id="sidebar-account-context" class="text-[9px] font-extrabold text-[color:var(--text-a8987e)] block uppercase tracking-wider leading-none mb-0.5">当前账号</span>
+                <h1 id="sidebar-name" class="text-[12.5px] font-black text-[color:var(--text-f6f2e9)] truncate leading-tight tracking-tight">未选择账号</h1>
+              </div>
+              <span class="badge-tier-pro px-2 py-0.5 rounded-md text-[9.5px] tracking-wider shrink-0" id="sidebar-tier" style="display: none;">PRO</span>
+            </div>
+          </div>
+
+          <!-- 页面主导航 (滑块胶囊 - 规范图二样式) -->
+          <div class="relative space-y-1 p-1 bg-[var(--bg-e4dcce)] rounded-2xl border border-[color:var(--border-d3c8b5)] shrink-0 shadow-inner" id="nav-container">
+            <div id="nav-spring-pill" 
+                 class="absolute left-1 w-[calc(100%-8px)] rounded-xl ink-solid shadow-md transition-all duration-300 pointer-events-none z-0"
+                 style="height: 38px; top: 4px; transform: translateY(0px); transition-timing-function: var(--spring-pill);">
+            </div>
+
+            <button id="nav-usage" onclick="switchNav('usage', this)" class="nav-item active relative z-10 w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-bold transition-colors duration-200">
+              <svg class="w-4 h-4 text-[color:var(--text-7db58b)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+              <span>用量统计看板</span>
+            </button>
+
+            <button id="nav-accounts" onclick="switchNav('accounts', this)" class="nav-item relative z-10 w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold transition-colors duration-200">
+              <svg class="w-4 h-4 text-[color:var(--text-8a8172)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+              <span>账号管理与配额</span>
+              <span id="sidebar-accounts-count" class="ml-auto text-[10px] bg-[var(--bg-d7cdbb)] text-[color:var(--text-423d34)] font-bold px-1.5 py-0.2 rounded badge-count">2</span>
+            </button>
+
+            <button id="nav-daily" onclick="switchNav('daily', this)" class="nav-item relative z-10 w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold transition-colors duration-200">
+              <svg class="w-4 h-4 text-[color:var(--text-8a8172)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              <span>每日消耗流水</span>
+              <span id="sidebar-daily-badge" class="ml-auto text-[10px] bg-[var(--bg-d7cdbb)] text-[color:var(--text-423d34)] font-bold px-1.5 py-0.2 rounded badge-count">23天</span>
+            </button>
+          </div>
+
+          <!-- 侧边栏账号直切托盘 (极高质感暖玉牛皮纸) -->
+          <div id="sidebar-accounts-section" class="hidden pt-2.5 border-t border-[color:var(--border-dfd5c3)] shrink-0 space-y-2">
+            <div class="flex items-center justify-between px-1 shrink-0">
+              <p class="text-[11px] font-extrabold text-[color:var(--text-786e5d)] tracking-wider flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-[var(--bg-bfa882)]"></span>快速切换账号
+              </p>
+            </div>
+
+            <div id="sidebar-accounts-box" class="p-1.5 tone-bg-e6decf-70 rounded-2xl border tone-border-d5c9b3-80 shadow-[inset_0_1px_3px_rgba(40,30,15,0.06)]">
+              <div id="sidebar-accounts-list" class="space-y-2">
+                <!-- 动态渲染账号卡片 -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 弹性空间占位，自然撑托底部开关 -->
+          <div class="flex-1 min-h-[16px]"></div>
+
+        </div>
+
+        <!-- 底部设置入口 -->
+        <div class="pt-2.5 border-t border-[color:var(--border-dfd5c3)] space-y-2 shrink-0">
+          <button onclick="openSettingsModal()" class="w-full py-2.5 px-3 rounded-xl bg-[var(--bg-ebe4d6)] hover:bg-[var(--bg-e2d9c8)] border border-[color:var(--border-d8cfbe)] shadow-2xs flex items-center justify-between transition-all cursor-pointer group">
+            <div class="flex items-center space-x-2.5">
+              <svg class="settings-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h6m4 0h6M4 17h10m4 0h2"/><circle cx="12" cy="7" r="2"/><circle cx="16" cy="17" r="2"/></svg>
+              <span class="text-[12px] font-bold text-[color:var(--text-23201c)] tracking-wide">设置</span>
+            </div>
+            <svg class="w-3.5 h-3.5 text-[color:var(--text-8a8172)] group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+
+          <div class="flex items-center justify-between text-[11px] text-[color:var(--text-7a7264)] px-1 font-sans">
+            <span class="font-bold tracking-tight text-[color:var(--text-4a4337)]">Antigravity Hub</span>
+            <span class="flex items-center space-x-1.5 text-[color:var(--text-2a2723)] font-semibold">
+              <span class="w-1.5 h-1.5 rounded-full bg-[var(--bg-3c804f)]"></span>
+              <span>本地运行</span>
+            </span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ==================== 右侧主内容区 ==================== -->
+      <main class="flex-1 flex flex-col h-full overflow-hidden bg-[var(--bg-f7f5ee)]">
+
+        <!-- 顶部动态标题横栏 (44px 紧凑高度) -->
+        <header class="h-11 paper-header px-5 flex items-center justify-between shrink-0 z-10" onmousedown="handleHeaderMouseDown(event)" ondblclick="if(!event.target.closest('button,input,select')) toggleMaximize()">
+          <div class="flex items-center space-x-2.5 pointer-events-none">
+            <span class="w-2 h-2 rounded-full bg-[var(--bg-1e1d1a)]"></span>
+            <h2 id="header-page-title" class="text-xs font-bold text-[color:var(--text-1e1d1a)] tracking-wider">用量统计看板</h2>
+          </div>
+
+          <!-- 右侧动作区与极简窗口控制 -->
+          <div class="flex items-center space-x-2.5 pointer-events-auto" onmousedown="event.stopPropagation()">
+            <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" aria-label="切换主题" title="切换主题"><svg viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></svg></button>
+            <button id="btn-refresh" onclick="refreshData()" class="gentle-bounce flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[color:var(--text-2a2723)] bg-white hover:bg-[var(--bg-f2ece0)] active:scale-97 border border-[color:var(--border-d5ccba)] rounded-xl shadow-2xs cursor-pointer transition-all">
+              <svg id="refresh-icon" class="w-3.5 h-3.5 text-[color:var(--text-5a5449)] transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              <span id="refresh-label">刷新</span>
+            </button>
+            <button onclick="minimizeWindow()" class="w-7 h-7 rounded-lg hover:bg-[var(--bg-eae2d3)] flex items-center justify-center text-xs text-[color:var(--text-5a5449)] transition-colors cursor-pointer" title="最小化">
+              ―
+            </button>
+            <button onclick="toggleMaximize()" class="w-7 h-7 rounded-lg hover:bg-[var(--bg-eae2d3)] flex items-center justify-center text-xs text-[color:var(--text-5a5449)] transition-colors cursor-pointer" title="最大化 / 还原">
+              <svg class="w-3 h-3 text-[color:var(--text-5a5449)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" stroke-width="2.5"></rect></svg>
+            </button>
+            <button onclick="closeWindow()" class="w-7 h-7 rounded-lg hover:bg-[var(--bg-8c3f2b)] hover:text-white flex items-center justify-center text-xs text-[color:var(--text-5a5449)] transition-colors cursor-pointer" title="关闭">
+              ✕
+            </button>
+          </div>
+        </header>
+
+        <!-- 页面 1: 用量统计看板 -->
+        <div id="view-usage" class="view-panel flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+
+          <!-- 4 组全量关键指标卡 -->
+          <div class="grid grid-cols-4 gap-4">
+            
+            <div class="paper-card p-3.5 space-y-1.5 gentle-bounce relative overflow-hidden">
+              <div class="flex items-center justify-between">
+                <span class="text-[10.5px] font-bold text-[color:var(--text-8a8172)]">今日消耗 (TODAY)</span>
+                <span id="stat-today-cost" class="text-[10px] font-bold px-1.5 py-0.5 rounded tone-bg-d4a338-15 text-[color:var(--text-9e6c18)] border tone-border-d4a338-30">¥0.00</span>
+              </div>
+              <div id="stat-today-val" class="text-2xl font-black text-[color:var(--text-276b38)] num-cell tracking-tight">0</div>
+              
+              <!-- 结构比例微型条 (蓝:输入 / 棕:缓存 / 绿:输出与思考) -->
+              <div class="space-y-1 pt-0.5">
+                <div class="w-full bg-[var(--bg-eae2d2)] h-1.5 rounded-full flex overflow-hidden">
+                  <div id="today-bar-cache" class="bg-[var(--bg-b87a28)] h-full transition-all duration-500" style="width: 90%;" title="缓存读取"></div>
+                  <div id="today-bar-in" class="bg-[var(--bg-2b6cb0)] h-full transition-all duration-500" style="width: 8%;" title="纯新输入"></div>
+                  <div id="today-bar-out" class="bg-[var(--bg-3c804f)] h-full transition-all duration-500" style="width: 2%;" title="模型输出与思考"></div>
+                </div>
+                <div class="flex items-center justify-between text-[9.5px] text-[color:var(--text-7a7367)]">
+                  <span id="stat-today-cache-pct" class="font-bold text-[color:var(--text-9e6518)]">缓存读取 90%</span>
+                  <span id="stat-today-reqs" class="num-cell">0 次会话</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="paper-card p-3.5 space-y-1 gentle-bounce">
+              <div class="flex items-center justify-between">
+                <span class="text-[10.5px] font-bold text-[color:var(--text-8a8172)]">7 天消耗 (7 DAYS)</span>
+                <span id="stat-7d-cost" class="text-[9.5px] font-bold px-1.5 py-0.5 rounded tone-bg-d4a338-15 text-[color:var(--text-9e6c18)] border tone-border-d4a338-30">¥0.00</span>
+              </div>
+              <div id="stat-7d-val" class="text-2xl font-black text-[color:var(--text-276b38)] num-cell tracking-tight">0</div>
+              <div id="stat-7d-exact" class="text-[10px] text-[color:var(--text-7a7367)] num-cell">0 tokens</div>
+            </div>
+
+            <div class="paper-card p-3.5 space-y-1 gentle-bounce">
+              <div class="flex items-center justify-between">
+                <span class="text-[10.5px] font-bold text-[color:var(--text-8a8172)]">30 天消耗 (30 DAYS)</span>
+                <span id="stat-30d-cost" class="text-[9.5px] font-bold px-1.5 py-0.5 rounded tone-bg-d4a338-15 text-[color:var(--text-9e6c18)] border tone-border-d4a338-30">¥0.00</span>
+              </div>
+              <div id="stat-30d-val" class="text-2xl font-black text-[color:var(--text-276b38)] num-cell tracking-tight">0</div>
+              <div id="stat-30d-exact" class="text-[10px] text-[color:var(--text-7a7367)] num-cell">0 tokens</div>
+            </div>
+
+            <div class="paper-card p-3.5 space-y-1 gentle-bounce">
+              <div class="flex items-center justify-between">
+                <span class="text-[10.5px] font-bold text-[color:var(--text-8a8172)]">总累计消耗 (ALL-TIME)</span>
+                <span id="stat-total-cost" class="text-[9.5px] font-bold px-1.5 py-0.5 rounded tone-bg-d4a338-15 text-[color:var(--text-9e6c18)] border tone-border-d4a338-30">¥0.00</span>
+              </div>
+              <div id="stat-total-val" class="text-2xl font-black text-[color:var(--text-276b38)] num-cell tracking-tight">0</div>
+              <div id="stat-total-exact" class="text-[10px] text-[color:var(--text-7a7367)] num-cell">0 tokens</div>
+            </div>
+
+          </div>
+
+          <!-- Hero 主看板：实时全量会话追踪与全量构成图谱 -->
+          <div class="paper-hero p-5 relative overflow-hidden flex items-center justify-between">
+            <div class="space-y-2 z-10 max-w-xl flex-1">
+              <div class="flex items-center space-x-2">
+                <span id="hero-title" class="text-xs font-extrabold text-[color:var(--text-2a2723)] uppercase tracking-wider">今日实时全量会话追踪</span>
+                <span id="hero-badge" class="text-[9.5px] bg-[var(--bg-1e1d1a)] text-[color:var(--text-f7f5ee)] font-bold px-2 py-0.5 rounded-full">Full Context Stream</span>
+              </div>
+              <div class="flex items-baseline space-x-3">
+                <span id="hero-today-exact" class="text-3xl font-black text-[color:var(--text-276b38)] num-cell tracking-tight">0</span>
+                <span id="hero-subtext" class="text-xs font-bold text-[color:var(--text-5a5449)]">Tokens · 包含上下文与思考</span>
+                <span title="项目参考估值，不代表订阅账单；新版本可能按家族费率估算，缓存存储费未计入。" id="hero-cost-badge" class="text-[10.5px] font-bold px-2 py-0.5 rounded-full tone-bg-d4a338-15 text-[color:var(--text-9e6c18)] border tone-border-d4a338-30">¥0.00</span>
+              </div>
+
+              <!-- 全量构成细分标签 -->
+              <div class="pt-1.5 flex flex-wrap items-center gap-3 text-[11px] font-medium">
+                <span class="flex items-center gap-1.5 text-[color:var(--text-2b6cb0)]">
+                  <span class="w-2 h-2 rounded-xs bg-[var(--bg-2b6cb0)]"></span>
+                  <span id="hero-chip-in">纯新输入 <b>0</b> (0%)</span>
+                </span>
+                <span class="flex items-center gap-1.5 text-[color:var(--text-b87a28)]">
+                  <span class="w-2 h-2 rounded-xs bg-[var(--bg-b87a28)]"></span>
+                  <span id="hero-chip-cache">缓存命中 <b>0</b> (0%)</span>
+                </span>
+                <span class="flex items-center gap-1.5 text-[color:var(--text-3c804f)]">
+                  <span class="w-2 h-2 rounded-xs bg-[var(--bg-3c804f)]"></span>
+                  <span id="hero-chip-out">生成与思考 <b>0</b> (0%)</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- 主力模型徽章 (Google 官方原图 1:1 纯正四角星，大号视觉占比) -->
+            <div class="z-10 bg-white border border-[color:var(--border-ddd3c2)] p-3 rounded-2xl shadow-xs flex items-center space-x-3 shrink-0">
+              <div class="text-right">
+                <div id="hero-model-title" class="text-[10px] font-bold text-[color:var(--text-8a8172)]">今日主力模型</div>
+                <div id="hero-top-model-name" class="text-xs font-black text-[color:var(--text-1e1d1a)]">gemini-3.8-flash</div>
+                <div id="hero-top-model-pct" class="text-[10.5px] font-bold text-[color:var(--text-3c804f)] num-cell">占比 0%</div>
+              </div>
+              
+              <!-- 放大版官方原图 Gemini 四角星容器 -->
+              <div class="w-11 h-11 rounded-2xl bg-[var(--bg-f6f2e9)] border border-[color:var(--border-e2dac8)] flex items-center justify-center shadow-xs">
+                <svg class="w-8 h-8" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd" 
+                        d="M46.00 80.50C48.67 86.58 50.00 93.08 50.00 100.00C50.00 93.08 51.29 86.58 53.88 80.50C56.54 74.42 60.12 69.13 64.62 64.63C69.13 60.13 74.42 56.58 80.50 54.00C86.58 51.33 93.08 50.00 100.00 50.00C93.08 50.00 86.58 48.71 80.50 46.13C74.42 43.46 69.13 39.88 64.62 35.38C60.12 30.88 56.54 25.58 53.88 19.50C51.29 13.42 50.00 6.92 50.00 0.00C50.00 6.92 48.67 13.42 46.00 19.50C43.42 25.58 39.88 30.88 35.38 35.38C30.88 39.88 25.58 43.46 19.50 46.13C13.42 48.71 6.92 50.00 0.00 50.00C6.92 50.00 13.42 51.33 19.50 54.00C25.58 56.58 30.88 60.13 35.38 64.63C39.88 69.13 43.42 74.42 46.00 80.50Z" 
+                        fill="url(#gemini-official-sparkle)" />
+                  <defs>
+                    <linearGradient id="gemini-official-sparkle" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#439DDF"/>
+                      <stop offset="48%" stop-color="#4F87ED"/>
+                      <stop offset="76%" stop-color="#9476C5"/>
+                      <stop offset="90%" stop-color="#BC688E"/>
+                      <stop offset="100%" stop-color="#D6645D"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- 热力图区域 (支持年 / 月切换) -->
+          <div class="paper-card p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 id="heat-title" class="text-xs font-bold text-[color:var(--text-1e1d1a)]">月度消耗日历</h3>
+              </div>
+
+              <!-- 年 / 月切换胶囊按键 (优先展示月日历) -->
+              <div class="flex items-center space-x-3">
+                <div class="flex items-center p-1 bg-[var(--bg-e4dcce)] rounded-xl border border-[color:var(--border-d3c8b5)] text-[11px] font-bold">
+                  <button id="btn-heat-month" onclick="setHeatMode('month')" class="px-2.5 py-1 rounded-lg transition-all duration-200 bg-[var(--bg-1e1d1a)] text-white shadow-2xs cursor-pointer">
+                    月度日历
+                  </button>
+                  <button id="btn-heat-year" onclick="setHeatMode('year')" class="px-2.5 py-1 rounded-lg transition-all duration-200 text-[color:var(--text-5a5449)] hover:text-[color:var(--text-1e1d1a)] cursor-pointer">
+                    年度视图
+                  </button>
+                </div>
+
+                <!-- 强度标识 -->
+                <div class="flex items-center space-x-1 text-[10px] text-[color:var(--text-8a8172)]">
+                  <span id="heatmap-scale-label">当期用量 · 少</span>
+                  <div class="w-2.5 h-2.5 rounded-xs heat-l-0"></div>
+                  <div class="w-2.5 h-2.5 rounded-xs heat-l-1"></div>
+                  <div class="w-2.5 h-2.5 rounded-xs heat-l-2"></div>
+                  <div class="w-2.5 h-2.5 rounded-xs heat-l-3"></div>
+                  <div class="w-2.5 h-2.5 rounded-xs heat-l-4"></div>
+                  <span>多</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 1. 月日历视图：左右拓宽拉满 w-full + 单行紧凑单元格 -->
+            <div id="heatmap-month-wrap" class="space-y-2 w-full">
+              <div class="flex items-center justify-between px-1">
+                <span id="month-cal-title" class="text-xs font-bold text-[color:var(--text-1e1d1a)]">2026年9月</span>
+                <div class="flex items-center space-x-1.5">
+                  <button onclick="prevMonth()" class="px-2.5 py-0.5 text-xs bg-white border border-[color:var(--border-ddd3c2)] rounded-lg hover:bg-[var(--bg-f2ece0)] cursor-pointer shadow-2xs font-medium">◀ 上月</button>
+                  <button onclick="nextMonth()" class="px-2.5 py-0.5 text-xs bg-white border border-[color:var(--border-ddd3c2)] rounded-lg hover:bg-[var(--bg-f2ece0)] cursor-pointer shadow-2xs font-medium">下月 ▶</button>
+                </div>
+              </div>
+              <div class="grid grid-cols-7 gap-1.5 text-center text-[10px] font-bold text-[color:var(--text-8a8172)] pb-1 border-b border-[color:var(--border-e7dec9)]">
+                <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+              </div>
+              <div id="month-cal-grid" class="grid grid-cols-7 gap-1.5 pt-0.5">
+                <!-- 动态由 JS 生成紧凑横向单行单元格 -->
+              </div>
+            </div>
+
+            <!-- 2. 年视图：全宽自适应拉伸铺满 + 月份刻度标尺 + 紧凑微型化矩阵 -->
+            <div id="heatmap-year-wrap" class="hidden space-y-2.5 w-full">
+              <!-- 年度活跃遥测条 (覆盖天数、连续打卡、年度消耗、年日均) -->
+              <div class="grid grid-cols-4 gap-2.5 p-2.5 bg-[var(--bg-faf8f3)] rounded-xl border border-[color:var(--border-ebe3d3)] text-xs">
+                <div>
+                  <span class="text-[10px] text-[color:var(--text-8a8172)] block font-semibold">近 52 周活跃天数</span>
+                  <b id="year-stat-days" class="text-xs font-black text-[color:var(--text-1e1d1a)] num-cell">—</b>
+                </div>
+                <div>
+                  <span class="text-[10px] text-[color:var(--text-8a8172)] block font-semibold">连续打卡活跃</span>
+                  <b id="year-stat-streak" class="text-xs font-black text-[color:var(--text-3c804f)] num-cell">—</b>
+                </div>
+                <div>
+                  <span class="text-[10px] text-[color:var(--text-8a8172)] block font-semibold">近 52 周 Tokens</span>
+                  <b id="year-stat-tokens" class="text-xs font-black text-[color:var(--text-1e1d1a)] num-cell">—</b>
+                </div>
+                <div>
+                  <span class="text-[10px] text-[color:var(--text-8a8172)] block font-semibold">活跃日均消耗</span>
+                  <b id="year-stat-avg" class="text-xs font-black text-[color:var(--text-3c804f)] num-cell">—</b>
+                </div>
+              </div>
+
+              <!-- 月份刻度标尺轴 -->
+              <div id="year-month-axis" class="relative h-3 ml-6 mr-1 text-[9.5px] font-bold text-[color:var(--text-8a8172)]"></div>
+
+              <!-- 年度自适应平铺拉伸网格 -->
+              <div class="flex items-center gap-2 w-full">
+                <!-- 星期指引 -->
+                <div class="flex flex-col justify-between h-[76px] text-[9px] font-bold text-[color:var(--text-8a8172)] shrink-0 py-0.5">
+                  <span>一</span>
+                  <span>三</span>
+                  <span>五</span>
+                </div>
+                <!-- 全年网格均匀伸展撑满 -->
+                <div id="heatmap-grid-year" class="flex justify-between items-center flex-1 w-full gap-0.5 sm:gap-1">
+                  <!-- 动态由 JS 生成 -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 模型用量分布 -->
+          <div class="paper-card p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <h3 class="text-xs font-bold text-[color:var(--text-1e1d1a)]">模型调度占比画像</h3>
+                <span id="model-scope-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[var(--bg-eae3d5)] text-[color:var(--text-5a5449)] border border-[color:var(--border-ddd3c2)]">全量累计</span>
+              </div>
+              <button id="model-reset-scope-btn" onclick="resetModelScope()" class="hidden text-[10px] text-[color:var(--text-8a8172)] hover:text-[color:var(--text-1e1d1a)] transition-colors cursor-pointer flex items-center gap-1">
+                <span>恢复当月</span>
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div id="model-distribution-list" class="space-y-2.5">
+              <!-- 动态填充 -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 页面 2: 账号管理与配额 -->
+        <div id="view-accounts" class="view-panel hidden flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+          
+          <div class="flex items-center justify-between border-b border-[color:var(--border-e3d9c7)] pb-3">
+            <h3 class="text-base font-black text-[color:var(--text-1e1d1a)] tracking-tight">Google 账号凭据库</h3>
+            
+            <div class="flex items-center space-x-2">
+              <button onclick="openImportModal()" class="gentle-bounce flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-[var(--bg-1e1d1a)] hover:bg-[var(--bg-38342e)] rounded-xl shadow-xs cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                <span>导入账号凭据</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 账号卡片详细列表 -->
+          <div id="accounts-full-list" class="grid grid-cols-2 gap-4">
+            <!-- 动态填充 -->
+          </div>
+
+
+
+        </div>
+
+        <!-- 页面 3: 每日消耗流水 (全量分类与明细，现代高清平滑排版) -->
+        <div id="view-daily" class="view-panel hidden flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4">
+          
+          <!-- 顶部分类控制与统计摘要 (与图二风格完全看齐) -->
+          <div class="flex items-center justify-between pb-2 border-b border-[color:var(--border-e3d9c7)]">
+            <!-- 分类切换 Segmented Tabs：移除了粗糙 Emoji，采用与图二一致的精致 SVG 图标与胶囊 -->
+            <div class="flex items-center p-1 bg-[var(--bg-e4dcce)] rounded-2xl border border-[color:var(--border-d3c8b5)] text-xs font-semibold shadow-inner">
+              <button id="flow-tab-day" onclick="switchFlowMode('day')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl transition-all duration-200 bg-[var(--bg-1e1d1a)] text-white shadow-2xs cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-[color:var(--text-7db58b)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span>按日明细</span>
+              </button>
+              <button id="flow-tab-week" onclick="switchFlowMode('week')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl transition-all duration-200 text-[color:var(--text-5c5549)] hover:text-[color:var(--text-1e1d1a)] cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-[color:var(--text-8a8172)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                <span>按周归档</span>
+              </button>
+              <button id="flow-tab-month" onclick="switchFlowMode('month')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl transition-all duration-200 text-[color:var(--text-5c5549)] hover:text-[color:var(--text-1e1d1a)] cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-[color:var(--text-8a8172)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                <span>按月汇总</span>
+              </button>
+            </div>
+
+            <!-- 月份快速过滤下拉 (仅在日模式下显示，纯宣纸质感定制组件) -->
+            <div id="flow-month-filter-wrap" class="relative inline-block text-left">
+              <div class="flex items-center space-x-2">
+                <span class="text-xs text-[color:var(--text-7a7367)] font-semibold">月份筛选:</span>
+                <button type="button" id="month-dropdown-btn" onclick="toggleMonthDropdown(event)" 
+                  class="flex items-center space-x-2 px-3 py-1.5 bg-white hover:bg-[var(--bg-faf8f2)] active:bg-[var(--bg-f2ece0)] border border-[color:var(--border-ddd3c2)] rounded-xl text-xs font-semibold text-[color:var(--text-1e1d1a)] shadow-2xs transition-all cursor-pointer">
+                  <svg class="w-3.5 h-3.5 text-[color:var(--text-8a8172)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span id="selected-month-text">全部月份 (全量记录)</span>
+                  <svg id="month-chevron" class="w-3.5 h-3.5 text-[color:var(--text-8a8172)] transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+              </div>
+
+              <!-- 宣纸风格浮层菜单 -->
+              <div id="month-dropdown-menu" class="hidden absolute right-0 mt-1.5 w-52 bg-[var(--bg-faf8f2)] border border-[color:var(--border-d5ccba)] rounded-2xl shadow-xl p-1.5 z-50 transition-all duration-150 transform opacity-0 scale-95 origin-top-right">
+                <!-- 动态生成宣纸月份条目 -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 组关键数据动态摘要条 (随月份切换实时动态重算) -->
+          <div class="grid grid-cols-4 gap-3 text-xs">
+            <div class="bg-white p-3 rounded-xl border border-[color:var(--border-e7dec9)] space-y-0.5">
+              <span id="flow-summary-days-label" class="text-[color:var(--text-8a8172)] text-[10.5px] font-semibold">记录覆盖</span>
+              <div id="flow-summary-days" class="text-lg font-black text-[color:var(--text-1e1d1a)] num-cell">0 天</div>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-[color:var(--border-e7dec9)] space-y-0.5">
+              <span id="flow-summary-total-label" class="text-[color:var(--text-8a8172)] text-[10.5px] font-semibold">周期累计 Token</span>
+              <div id="flow-summary-total" class="text-lg font-black text-[color:var(--text-276b38)] num-cell">0</div>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-[color:var(--border-e7dec9)] space-y-0.5">
+              <span id="flow-summary-avg-label" class="text-[color:var(--text-8a8172)] text-[10.5px] font-semibold">全期日均消耗</span>
+              <div id="flow-summary-avg" class="text-lg font-black text-[color:var(--text-276b38)] num-cell">0</div>
+            </div>
+            <div class="bg-white p-3 rounded-xl border border-[color:var(--border-e7dec9)] space-y-0.5">
+              <span id="flow-summary-peak-label" class="text-[color:var(--text-8a8172)] text-[10.5px] font-semibold">单日最高峰值</span>
+              <div id="flow-summary-peak" class="text-lg font-black text-[color:var(--text-8c3f2b)] num-cell">-</div>
+            </div>
+          </div>
+
+          <!-- 1. 按日流水列表 (全量 7 列结构，对齐 TokenTracker 标准) -->
+          <div id="flow-view-day" class="paper-card overflow-hidden">
+            <div class="overflow-x-auto custom-scrollbar">
+              <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
+                <thead>
+                  <tr class="border-b border-[color:var(--border-e7e1d4)] bg-[var(--bg-f9f7f1)] text-[11px] font-bold text-[color:var(--text-70695e)]">
+                    <th class="py-2.5 px-4 font-semibold">日期</th>
+                    <th class="py-2.5 px-4 font-semibold text-[color:var(--text-276b38)]">全量消耗 (Total)</th>
+                    <th class="py-2.5 px-4 font-semibold text-[color:var(--text-9e6c18)]">参考估值</th>
+                    <th class="py-2.5 px-4 font-semibold">纯新输入</th>
+                    <th class="py-2.5 px-4 font-semibold">缓存读取 (Cache)</th>
+                    <th class="py-2.5 px-4 font-semibold">模型输出</th>
+                    <th class="py-2.5 px-4 font-semibold">思考推理</th>
+                    <th class="py-2.5 px-4 font-semibold">会话频次</th>
+                  </tr>
+                </thead>
+                <tbody id="daily-table-body" class="flow-rows">
+                  <!-- 动态由 JS 填充 -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 2. 按周汇总列表 -->
+          <div id="flow-view-week" class="hidden space-y-3">
+            <div id="week-cards-container" class="space-y-2.5">
+              <!-- 动态由 JS 填充 -->
+            </div>
+          </div>
+
+          <!-- 3. 按月汇总列表 -->
+          <div id="flow-view-month" class="hidden space-y-3">
+            <div id="month-cards-container" class="space-y-3">
+              <!-- 动态由 JS 填充 -->
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- 尊享磨砂黑晶悬浮提示框 -->
+  <div id="floating-tooltip" class="fixed opacity-0 z-50 tone-bg-181715-95 backdrop-blur-md text-[color:var(--text-faf7ee)] p-3 rounded-2xl pointer-events-none text-xs space-y-2 border border-[color:var(--border-3e382e)] shadow-[0_12px_28px_rgba(0,0,0,0.38),0_0_0_1px_rgba(255,255,255,0.06)] -translate-x-1/2 -translate-y-full transition-opacity duration-150 min-w-[170px]">
+    <div id="tt-date" class="font-black text-[12px] tracking-tight text-[color:var(--text-faf7ee)] border-b border-[color:var(--border-363128)] pb-1.5 flex items-center justify-between gap-3"></div>
+    <div class="flex items-center justify-between gap-4 text-[11.5px] pt-0.5">
+      <span class="text-[color:var(--text-a39886)] font-semibold">Token 消耗:</span>
+      <span id="tt-tokens" class="num-cell font-black text-[12.5px] text-[color:var(--text-6fd08c)]"></span>
+    </div>
+    <div class="flex items-center justify-between gap-4 text-[11.5px]">
+      <span class="text-[color:var(--text-a39886)] font-semibold">参考估值:</span>
+      <span id="tt-cost" class="num-cell font-black text-[12.5px] text-[color:var(--text-e5b558)]"></span>
+    </div>
+    <div class="flex items-center justify-between gap-4 text-[11.5px]">
+      <span class="text-[color:var(--text-a39886)] font-semibold">会话交互:</span>
+      <span id="tt-reqs" class="num-cell font-bold text-[11.5px] text-[color:var(--text-eae4d8)]"></span>
+    </div>
+  </div>
+
+  <!-- 导入账号模态弹窗 (支持点击蒙层空白处即时退出) -->
+  <div id="import-modal" onclick="if(event.target === this) closeImportModal()" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden cursor-pointer">
+    <div class="paper-card w-[500px] rounded-2xl overflow-hidden flex flex-col shadow-2xl page-slide-in cursor-default" onclick="event.stopPropagation()">
+      
+      <!-- 弹窗顶栏 -->
+      <div class="px-6 pt-5 pb-4 border-b border-[color:var(--border-eae2d3)] flex items-center justify-between bg-[var(--bg-fdfcfa)]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-[var(--bg-1e1d1a)] text-white flex items-center justify-center shadow-xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-[color:var(--text-1e1d1a)]">添加与导入账号</h3>
+            <p class="text-[11px] text-[color:var(--text-787060)]">选择录入渠道，自动同步配额与会话统计</p>
+          </div>
+        </div>
+        <button onclick="closeImportModal()" class="w-7 h-7 rounded-lg hover:bg-[var(--bg-eae2d3)] flex items-center justify-center text-xs font-bold text-[color:var(--text-5a5449)] transition-colors cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <!-- 选项卡导航 (胶囊切换) -->
+      <div class="px-6 pt-4 pb-2 bg-[var(--bg-faf8f4)] border-b border-[color:var(--border-ece4d4)]">
+        <div class="grid grid-cols-3 gap-1.5 p-1 bg-[var(--bg-ece5d6)] rounded-xl text-xs font-semibold text-[color:var(--text-665e4f)]">
+          <button id="tab-btn-oauth" onclick="switchImportTab('oauth')" class="py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer bg-white text-[color:var(--text-1e1d1a)] shadow-xs font-bold">
+            <svg class="w-3.5 h-3.5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            Google 授权
+          </button>
+          <button id="tab-btn-client" onclick="switchImportTab('client')" class="py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:text-[color:var(--text-1e1d1a)]">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            识别客户端
+          </button>
+          <button id="tab-btn-json" onclick="switchImportTab('json')" class="py-2 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer hover:text-[color:var(--text-1e1d1a)]">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            本地 JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 1: Google 官方授权 -->
+      <div id="tab-content-oauth" class="p-6 space-y-4">
+        <!-- 初始就绪状态 -->
+        <div id="oauth-idle-state" class="space-y-4">
+          <div class="bg-[var(--bg-faf8f4)] border border-[color:var(--border-ece4d4)] p-4 rounded-xl flex items-start gap-3.5">
+            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004.07 3.93m-.07 10.07A8 8 0 0112 3c1.552 0 3.018.441 4.263 1.205"/></svg>
+            </div>
+            <div class="space-y-1">
+              <h4 class="text-xs font-bold text-[color:var(--text-1e1d1a)]">浏览器官方授权</h4>
+              <p class="text-[11px] text-[color:var(--text-6a6354)] leading-relaxed">
+                在浏览器中登录 Google 账号完成授权，自动同步 Token 与配额，可添加任意新账号。
+              </p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <button onclick="startGoogleOAuth()" class="gentle-bounce w-full py-3 bg-[var(--bg-1e1d1a)] hover:bg-[var(--bg-33302b)] text-white rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+              <svg class="w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+              <span>开始 Google 授权登录</span>
+            </button>
+            <p class="text-center text-[10px] text-[color:var(--text-8c8474)]">基于官方客户端凭据 · 仅用于拉取模型用量与配额</p>
+          </div>
+        </div>
+
+        <!-- 授权进行中等待状态 -->
+        <div id="oauth-loading-state" class="hidden space-y-4 py-2">
+          <div class="text-center space-y-3">
+            <div class="w-10 h-10 rounded-full bg-[var(--bg-1e1d1a)] text-white mx-auto flex items-center justify-center animate-spin">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-[color:var(--text-1e1d1a)]">正在等待浏览器授权...</h4>
+              <p class="text-[11px] text-[color:var(--text-6a6354)] mt-0.5">请在浏览器中完成登录并允许权限</p>
+            </div>
+          </div>
+
+          <!-- 双轨应急容灾输入框 -->
+          <div class="border border-[#E4DCB] rounded-xl p-3 bg-[var(--bg-faf8f4)] space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-[color:var(--text-554e41)]">未自动跳转？手动粘贴链接或 Code：</span>
+              <button onclick="copyCurrentAuthUrl()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-[var(--bg-e8e1d2)] hover:bg-[var(--bg-dfd7c6)] active:scale-97 text-[color:var(--text-332f27)] rounded-lg transition-all shadow-2xs cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-[color:var(--text-554e41)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>复制授权链接</span>
+              </button>
+            </div>
+            <div class="space-y-1.5">
+              <input id="manual-oauth-code" type="text" placeholder="粘贴浏览器地址栏中的完整重定向 URL 或 Code..." class="w-full text-xs px-3 py-2.5 bg-white border border-[color:var(--border-ddd5c5)] rounded-xl focus:outline-none focus:border-[color:var(--border-1e1d1a)] focus:ring-1 focus:ring-[color:var(--border-1e1d1a)] text-[color:var(--text-1e1d1a)] placeholder-[#9C9484] transition-all">
+              <div class="flex justify-end gap-2">
+                <button onclick="cancelGoogleOAuth()" class="px-3 py-1.5 text-xs font-semibold text-[color:var(--text-736b5c)] hover:text-[color:var(--text-1e1d1a)] cursor-pointer">
+                  取消
+                </button>
+                <button onclick="submitManualOAuthCode()" class="px-4 py-1.5 text-xs font-bold bg-[var(--bg-1e1d1a)] text-white rounded-lg hover:bg-[var(--bg-33302b)] cursor-pointer">
+                  提交
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: 识别 Antigravity 客户端 -->
+      <div id="tab-content-client" class="hidden p-6 space-y-4">
+        <div class="bg-[var(--bg-faf8f4)] border border-[color:var(--border-ece4d4)] p-4 rounded-xl flex items-start gap-3.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-200">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-xs font-bold text-[color:var(--text-1e1d1a)]">识别 Antigravity 客户端</h4>
+            <p class="text-[11px] text-[color:var(--text-6a6354)] leading-relaxed">
+              直接读取本机当前已登录的 Antigravity 账号。
+            </p>
+          </div>
+        </div>
+
+        <!-- 客户端状态卡片 -->
+        <div class="p-3 bg-[var(--bg-faf8f4)] border border-[color:var(--border-ece4d4)] rounded-xl flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span id="client-status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="client-status-text" class="font-bold text-[color:var(--text-353128)]">正在检查客户端登录凭据…</span>
+          </div>
+          <span id="client-status-badge" class="text-[10px] font-semibold text-amber-700 bg-amber-100/60 px-2 py-0.5 rounded">检测中</span>
+        </div>
+
+        <button onclick="importFromCurrentLogin()" class="gentle-bounce w-full py-3 bg-[var(--bg-1e1d1a)] hover:bg-[var(--bg-33302b)] text-white rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          <span>一键读取当前账号</span>
+        </button>
+      </div>
+
+      <!-- Tab 3: 本地导入 JSON -->
+      <div id="tab-content-json" class="hidden p-6 space-y-4">
+        <div class="border-2 border-dashed border-[color:var(--border-d5ccba)] hover:border-[color:var(--border-1e1d1a)] rounded-xl p-6 text-center space-y-3 bg-[var(--bg-fdfcfa)] transition-colors cursor-pointer" onclick="importFromJsonFile()">
+          <div class="w-10 h-10 rounded-full bg-[var(--bg-efe9dc)] text-[color:var(--text-4f483b)] mx-auto flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-[color:var(--text-1e1d1a)]">选择 accounts.json 文件</h4>
+            <p class="text-[11px] text-[color:var(--text-7a7365)] mt-1">支持拖拽文件至此处</p>
+          </div>
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-[var(--bg-ece5d6)] text-[color:var(--text-4a4336)] rounded-full text-xs font-medium">
+            支持单账号或多账号 JSON
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 删除账号确认弹窗 (支持点击蒙层空白处退出) -->
+  <div id="delete-modal" onclick="if(event.target === this) closeDeleteModal()" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden cursor-pointer">
+    <div class="bg-[var(--bg-f7f5ee)] border border-[color:var(--border-dfd6c5)] w-[400px] rounded-2xl shadow-2xl p-6 space-y-4 page-slide-in cursor-default" onclick="event.stopPropagation()">
+      <div class="flex items-center space-x-2.5 text-[color:var(--text-8c3f2b)]">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <h3 class="text-sm font-bold text-[color:var(--text-1e1d1a)]">确认从管理列表中删除账号？</h3>
+      </div>
+      <p class="text-xs text-[color:var(--text-5a5449)] leading-relaxed">
+        即将删除账号：<b id="delete-target-email" class="text-[color:var(--text-1e1d1a)]"></b>。<br>
+        删除后本地账号记录将被清理，若需再次使用需重新登录或导入。
+      </p>
+      <div class="pt-2 flex justify-end space-x-2">
+        <button onclick="closeDeleteModal()" class="px-4 py-2 bg-[var(--bg-efe9de)] hover:bg-[#E5DECEDE] text-[color:var(--text-423d34)] font-bold rounded-xl text-xs transition-colors cursor-pointer">
+          取消
+        </button>
+        <button onclick="executeDeleteAccount()" class="px-4 py-2 bg-[var(--bg-8c3f2b)] hover:bg-[var(--bg-733323)] text-white font-bold rounded-xl text-xs transition-colors cursor-pointer shadow-xs">
+          确认删除
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 系统设置模态弹窗 (结构统一·单行紧凑) -->
+  <div id="settings-modal" onclick="if(event.target === this) closeSettingsModal()" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden cursor-pointer">
+    <div class="settings-dialog paper-card w-[520px] rounded-2xl overflow-hidden flex flex-col shadow-2xl page-slide-in cursor-default" onclick="event.stopPropagation()">
+      
+      <!-- 弹窗顶栏 -->
+      <div class="px-5 py-3.5 border-b border-[color:var(--border-eae2d3)] flex items-center justify-between bg-[var(--bg-fdfcfa)]">
+        <div class="flex items-center gap-2.5">
+          <div class="settings-header-icon">
+            <svg class="settings-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h6m4 0h6M4 17h10m4 0h2"/><circle cx="12" cy="7" r="2"/><circle cx="16" cy="17" r="2"/></svg>
+          </div>
+          <h3 class="text-xs font-bold text-[color:var(--text-1e1d1a)]">设置</h3>
+        </div>
+        <button onclick="closeSettingsModal()" class="w-7 h-7 rounded-lg hover:bg-[var(--bg-eae2d3)] flex items-center justify-center text-xs font-bold text-[color:var(--text-5a5449)] transition-colors cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <!-- 弹窗主体 -->
+      <div class="p-5 max-h-[500px] overflow-y-auto custom-scrollbar space-y-3.5 bg-[var(--bg-faf8f2)]">
+        
+        <div class="setting-group client-settings-group">
+          <div class="setting-group-title">Antigravity</div>
+          <div class="setting-item"><div><div class="setting-item-name">界面汉化</div></div><label class="switch"><input type="checkbox" id="set-client-hans"><span class="slider"></span></label></div>
+          <div class="setting-item bordered"><div class="setting-item-name">思维链汉化</div><label class="switch"><input type="checkbox" id="set-thinking-hans"><span class="slider"></span></label></div>
+          <div class="setting-item bordered"><div><div class="setting-item-name">自定义窗口尺寸</div></div><label class="switch"><input type="checkbox" id="set-client-size" onchange="updateClientSizeInputs()"><span class="slider"></span></label></div>
+          <div class="client-size-fields"><label>宽度 <input id="client-width" type="number" min="640" max="7680" step="1" value="1400" aria-label="客户端窗口宽度"></label><span>×</span><label>高度 <input id="client-height" type="number" min="480" max="4320" step="1" value="900" aria-label="客户端窗口高度"></label></div>
+          <p id="client-size-error" class="client-size-error" role="alert"></p>
+          <div class="setting-item bordered"><span class="setting-item-name">显示状态栏</span><label class="switch"><input type="checkbox" id="set-hud"><span class="slider"></span></label></div>
+          <p id="client-enhancement-status" class="client-setting-note hidden" role="status"></p>
+        </div>
+        <div class="setting-group"><div class="setting-group-title">外观</div><div class="setting-item"><span class="setting-item-name">主题</span><div class="pill-selector"><button id="theme-system" class="pill-opt" onclick="selectTheme('system',this)">跟随系统</button><button id="theme-light" class="pill-opt" onclick="selectTheme('light',this)">纸色</button><button id="theme-dark" class="pill-opt" onclick="selectTheme('dark',this)">墨色</button></div></div></div>
+        <!-- 1. 运行 -->
+        <div class="setting-group">
+          <div class="setting-group-title">运行</div>
+
+          <div class="setting-item">
+            <div class="setting-item-name">关闭时最小化到托盘</div>
+            <label class="switch">
+              <input type="checkbox" id="set-tray">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item bordered">
+            <div class="setting-item-name">开机启动</div>
+            <label class="switch">
+              <input type="checkbox" id="set-autostart">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="setting-item bordered">
+            <div class="setting-item-name">启动时最小化到托盘</div>
+            <label class="switch">
+              <input type="checkbox" id="set-start-min">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          
+        </div>
+
+        <!-- 2. 全局快捷键 -->
+        <div class="setting-group">
+          <div class="setting-group-title">全局快捷键</div>
+
+          <div class="setting-item">
+            <div class="setting-item-name">显示 / 隐藏 Hub</div>
+            <div class="flex items-center gap-2">
+              <button type="button" id="hotkey-btn" onclick="startRecordHotkey()" class="hotkey-recorder" title="点击录入新按键">
+                Alt + A
+              </button>
+              <label class="switch">
+                <input type="checkbox" id="set-hotkey">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. 货币 -->
+        <div class="setting-group">
+          <div class="setting-group-title">货币</div>
+
+          <div class="setting-item">
+            <div class="setting-item-name">显示货币</div>
+            <div class="pill-selector">
+              <button id="opt-cny" onclick="setSettingCurrency('CNY')" class="pill-opt active">¥ 人民币</button>
+              <button id="opt-usd" onclick="setSettingCurrency('USD')" class="pill-opt">$ 美元</button>
+            </div>
+          </div>
+
+          <div class="setting-item bordered">
+            <div class="setting-item-name">美元汇率</div>
+            <div class="text-[11px] font-bold text-[color:var(--text-9e6c18)] tone-bg-d4a338-15 border tone-border-d4a338-30 px-2 py-0.5 rounded num-cell">
+              1 USD = <span id="modal-rate-val">7.24</span> CNY
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. 数据 -->
+        <div class="setting-group">
+          <div class="setting-group-title">数据</div>
+
+          <div class="setting-item">
+            <div class="setting-item-name">刷新间隔</div>
+            <div class="pill-selector">
+              <button id="poll-15" class="pill-opt" onclick="setSettingPollInterval(15)">15 秒</button>
+              <button id="poll-30" class="pill-opt active" onclick="setSettingPollInterval(30)">30 秒</button>
+              <button id="poll-60" class="pill-opt" onclick="setSettingPollInterval(60)">60 秒</button>
+            </div>
+          </div>
+
+          <div class="setting-item bordered">
+            <div class="setting-item-name">本地用量数据目录</div>
+            <button onclick="openDataFolder()" class="btn-action">打开目录</button>
+          </div>
+        </div>
+
+      </div>
+
+
+
+    </div>
+  </div>
+
+  <div id="client-restart-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden" onclick="if(event.target === this) closeClientRestartPrompt()">
+    <div class="client-restart-dialog paper-card rounded-2xl shadow-2xl page-slide-in" role="dialog" aria-modal="true" aria-labelledby="client-restart-title" aria-describedby="client-restart-message" onclick="event.stopPropagation()">
+      <h2 id="client-restart-title">设置已保存</h2>
+      <button id="client-restart-dismiss" class="client-restart-dismiss" onclick="closeClientRestartPrompt()" aria-label="稍后重启">✕</button>
+      <div class="client-restart-row">
+        <p id="client-restart-message" role="status">重启 Antigravity 后生效</p>
+        <button id="client-restart-button" class="client-restart-button" onclick="restartAntigravityClient()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 6.1a8.3 8.3 0 0 1 13.4 3.1M4.5 14.8a8.3 8.3 0 0 0 13.4 3.1"/></svg><span id="client-restart-button-label">重启 Antigravity</span></button>
+      </div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+

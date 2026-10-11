@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.0" />
+    <Compile Include="../../src/AntigravityHub/TrayPlacement.cs" Link="Current/TrayPlacement.cs" />
+    <Compile Include="../../src/AntigravityHub/OAuthCallback.cs" Link="Current/OAuthCallback.cs" />
+    <Compile Include="../../src/AntigravityHub/AtomicFile.cs" Link="Current/AtomicFile.cs" />
+    <Compile Include="../../src/AntigravityHub/UsageRepository.cs" Link="Current/UsageRepository.cs" />
+    <Compile Include="../../src/AntigravityHub/UsageDecoder.cs" Link="Current/UsageDecoder.cs" />
+    <Compile Include="../../src/AntigravityHub/AccountSafety.cs" Link="Current/AccountSafety.cs" />
+    <Compile Include="../../src/AntigravityHub/IdeActivity.cs" Link="Current/IdeActivity.cs" />
+    <Compile Include="../../src/AntigravityHub/ModelPricingService.cs" Link="Current/ModelPricingService.cs" />
+    <Compile Include="../../src/AntigravityHub/AccountMetadata.cs" Link="Current/AccountMetadata.cs" />
+    <Compile Include="../../src/AntigravityHub/BrowserPolicy.cs" Link="Current/BrowserPolicy.cs" />
+    <Compile Include="../../src/AntigravityHub/ClientRestartService.cs" Link="Current/ClientRestartService.cs" />
+    <Compile Include="../../src/AntigravityHub/RefreshCoordinator.cs" Link="Current/RefreshCoordinator.cs" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.12" />
+    <Compile Include="../../src/AntigravityHub/NativeTokenTracker.cs" Link="Original/NativeTokenTracker.cs" />
+    <Compile Include="../../src/AntigravityHub/TokenStatsService.cs" Link="Original/TokenStatsService.cs" />
+    <Compile Include="../../src/AntigravityHub/SettingsService.cs" Link="Original/SettingsService.cs" />
+    <Compile Include="../../src/AntigravityHub/Models.cs" Link="Original/Models.cs" />
+    <Compile Include="../../src/AntigravityHub/JsonOpts.cs" Link="Original/JsonOpts.cs" />
+    <Compile Include="../../src/AntigravityHub/AccountService.cs" Link="Original/AccountService.cs" />
+    <Compile Include="../../src/AntigravityHub/CredentialManager.cs" Link="Original/CredentialManager.cs" />
+    <Compile Include="../../src/AntigravityHub/CurrentLoginCredentials.cs" Link="Current/CurrentLoginCredentials.cs" />
+    <Compile Include="../../src/AntigravityHub/OAuthConfiguration.cs" Link="Current/OAuthConfiguration.cs" />
+    <Compile Include="../../src/AntigravityHub/Logger.cs" Link="Original/Logger.cs" />
+  </ItemGroup>
+</Project>

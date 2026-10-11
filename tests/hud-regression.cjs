@@ -1,0 +1,27 @@
+const assert=require('node:assert/strict'),{EventEmitter}=require('node:events'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
+const handlers=new Map(),webContents={id:1,mainFrame:{url:'https://127.0.0.1:2079/'}};
+const event={sender:webContents,senderFrame:webContents.mainFrame};const moduleMock={exports:{}};
+const sockets=[];let response={available:true,accounts:[{id:'fixture-account'}]},requests=[];
+const net={createConnection(){const s=new EventEmitter();s.setEncoding=()=>{};s.setTimeout=()=>{};s.destroy=()=>{};s.write=msg=>{requests.push(JSON.parse(msg));queueMicrotask(()=>s.emit('data',JSON.stringify(response)+'\n'));};sockets.push(s);queueMicrotask(()=>s.emit('connect'));return s;}};
+let clock=Date.now();const clockDate=class extends Date {static now(){return clock;}};
+const context=vm.createContext({module:moduleMock,require:name=>name==='node:net'?net:require(name),URL,Date:clockDate,Promise,queueMicrotask,Error,Buffer});
+vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/AntigravityHub/integration/hub-hud-main.js'),'utf8'),context);
+const api=moduleMock.exports;api.install({ipcMain:{handle:(name,fn)=>handlers.set(name,fn)},BrowserWindow:{fromWebContents:w=>w===webContents?{}:null}});
+(async()=>{
+ assert.equal(api.trusted(event,{fromWebContents:()=>({})}),true);
+ for(const url of ['https://example.com/','http://127.0.0.1:2079/','https://127.0.0.1.evil/','file:///C:/x'])assert.equal(api.trusted({...event,senderFrame:{url}},{fromWebContents:()=>({})}),false);
+ assert.equal(api.trusted({...event,senderFrame:{url:event.senderFrame.url}},{fromWebContents:()=>({})}),false);
+ const snap=await handlers.get('hub-hud:snapshot')(event);assert.equal(snap.available,true);assert.equal(requests.length,1);
+ await handlers.get('hub-hud:snapshot')(event);assert.equal(requests.length,1);
+ assert.equal(await handlers.get('hub-hud:switch')(event,'not-listed'),false);assert.equal(requests.length,1);
+ response={ok:false};assert.equal(await handlers.get('hub-hud:switch')(event,'fixture-account'),false);
+ response={ok:true};assert.equal(await handlers.get('hub-hud:switch')(event,'fixture-account'),true);
+ clock+=3000;response={available:true,enabled:false,accounts:[{id:'fixture-account'}]};
+ assert.equal((await handlers.get('hub-hud:snapshot')(event)).enabled,false);
+ const beforeDisabled=requests.length;assert.equal(await handlers.get('hub-hud:switch')(event,'fixture-account'),false);assert.equal(requests.length,beforeDisabled);
+ clock+=3000;response={available:false};assert.equal((await handlers.get('hub-hud:snapshot')(event)).available,false);
+ clock+=800;response={available:true,enabled:true,accounts:[{id:'fixture-account'}]};assert.equal((await handlers.get('hub-hud:snapshot')(event)).available,true);
+ assert.equal((await handlers.get('hub-hud:snapshot')({...event,senderFrame:{url:'https://example.com/'}})).available,false);
+ const preload=fs.readFileSync(path.join(__dirname,'../src/AntigravityHub/integration/hud-preload.js'),'utf8');new vm.Script(preload);assert(!preload.includes('exposeInMainWorld'));assert(preload.includes('e.isTrusted'));assert(preload.includes('input-send-button-record-tooltip'));assert(preload.includes('打开 AntigravityHub'));assert(!preload.includes('v1.2'));
+ console.log('PASS: HUD sender/frame boundaries, account allowlist, cache/rate limit, failed switch, isolated preload.');
+})().catch(e=>{console.error(e);process.exit(1);});

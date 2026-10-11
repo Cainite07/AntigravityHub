@@ -1,0 +1,139 @@
+<Window x:Class="AntigravityHub.TrayPopupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AntigravityHub"
+        Width="278"
+        SizeToContent="Height"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        Topmost="True"
+        ResizeMode="NoResize"
+        WindowStartupLocation="Manual"
+        FontFamily="Microsoft YaHei UI, Segoe UI, -apple-system, sans-serif">
+    <Window.Resources>
+        <Style x:Key="FlatButton" TargetType="Button">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" 
+                                Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="7" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Opacity" Value="0.88"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="10">
+        <Border Background="#FAF8F2"
+                BorderBrush="#D5CBB8"
+                BorderThickness="1"
+                CornerRadius="14">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="5" Direction="270" Color="#20180F" Opacity="0.22"/>
+            </Border.Effect>
+            <StackPanel>
+                <StackPanel.LayoutTransform><ScaleTransform ScaleX="0.96" ScaleY="0.96"/></StackPanel.LayoutTransform>
+                <!-- 1. 今日用量紧凑横栏 (纯展示当日总额，无冗余折叠) -->
+                <Border Background="#F4EFE4" 
+                        BorderBrush="#E8E0D2" 
+                        BorderThickness="0,0,0,1" 
+                        CornerRadius="14,14,0,0" 
+                        Padding="12,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="今日用量与参考估值" FontSize="10" FontWeight="Bold" Foreground="#635B4E"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                <TextBlock x:Name="TxtTodayTokens" Text="0" FontSize="17" FontWeight="Black" Foreground="#276B38"/>
+                                <TextBlock Text=" Tokens" FontSize="9.5" Foreground="#8C8372" VerticalAlignment="Bottom" Margin="3,0,0,2"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+                            <Border Background="#E8DFC0" 
+                                    BorderBrush="#D9CEBA" 
+                                    BorderThickness="1" 
+                                    CornerRadius="4" 
+                                    Padding="5,1" 
+                                    Margin="0,0,0,3" 
+                                    HorizontalAlignment="Right">
+                                <TextBlock x:Name="TxtTodayRounds" Text="0 轮交互" FontSize="9" FontWeight="SemiBold" Foreground="#574F42"/>
+                            </Border>
+                            <Border Background="#FDF3DE" 
+                                    BorderBrush="#EED39E" 
+                                    BorderThickness="1" 
+                                    CornerRadius="4" 
+                                    Padding="5,1" 
+                                    HorizontalAlignment="Right">
+                                <TextBlock x:Name="TxtTodayCost" Text="¥0.00" FontSize="9.5" FontWeight="Bold" Foreground="#9E6C18"/>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- 2. 账号切换区域 -->
+                <StackPanel Margin="10,8,10,8">
+                    <TextBlock Text="切换账号" FontSize="11" FontWeight="Bold" Foreground="#4A4337" Margin="2,0,0,6"/>
+                    <ScrollViewer x:Name="AccountsScroll" MaxHeight="420" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel x:Name="AccountsPanel">
+                        <!-- 动态填充账号卡片 -->
+                    </StackPanel>
+                    </ScrollViewer>
+                </StackPanel>
+
+                <!-- 3. 底部操作栏 -->
+                <Border Background="#F2ECE0" 
+                        BorderBrush="#E8E0D2" 
+                        BorderThickness="0,1,0,0" 
+                        CornerRadius="0,0,14,14" 
+                        Padding="10,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="52"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" 
+                                Style="{StaticResource FlatButton}" 
+                                Background="#1E1D1A" 
+                                Foreground="White" 
+                                Height="28" 
+                                Click="OpenDashboard_Click">
+                            <TextBlock Text="打开主面板" FontSize="11" FontWeight="Bold"/>
+                        </Button>
+                        <Button Grid.Column="2" 
+                                Style="{StaticResource FlatButton}" 
+                                Background="#E8DFCF" 
+                                BorderBrush="#D5CBB8" 
+                                BorderThickness="1" 
+                                Foreground="#5A5348" 
+                                Height="28" 
+                                Click="Exit_Click">
+                            <TextBlock Text="退出" FontSize="11" FontWeight="Bold"/>
+                        </Button>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

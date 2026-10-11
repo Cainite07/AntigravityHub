@@ -1,0 +1,16 @@
+{
+  "versions": {
+    "2.19.1": {
+      "utils": "6f01d746963c0cd964dbcb057ed34374c129c4381b5ebddd2509ca37b12519a7",
+      "tray": "6c6b0968b45a1c7088e459657d57a9efd72d3733614349095f17b6ee94b47135",
+      "patchedUtils": "103b0a2ac7e93fb3fa004820fae1640ee6f8b47bd0fc69706fccc40305a084c3",
+      "patchedTray": "c32333e53e469e2826611105ca95e30ac99523e0808a503af33b8c6ca2f8178d"
+    },
+    "2.22.0": {
+      "utils": "6f01d746963c0cd964dbcb057ed34374c129c4381b5ebddd2509ca37b12519a7",
+      "tray": "6c6b0968b45a1c7088e459657d57a9efd72d3733614349095f17b6ee94b47135",
+      "patchedUtils": "103b0a2ac7e93fb3fa004820fae1640ee6f8b47bd0fc69706fccc40305a084c3",
+      "patchedTray": "c32333e53e469e2826611105ca95e30ac99523e0808a503af33b8c6ca2f8178d"
+    }
+  }
+}

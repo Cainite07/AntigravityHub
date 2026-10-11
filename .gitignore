@@ -1,0 +1,57 @@
+# Builds, dependencies and local tools
+**/bin/
+**/obj/
+**/node_modules/
+**/__pycache__/
+*.pyc
+.vs/
+.vscode/
+work/
+artifacts/
+outputs/
+publish/
+*.user
+*.suo
+tests/frontend-current.js
+tests/*-results.json
+
+# Official application archives, local jobs, backups and evidence
+client/release-*/base/
+client/maintenance/state/
+*.asar
+*.asar.unpacked/
+*.exe
+*.dll
+*.pdb
+*.zip
+*.log
+
+# Accounts, credentials and personal usage must never be committed
+.antigravity_hub/
+.gemini/
+.env
+.env.*
+!.env.example
+accounts/
+accounts.json
+oauth_creds.json
+hans-config.json
+app_settings.json
+model_pricing.json
+tokens.jsonl
+cursors.json
+real_data.json
+*.sqlite*
+*.db
+*.dat
+*.pem
+*.key
+*.pfx
+*.bak
+
+# Bundled runtime binaries are prepared by Build-Release.ps1
+client/runtime/
+
+# Local development notes and private trial history
+docs/history/
+docs/LOCAL_TRIAL_*.md
