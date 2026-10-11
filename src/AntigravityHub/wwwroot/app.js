@@ -1801,6 +1801,7 @@ let currentNav = 'usage';
     }
 
     function startGoogleOAuth() {
+      currentAuthUrl = '';
       const idle = document.getElementById('oauth-idle-state');
       const loading = document.getElementById('oauth-loading-state');
       if (idle) idle.classList.add('hidden');
@@ -2739,8 +2740,17 @@ let currentNav = 'usage';
             showToast(message, success || msg.data.cancelled || msg.data.Cancelled);
             renderFullAccountsList(currentAccountsList);
           } else if (msg.type === 'oauthStarted') {
-            if (msg.data && msg.data.authUrl) {
-              currentAuthUrl = msg.data.authUrl;
+            const data = msg.data || {};
+            const success = data.success ?? data.Success;
+            const authUrl = data.authUrl || data.AuthUrl;
+            if (success === true && authUrl) {
+              currentAuthUrl = authUrl;
+            } else {
+              resetOAuthModalState();
+              const message = data.message || data.Message || '无法开始 Google 授权，请重试。';
+              showToast(message.includes('尚未配置 OAuth 客户端')
+                ? 'Google 授权尚未配置，请使用「识别客户端」导入已登录账号。'
+                : message, false);
             }
           } else if (msg.type === 'oauthCancelled') {
             resetOAuthModalState();

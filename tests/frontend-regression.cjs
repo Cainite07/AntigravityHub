@@ -433,6 +433,34 @@ check('47. Backend/frontend readiness is acknowledged once, after rendering live
   handler({data:{type:'hubData',data:{accounts:[],stats:{dailyRecords:[],models:[]}}}});
   assert.equal(posted.filter(x=>x.action==='hubUpdateReady').length,before+(before?0:1));
 });
+check('48. Failed OAuth startup exits waiting and explains missing configuration',()=>{
+  run("currentAuthUrl='https://accounts.google.com/stale';startGoogleOAuth()");
+  assert.equal(run('currentAuthUrl'),'');
+  assert(!el('oauth-loading-state').classList.contains('hidden'));
+  webviewListeners.get('message')({data:{type:'oauthStarted',data:{success:false,message:'启动本地监听服务失败: 尚未配置 OAuth 客户端。'}}});
+  assert(el('oauth-loading-state').classList.contains('hidden'));
+  assert(!el('oauth-idle-state').classList.contains('hidden'));
+  assert.equal(run('currentAuthUrl'),'');
+  assert(document.body.children.at(-1).innerHTML.includes('识别客户端'));
+});
+check('49. OAuth listener errors remain visible; successful starts retain the usable link',()=>{
+  run('startGoogleOAuth()');
+  webviewListeners.get('message')({data:{type:'oauthStarted',data:{success:false,message:'本地授权端口不可用'}}});
+  assert(document.body.children.at(-1).innerHTML.includes('本地授权端口不可用'));
+  run('startGoogleOAuth()');
+  const authUrl='https://accounts.google.com/o/oauth2/v2/auth?fixture=1';
+  webviewListeners.get('message')({data:{type:'oauthStarted',data:{success:true,authUrl}}});
+  assert.equal(run('currentAuthUrl'),authUrl);
+  assert(!el('oauth-loading-state').classList.contains('hidden'));
+});
+check('50. Incomplete OAuth start replies cannot leave an endless waiting state',()=>{
+  for(const data of [null,{success:true},{success:false}]){
+    run('startGoogleOAuth()');
+    webviewListeners.get('message')({data:{type:'oauthStarted',data}});
+    assert(el('oauth-loading-state').classList.contains('hidden'));
+    assert.equal(run('currentAuthUrl'),'');
+  }
+});
 console.log(passed.map(x => 'PASS ' + x).join('\n'));
 fs.writeFileSync(path.join(__dirname, 'frontend-regression-results.json'), JSON.stringify({ passed }, null, 2));
 

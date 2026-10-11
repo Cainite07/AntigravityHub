@@ -14,6 +14,8 @@
 
 ## OAuth 本地配置
 
+首次使用建议选择「识别客户端」，导入 Antigravity 中已经登录的账号。没有本地 OAuth 配置时，直接 Google 授权不可用，界面会提示改用客户端导入。
+
 公开源码不包含 OAuth 客户端 ID / secret。本机试用沿用已有配置，配置存入用户目录的 DPAPI 加密 `oauth_client.dat`，不进入项目目录或发布包。Google 授权、访问令牌刷新等路径需要与你的客户端 / 服务相匹配的 OAuth 配置。不能假定任意新建 Google OAuth 客户端都能访问 Antigravity 内部接口。
 
 在自己的 Windows 用户环境中设置 `ANTIGRAVITY_OAUTH_CLIENT_ID` 和 `ANTIGRAVITY_OAUTH_CLIENT_SECRET` 后，重新打开 Hub。值只保存在本机环境中，不应写入源代码或提交 Git。
