@@ -71,6 +71,8 @@ $packageReadme = @'
 
 请保留程序旁边的文件和文件夹。账号与设置保存在用户目录中，更新时保留。
 '@
+$version = ([xml](Get-Content -LiteralPath (Join-Path $PSScriptRoot 'src\AntigravityHub\AntigravityHub.csproj') -Raw)).Project.PropertyGroup.Version
+$packageReadme = $packageReadme.Replace('RELEASE_NOTES_1.4.0.md', "RELEASE_NOTES_$version.md")
 [IO.File]::WriteAllText((Join-Path $OutputPath 'README.md'), $packageReadme + "`n", (New-Object Text.UTF8Encoding($false)))
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'LICENSE') -Destination $OutputPath -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'THIRD-PARTY-NOTICES.md') -Destination $OutputPath -Force
@@ -78,7 +80,7 @@ Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'licenses') -Destination $Output
 $docsRoot = Join-Path $PSScriptRoot 'docs'
 Get-ChildItem -LiteralPath $docsRoot -File -Recurse | ForEach-Object {
     $relative = $_.FullName.Substring($docsRoot.Length + 1)
-    if ($relative -in @('USAGE.md','CLIENT_ENHANCEMENTS.md','RELEASE_NOTES_1.4.0.md')) {
+    if ($relative -in @('USAGE.md','CLIENT_ENHANCEMENTS.md','RELEASE_NOTES_1.4.0.md', "RELEASE_NOTES_$version.md")) {
         $destination = Join-Path (Join-Path $OutputPath 'docs') $relative
         New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
         Copy-Item -LiteralPath $_.FullName -Destination $destination -Force
