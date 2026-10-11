@@ -1,3 +1,4 @@
+
 # AntigravityHub
 
 Antigravity 辅助工具：把账号、配额、用量看板、客户端状态栏，以及界面与思维链汉化和窗口设置放进同一个 Hub。
@@ -5,6 +6,7 @@ Antigravity 辅助工具：把账号、配额、用量看板、客户端状态�
 [下载 Windows 版](https://github.com/Cainite07/AntigravityHub/releases/latest) · [版本说明](docs/RELEASE_NOTES_1.3.3.md) · [MIT 许可证](LICENSE)
 
 **v1.3.3 · Windows x64 · 客户端增强适配 Antigravity 2.22.0**
+
 
 ## 界面预览
 
@@ -60,6 +62,7 @@ Antigravity 辅助工具：把账号、配额、用量看板、客户端状态�
 
 </details>
 
+
 ## 功能
 
 - **账号管理**：读取当前客户端登录、导入与切换账号，查看订阅、Gemini／Claude 的 5 小时与每周额度，以及重置时间。
@@ -74,6 +77,7 @@ Antigravity 辅助工具：把账号、配额、用量看板、客户端状态�
 
 状态栏速率是**当前会话已完成请求的加权平均值**：有效正文输出 token 总量除以对应的流式生成总时长，不计首 token 等待与工具执行时间。约每 3 秒刷新；无有效记录时显示 `—`，切换会话时清空旧值。速率统计不上传会话内容。
 
+
 ## 快速开始
 
 1. 从 [Releases](https://github.com/Cainite07/AntigravityHub/releases/latest) 下载 Windows x64 压缩包。
@@ -82,6 +86,7 @@ Antigravity 辅助工具：把账号、配额、用量看板、客户端状态�
 4. 在设置页开启需要的汉化或调整窗口尺寸；需要重启时可点击提醒中的按钮。
 
 需要 **Windows x64** 和 **Microsoft Edge WebView2 Runtime**。完整发布包已经包含 .NET、Node.js、Python 运行组件，无需另外安装。
+
 
 ## 使用与设置
 
@@ -93,6 +98,7 @@ Antigravity 辅助工具：把账号、配额、用量看板、客户端状态�
 
 首次使用默认开启「关闭时最小化到托盘」和「启动时最小化到托盘」，可在设置中调整；已有用户保存的选择保留。更多细节见 [使用与配置](docs/USAGE.md)。
 
+
 ## 账号与本地数据
 
 授权登录与令牌刷新需要匹配 Antigravity 服务的本地 OAuth 配置，公开源码和发布包不包含客户端 ID／secret。已有有效令牌可直接读取；没有 OAuth 配置时仍可查看本地用量。配置方式见 [OAuth 本地配置](docs/USAGE.md#oauth-本地配置)。
@@ -100,6 +106,7 @@ Antigravity 辅助工具：把账号、配额、用量看板、客户端状态�
 账号、加密令牌、用量数据库和设置保存在 `%USERPROFILE%\.antigravity_hub`。用量金额按参考费率估算，并非实际订阅账单。
 
 客户端增强目前仅适配 **Antigravity 2.22.0 Windows x64**。客户端升级后如不兼容，维护器会拒绝修改；已经打过旧补丁的客户端可能需要提供同版本原版包。接入与回退步骤见 [客户端增强说明](docs/CLIENT_ENHANCEMENTS.md)。
+
 
 ## 构建与验证
 
