@@ -7,6 +7,9 @@ param(
 $ErrorActionPreference = 'Stop'
 $OutputPath = [IO.Path]::GetFullPath($OutputPath)
 $RuntimeCache = [IO.Path]::GetFullPath($RuntimeCache)
+if ((Test-Path -LiteralPath $OutputPath) -and (Get-ChildItem -LiteralPath $OutputPath -Force | Select-Object -First 1)) {
+    throw '请选择一个空的发布目录，避免把旧文件或本地数据带入发布包。'
+}
 New-Item -ItemType Directory -Path $RuntimeCache,$OutputPath -Force | Out-Null
 function Get-VerifiedArchive([string]$Name,[string]$Url,[string]$Sha256) {
     $file = Join-Path $RuntimeCache $Name
@@ -25,7 +28,7 @@ try {
     & (Join-Path $nodeRoot 'npm.cmd') ci --ignore-scripts --no-audit --no-fund
     if ($LASTEXITCODE -ne 0) { throw 'Dependency preparation failed.' }
 } finally { Pop-Location }
-& $DotnetPath publish (Join-Path $PSScriptRoot 'src\AntigravityHub') -c Release -r win-x64 --self-contained true -o $OutputPath --nologo
+& $DotnetPath publish (Join-Path $PSScriptRoot 'src\AntigravityHub') -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false -o $OutputPath --nologo
 if ($LASTEXITCODE -ne 0) { throw 'Publish failed.' }
 $runtime = Join-Path $OutputPath 'client\runtime'
 $nodeDest = Join-Path $runtime 'node'
@@ -43,4 +46,14 @@ Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'README.md') -Destination $Outpu
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'LICENSE') -Destination $OutputPath -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'THIRD-PARTY-NOTICES.md') -Destination $OutputPath -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'licenses') -Destination $OutputPath -Recurse -Force
+$docsRoot = Join-Path $PSScriptRoot 'docs'
+Get-ChildItem -LiteralPath $docsRoot -File -Recurse | ForEach-Object {
+    $relative = $_.FullName.Substring($docsRoot.Length + 1)
+    if ($relative -notmatch '^(history[\\/]|LOCAL_TRIAL_)') {
+        $destination = Join-Path (Join-Path $OutputPath 'docs') $relative
+        New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+        Copy-Item -LiteralPath $_.FullName -Destination $destination -Force
+    }
+}
+& (Join-Path $PSScriptRoot 'Write-UpdateManifest.ps1') -Path $OutputPath
 Write-Output "Ready: $OutputPath"

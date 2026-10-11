@@ -15,6 +15,8 @@ namespace AntigravityHub
     {
         private readonly AccountService _accountService;
         private readonly SettingsService _settingsService;
+        private readonly HubUpdateService _hubUpdates;
+        private bool _updateNotified;
         private readonly TokenStatsService _tokenStatsService;
         private readonly GlobalHotkeyService _hotkeyService;
         private TrayService? _trayService;
@@ -269,6 +271,18 @@ namespace AntigravityHub
                 });
             };
             _settingsService = new SettingsService();
+            _hubUpdates = new HubUpdateService(AppContext.BaseDirectory);
+            if (HubUpdateInstaller.StartupFailed) _hubUpdates.ReportRollback();
+            _hubUpdates.Changed += status => Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (_isExplicitExit) return;
+                SendHubUpdateStatus();
+                if (status.State == "available" && !_updateNotified)
+                {
+                    _updateNotified = true;
+                    if (!IsVisible || WindowState == WindowState.Minimized) _trayService?.ShowUpdateAvailable(status.LatestVersion);
+                }
+            }));
             _tokenStatsService = new TokenStatsService(_settingsService);
             _hotkeyService = new GlobalHotkeyService();
             var initialSettings = _settingsService.GetSettings();
@@ -476,6 +490,7 @@ namespace AntigravityHub
         public async Task StartServicesAsync()
         {
             _ = PrepareClientComponentsAsync();
+            if (_settingsService.GetSettings().CheckUpdatesOnStartup && !HubUpdateInstaller.StartupFailed) _ = _hubUpdates.CheckAsync(_appCts.Token);
             Microsoft.Win32.SystemEvents.UserPreferenceChanged += SystemThemeChanged;
             ApplyTheme();
             PublishHudSnapshot();
@@ -618,7 +633,7 @@ namespace AntigravityHub
                 }
                 else if (action == "restartAntigravityClient")
                 {
-                    if (_clientRestartPending || _switchRequestPending)
+                    if (_clientRestartPending || _switchRequestPending || _hubUpdates.IsInstalling)
                     {
                         SafePostWebMessage(JsonSerializer.Serialize(new {type="clientRestartResult",success=false,message="客户端正在处理其他操作，请稍后重试"}));
                         return;
@@ -639,6 +654,15 @@ namespace AntigravityHub
                     }
                     finally { _clientRestartPending = false; }
                 }
+                else if (action == "getHubUpdateStatus") SendHubUpdateStatus();
+                else if (action == "checkHubUpdate") await _hubUpdates.CheckAsync(_appCts.Token);
+                else if (action == "installHubUpdate")
+                {
+                    if (_switchRequestPending || _clientRestartPending)
+                        _hubUpdates.ReportBusy();
+                    else if (await _hubUpdates.InstallAsync(_appCts.Token)) ExitApplication();
+                }
+                else if (action == "hubUpdateReady") HubUpdateInstaller.MarkHealthy();
                 else if (action == "getSettings")
                 {
                     var s = _settingsService.GetSettings();
@@ -922,6 +946,8 @@ namespace AntigravityHub
         }
 
 
+        private void SendHubUpdateStatus() => SafePostWebMessage(JsonSerializer.Serialize(new {type="hubUpdateStatus",data=_hubUpdates.Status}, JsonOpts.CamelCase));
+
         private void SafePostWebMessage(string json)
         {
             try
@@ -1109,6 +1135,7 @@ namespace AntigravityHub
                 try { _trayPopupWindow?.Close(); } catch { }
                 try { webView?.Dispose(); } catch { }
                 _trayService?.Dispose();
+                _hubUpdates.Dispose();
                 System.Windows.Application.Current.Shutdown();
             });
         }
@@ -1117,7 +1144,7 @@ namespace AntigravityHub
 
         private async Task<SwitchResult> RunAccountSwitchAsync(string targetAccountId)
         {
-            if (_switchRequestPending || _clientRestartPending) return new SwitchResult { Message = "客户端正在处理其他操作，请稍后重试" };
+            if (_switchRequestPending || _clientRestartPending || _hubUpdates.IsInstalling) return new SwitchResult { Message = "客户端正在处理其他操作，请稍后重试" };
             _switchRequestPending = true;
             SwitchResult result;
             try
@@ -1179,6 +1206,7 @@ namespace AntigravityHub
             try { _trayPopupWindow?.Close(); } catch { }
             try { webView?.Dispose(); } catch { }
             _trayService?.Dispose();
+            _hubUpdates.Dispose();
             _hotkeyService?.Dispose();
             System.Windows.Application.Current.Shutdown();
         }

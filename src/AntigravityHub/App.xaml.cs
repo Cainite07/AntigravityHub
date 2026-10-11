@@ -11,6 +11,7 @@ namespace AntigravityHub
     {
         private static Mutex? _mutex;
         private static bool _ownsMutex = false;
+        private bool _updateHelper;
         private const int SW_RESTORE = 9;
         private const int HWND_BROADCAST = 0xffff;
         public const string WM_SHOW_ANTIGRAVITY_HUB_MSG = "AntigravityHub_Show_Instance";
@@ -32,11 +33,29 @@ namespace AntigravityHub
 
         private static void Log(string msg) => Logger.Log("App", msg);
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
+            if (e.Args.Length > 0 && e.Args[0] is "--apply-hub-update" or "--recover-hub-update")
+            {
+                _updateHelper = true; ShutdownMode = ShutdownMode.OnExplicitShutdown;
+                int result = e.Args.Length == 2 ? await HubUpdateInstaller.RunAsync(e.Args[1], e.Args[0] == "--recover-hub-update") : 1;
+                Shutdown(result); return;
+            }
+            bool updatedStartup = HubUpdateInstaller.ConfigureStartup(e.Args, AppContext.BaseDirectory);
+            try
+            {
+                if (!updatedStartup && await HubUpdateInstaller.ResumeInterruptedAsync(AppContext.BaseDirectory)) { Shutdown(); return; }
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception)
+            {
+                System.Windows.MessageBox.Show("上次更新未完成，自动恢复暂时不可用。请重新解压完整发布包；账号与设置仍保留在本地。", "AntigravityHub", MessageBoxButton.OK, MessageBoxImage.Information);
+                Shutdown(1); return;
+            }
             Log($"App OnStartup called. PID: {Process.GetCurrentProcess().Id}");
-            const string mutexName = "Local\\AntigravityHub_SingleInstance_Mutex";
-            _mutex = new Mutex(true, mutexName, out bool isNewInstance);
+            _mutex = new Mutex(false, HubUpdateInstaller.MutexName);
+            bool isNewInstance;
+            try { isNewInstance = _mutex.WaitOne(0); }
+            catch (AbandonedMutexException) { isNewInstance = true; }
             _ownsMutex = isNewInstance;
 
             if (!isNewInstance)
@@ -85,13 +104,14 @@ namespace AntigravityHub
             var window = new MainWindow();
             MainWindow = window;
             new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
-            if (!window.StartMinimized) window.Show();
+            if (updatedStartup || !window.StartMinimized) window.Show();
+            _ = System.Threading.Tasks.Task.Run(HubUpdateInstaller.CleanCompletedJobs);
             _ = window.StartServicesAsync();
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            Log($"App OnExit called with exit code: {e.ApplicationExitCode}");
+            if (!_updateHelper) Log($"App OnExit called with exit code: {e.ApplicationExitCode}");
             if (_ownsMutex && _mutex != null)
             {
                 try

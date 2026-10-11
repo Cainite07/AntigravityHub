@@ -269,6 +269,23 @@
     }
 
 
+
+    .hub-update-summary { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .hub-update-caption { margin-top:5px; font-size:11px; color:var(--ink-muted); }
+    .hub-update-caption[data-error="true"] { color:var(--ink-accent); }
+    .hub-update-dialog { position:relative; width:400px; max-width:calc(100vw - 32px); padding:24px; }
+    .hub-update-dialog h2 { margin:0 0 8px; font-size:17px; font-weight:700; color:var(--ink-primary); }
+    .hub-update-version { font-size:12px; color:var(--ink-muted); font-variant-numeric:tabular-nums; }
+    .hub-update-dialog p { margin:18px 0; font-size:13px; line-height:1.6; color:var(--ink-secondary); }
+    .hub-update-actions { display:flex; justify-content:flex-end; gap:9px; margin-top:20px; }
+    .hub-update-primary { border:0; border-radius:10px; padding:9px 14px; background:var(--ink-primary); color:var(--paper-card); font-size:12px; cursor:pointer; }
+    .hub-update-dialog button:disabled { opacity:.6; cursor:default; }
+    .hub-update-progress { height:4px; overflow:hidden; border-radius:4px; background:var(--paper-subtle); }
+    .hub-update-progress span { display:block; height:100%; width:0; background:var(--ink-green); transition:width .2s ease; }
+    .hub-update-notes { margin-top:14px; font-size:11px; color:var(--ink-muted); }
+    .hub-update-notes summary { cursor:pointer; }
+    .hub-update-notes pre { white-space:pre-wrap; overflow-wrap:anywhere; max-height:120px; overflow-y:auto; font-size:11px; line-height:1.6; margin:8px 0 0; user-select:text; }
+
     .settings-header-icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:var(--ink-primary); color:var(--paper-card); }
     .settings-icon { width:18px; height:18px; flex:none; }
     .settings-dialog { width:520px; max-width:calc(100vw - 32px); max-height:calc(100vh - 32px); }
@@ -1238,6 +1255,12 @@
           </div>
         </div>
 
+        <div class="setting-group">
+          <div class="setting-group-title">Hub 更新</div>
+          <div class="hub-update-summary"><div><div class="setting-item-name">AntigravityHub <span id="hub-current-version" class="num-cell"></span></div><div id="hub-update-status" class="hub-update-caption" role="status">尚未检查</div></div><button id="hub-check-update" class="btn-action" onclick="checkHubUpdates()">检查更新</button><button id="hub-settings-update" class="btn-action hidden" onclick="showHubUpdatePrompt()">更新</button></div>
+          <div class="setting-item bordered"><span class="setting-item-name">启动时检查更新</span><label class="switch"><input type="checkbox" id="set-check-updates" checked><span class="slider"></span></label></div>
+        </div>
+
         <!-- 4. 数据 -->
         <div class="setting-group">
           <div class="setting-group-title">数据</div>
@@ -1272,6 +1295,17 @@
         <p id="client-restart-message" role="status">重启 Antigravity 后生效</p>
         <button id="client-restart-button" class="client-restart-button" onclick="restartAntigravityClient()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 6.1a8.3 8.3 0 0 1 13.4 3.1M4.5 14.8a8.3 8.3 0 0 0 13.4 3.1"/></svg><span id="client-restart-button-label">重启 Antigravity</span></button>
       </div>
+    </div>
+  </div>
+  <div id="hub-update-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden" onclick="if(event.target === this) closeHubUpdatePrompt()">
+    <div class="hub-update-dialog paper-card rounded-2xl page-slide-in" role="dialog" aria-modal="true" aria-labelledby="hub-update-title" aria-describedby="hub-update-message" onclick="event.stopPropagation()">
+      <h2 id="hub-update-title">发现新版本</h2>
+      <button id="hub-update-dismiss" class="client-restart-dismiss" onclick="closeHubUpdatePrompt()" aria-label="稍后更新">✕</button>
+      <div id="hub-update-version" class="hub-update-version"></div>
+      <p id="hub-update-message" role="status">更新后将自动重启 Hub，账号和设置会保留。</p>
+      <div id="hub-update-progress" class="hub-update-progress hidden" role="progressbar" aria-label="更新进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="hub-update-progress-fill"></span></div>
+      <details id="hub-update-notes" class="hub-update-notes hidden"><summary>更新内容</summary><pre id="hub-update-notes-text"></pre></details>
+      <div class="hub-update-actions"><button id="hub-update-later" class="btn-action" onclick="closeHubUpdatePrompt()">稍后</button><button id="hub-update-install" class="hub-update-primary" onclick="startHubUpdate()">更新并重启</button></div>
     </div>
   </div>
   <script src="app.js"></script>

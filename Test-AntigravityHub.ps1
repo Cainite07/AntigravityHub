@@ -14,6 +14,8 @@ try {
         Invoke-Check @('run','--project','tests/AuditHarness','--',$mode)
     }
     Invoke-Check @('run','--project','tests/WpfHarness')
+    $env:DOTNET_ROOT = Split-Path -Parent (Get-Command $DotnetPath).Source
+    Invoke-Check @('run','--project','tests/UpdateHarness','-c','Release')
     node --check 'src/AntigravityHub/wwwroot/app.js'
     if ($LASTEXITCODE -ne 0) { throw '页面脚本语法检查失败。' }
     foreach ($test in @('frontend-regression.cjs','hud-regression.cjs','session-speed.cjs','client-settings.cjs','translation-switches.cjs','client-package.cjs')) {

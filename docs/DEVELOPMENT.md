@@ -42,7 +42,7 @@ node seed-base.cjs "C:\path\to\original\app.asar"
 259c83ffa266088dda6ede520a601bbf06cc5c34985cdf56c5d68549c98dbb0e
 ```
 
-构建和正式发布时，将本地底包目录（不提交 Git）放到发布包的 `client/release-2.22.0/base/`，或让首次打开自行缓存。不能拿未知版本或修改过的包替代。
+本机试用可用 `Build-Release.ps1 -IncludeLocalBase` 带入缓存底包。公开发布包不包含原版底包，首次打开时自动缓存。不能拿未知版本或修改过的包替代。
 
 客户端运行期间只准备候选并等待自行退出；不会强制结束客户端任务。备份与维护状态写入 `%USERPROFILE%\.antigravity_hub\client_maintenance`。若宿主不允许独立后台维护进程，在退出客户端后重新打开 Hub 即可完成。
 
@@ -69,3 +69,19 @@ client/maintenance/tools/    版本校验、补丁构建、窗口策略、安装
 client/release-2.22.0/source/ HansWin 汉化词典与引擎
 docs/                        客户端增强说明、版本说明与演示预览
 ```
+
+## 发布可自动更新的版本
+
+修改项目版本并提交源码后，使用：
+
+```powershell
+./Package-Release.ps1 -OutputDirectory "C:\path\to\new-empty-release"
+```
+
+脚本生成完整 Windows x64 包、当前提交的源码包和 `SHA256SUMS.txt`。`update-manifest.json` 由构建脚本生成，列出发布文件及每个文件的 SHA-256；日志、本机原版底包与用户数据不会进入更新清单。发布目录必须为空，避免把上次构建的文件混进去。
+
+GitHub 正式 Release 标签为 `v主.次.修订`，Windows 资产名必须为 `AntigravityHub-主.次.修订-Windows-x64.zip`，ZIP 内根目录固定为 `AntigravityHub/`。上传完整包后再发布 Release，GitHub 的资产 `digest` 必须提供 SHA-256。预发布版本和草稿不触发内置更新。
+
+同一进程只执行一个检查或更新请求。更新助手从校验过的暂存包运行，等旧进程退出后持有单实例锁进行覆盖，保留全部被替换文件的回退副本；新版通过前端与本地数据初始化确认后才提交并删除备份。系统临时目录中的每个任务都限定在 `AntigravityHub-updates/随机ID`，清理拒绝链接和越界路径。
+
+隔离更新测试使用独立单实例锁和临时程序副本，包含真实子进程的退出、替换、重启、失败回退与中断恢复；不会退出用户正在运行的 Hub，也不操作真实账号或客户端。

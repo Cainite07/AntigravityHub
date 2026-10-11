@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>AntigravityHub</AssemblyName><Version>1.4.0</Version>
+    <DefineConstants>$(DefineConstants);HUB_UPDATE_TESTS</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../src/AntigravityHub/HubUpdatePackage.cs" Link="Current/HubUpdatePackage.cs" />
+    <Compile Include="../../src/AntigravityHub/HubUpdateService.cs" Link="Current/HubUpdateService.cs" />
+    <Compile Include="../../src/AntigravityHub/HubUpdateInstaller.cs" Link="Current/HubUpdateInstaller.cs" />
+  </ItemGroup>
+</Project>

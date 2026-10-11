@@ -53,6 +53,7 @@ namespace AntigravityHub
         public bool CloseToTray { get; set; } = true;
         public bool LaunchOnStartup { get; set; } = false;
         public bool StartMinimized { get; set; } = true;
+        public bool CheckUpdatesOnStartup { get; set; } = true;
         public bool EnableGlobalHotkey { get; set; } = true;
         public string GlobalHotkey { get; set; } = "Alt + A";
         public int PollIntervalSeconds { get; set; } = 30;

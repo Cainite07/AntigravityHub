@@ -9,6 +9,7 @@ class Element {
     const classes = new Set();
     this.classList = { add(...v) {v.forEach(x=>classes.add(x));}, remove(...v) {v.forEach(x=>classes.delete(x));}, contains(v) { return classes.has(v); }, toggle(v,on) {if(on??!classes.has(v))classes.add(v);else classes.delete(v);} };
   }
+  setAttribute(name,value) { this[name]=value; }
   appendChild(child) { this.children.push(child); }
   remove() {}
   contains() { return false; }
@@ -42,6 +43,7 @@ fs.writeFileSync(path.join(__dirname, 'frontend-current.js'), source);
 vm.runInContext(source, context);
 const run = code => vm.runInContext(code, context);
 const el = id => document.getElementById(id);
+el('hub-update-modal').classList.add('hidden');
 const passed = [];
 const check = (name, fn) => { fn(); passed.push(name); };
 check('1. Zero cache/input/output percentages and clearing stale bars', () => {
@@ -373,6 +375,63 @@ check('42. Escape saves edits, shows the reminder and can dismiss it',()=>{
   assert(!el('client-restart-modal').classList.contains('hidden'));
   documentListeners.get('keydown')({key:'Escape'});
   assert(el('client-restart-modal').classList.contains('hidden'));
+});
+check('43. Updates are opt-out on startup; settings persist the preference',()=>{
+  el('hub-update-modal').classList.add('hidden');
+  assert.equal(run('appSettings.checkUpdatesOnStartup'),true);
+  run('openSettingsModal()');assert.equal(el('set-check-updates').checked,true);
+  el('set-check-updates').checked=false;run('closeSettingsModal()');
+  const save=posted.filter(x=>x.action==='saveSettings').at(-1);
+  assert.equal(save.settings.checkUpdatesOnStartup,false);
+  webviewListeners.get('message')({data:{type:'settingsSaved',requestId:save.requestId,data:save.settings}});
+  assert(el('client-restart-modal').classList.contains('hidden'));
+});
+check('44. Available release prompts once; later retains a manual entry',()=>{
+  const available={state:'available',currentVersion:'1.4.0',latestVersion:'1.4.1',message:'发现新版本',notes:'<img src=x onerror=alert(1)>'};
+  webviewListeners.get('message')({data:{type:'hubUpdateStatus',data:available}});
+  assert(!el('hub-update-modal').classList.contains('hidden'));
+  assert.equal(el('hub-update-notes-text').innerHTML,'');
+  assert.equal(el('hub-update-notes-text').innerText,available.notes);
+  run('closeHubUpdatePrompt()');
+  webviewListeners.get('message')({data:{type:'hubUpdateStatus',data:available}});
+  assert(el('hub-update-modal').classList.contains('hidden'));
+  assert(!el('hub-settings-update').classList.contains('hidden'));
+  run('checkHubUpdates()');assert.equal(posted.at(-1).action,'checkHubUpdate');
+  webviewListeners.get('message')({data:{type:'hubUpdateStatus',data:available}});
+  assert(!el('hub-update-modal').classList.contains('hidden'));
+});
+check('45. Update installation is explicit and single-flight; busy dismissal is blocked; failure allows retry',()=>{
+  const before=posted.filter(x=>x.action==='installHubUpdate').length;
+  run('startHubUpdate();startHubUpdate();closeHubUpdatePrompt()');
+  assert.equal(posted.filter(x=>x.action==='installHubUpdate').length,before+1);
+  assert(!el('hub-update-modal').classList.contains('hidden'));
+  webviewListeners.get('message')({data:{type:'hubUpdateStatus',data:{state:'downloading',progress:42,message:'正在下载更新…'}}});
+  assert.equal(el('hub-update-progress-fill').style.width,'42%');assert.equal(el('hub-update-install').disabled,true);
+  documentListeners.get('keydown')({key:'Escape'});assert(!el('hub-update-modal').classList.contains('hidden'));
+  webviewListeners.get('message')({data:{type:'hubUpdateStatus',data:{state:'error',message:'校验失败，当前版本已保留'}}});
+  assert.equal(el('hub-update-install').disabled,false);assert.equal(el('hub-update-message').innerText,'校验失败，当前版本已保留');
+  run('closeHubUpdatePrompt()');assert(el('hub-update-modal').classList.contains('hidden'));
+});
+check('46. Edits are saved before handing off; failed saves prevent installation',()=>{
+  run('showHubUpdatePrompt();openSettingsModal()');el('set-check-updates').checked=true;
+  const before=posted.filter(x=>x.action==='installHubUpdate').length;
+  run('startHubUpdate()');assert.equal(posted.filter(x=>x.action==='installHubUpdate').length,before);
+  const save=posted.filter(x=>x.action==='saveSettings').at(-1);
+  webviewListeners.get('message')({data:{type:'settingsSaved',requestId:save.requestId,data:save.settings}});
+  assert.equal(posted.filter(x=>x.action==='installHubUpdate').length,before+1);
+  webviewListeners.get('message')({data:{type:'hubUpdateStatus',data:{state:'error',message:'测试失败'}}});
+  run('openSettingsModal()');el('set-check-updates').checked=false;run('startHubUpdate()');
+  const failedSave=posted.filter(x=>x.action==='saveSettings').at(-1);
+  webviewListeners.get('message')({data:{type:'settingsSaveFailed',requestId:failedSave.requestId}});
+  assert.equal(posted.filter(x=>x.action==='installHubUpdate').length,before+1);
+  assert.equal(el('hub-update-install').disabled,false);
+});
+check('47. Backend/frontend readiness is acknowledged once, after rendering live data',()=>{
+  const before=posted.filter(x=>x.action==='hubUpdateReady').length;
+  const handler=webviewListeners.get('message');
+  handler({data:{type:'hubData',data:{accounts:[],stats:{dailyRecords:[],models:[]}}}});
+  handler({data:{type:'hubData',data:{accounts:[],stats:{dailyRecords:[],models:[]}}}});
+  assert.equal(posted.filter(x=>x.action==='hubUpdateReady').length,before+(before?0:1));
 });
 console.log(passed.map(x => 'PASS ' + x).join('\n'));
 fs.writeFileSync(path.join(__dirname, 'frontend-regression-results.json'), JSON.stringify({ passed }, null, 2));

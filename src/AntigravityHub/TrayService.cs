@@ -55,6 +55,8 @@ namespace AntigravityHub
                 _ownsIcon = false;
             }
 
+            _notifyIcon.BalloonTipClicked += (_, _) => _onRestoreWindow();
+
             _notifyIcon.MouseDoubleClick += (s, e) =>
             {
                 if (e.Button == MouseButtons.Left)
@@ -72,6 +74,11 @@ namespace AntigravityHub
                     _onShowTrayPopup(Cursor.Position);
                 }
             };
+        }
+
+        public void ShowUpdateAvailable(string version)
+        {
+            if (!_disposed) _notifyIcon.ShowBalloonTip(6000, "AntigravityHub 有新版本", $"{version} 已就绪，点击打开 Hub 更新", ToolTipIcon.Info);
         }
 
         public void Dispose()

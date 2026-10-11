@@ -10,6 +10,7 @@ namespace AntigravityHub
             "windowDrag", "windowMin", "windowToggleMax", "windowClose", "setCloseToTray", "getSettings", "saveSettings", "setTheme",
             "openDataFolder", "fetchLiveRate", "windowResize", "modalStateChanged", "getInitialData", "refresh", "switchAccount",
             "importCurrentAccount", "importAccountFile", "startGoogleOAuth", "cancelGoogleOAuth", "submitManualAuthCode",
+            "getHubUpdateStatus", "checkHubUpdate", "installHubUpdate", "hubUpdateReady",
             "getAntigravityClientStatus", "deleteAccount", "getClientEnhancementStatus", "restartAntigravityClient"
         };
 

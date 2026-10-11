@@ -28,6 +28,7 @@ let currentNav = 'usage';
       closeToTray: true,
       launchOnStartup: false,
       startMinimized: true,
+      checkUpdatesOnStartup: true,
       enableGlobalHotkey: true,
       globalHotkey: 'Alt + A',
       pollIntervalSeconds: 30
@@ -158,6 +159,8 @@ let currentNav = 'usage';
 
       const setStartMin = document.getElementById('set-start-min');
       if (setStartMin) setStartMin.checked = appSettings.startMinimized;
+      document.getElementById('set-check-updates').checked = appSettings.checkUpdatesOnStartup !== false;
+      window.chrome?.webview?.postMessage({action:'getHubUpdateStatus'});
 
 
       const setHud = document.getElementById('set-hud');
@@ -194,10 +197,10 @@ let currentNav = 'usage';
       }
       document.getElementById('client-size-error').innerText = '';
       settingsDraft.clientWindowWidth = width; settingsDraft.clientWindowHeight = height;
-      [['set-thinking-hans','enableThinkingTranslation'],['set-client-hans','enableClientLocalization'],['set-client-size','enableClientWindowSize'],['set-tray','closeToTray'],['set-autostart','launchOnStartup'],['set-start-min','startMinimized'],['set-hotkey','enableGlobalHotkey'],['set-hud','enableClientHud']].forEach(([id,key]) => { const el=document.getElementById(id); if(el) settingsDraft[key]=el.checked; });
+      [['set-thinking-hans','enableThinkingTranslation'],['set-client-hans','enableClientLocalization'],['set-client-size','enableClientWindowSize'],['set-tray','closeToTray'],['set-autostart','launchOnStartup'],['set-start-min','startMinimized'],['set-hotkey','enableGlobalHotkey'],['set-hud','enableClientHud'],['set-check-updates','checkUpdatesOnStartup']].forEach(([id,key]) => { const el=document.getElementById(id); if(el) settingsDraft[key]=el.checked; });
       const draft=settingsDraft; settingsDraft=null;
       const needsRestart = ['enableClientLocalization','enableThinkingTranslation'].some(k=>draft[k]!==appSettings[k]);
-      const keys=['enableThinkingTranslation','enableClientLocalization','enableClientWindowSize','clientWindowWidth','clientWindowHeight','enableClientHud','theme','currency','closeToTray','launchOnStartup','startMinimized','enableGlobalHotkey','globalHotkey','pollIntervalSeconds'];
+      const keys=['checkUpdatesOnStartup','enableThinkingTranslation','enableClientLocalization','enableClientWindowSize','clientWindowWidth','clientWindowHeight','enableClientHud','theme','currency','closeToTray','launchOnStartup','startMinimized','enableGlobalHotkey','globalHotkey','pollIntervalSeconds'];
       if(keys.some(k=>draft[k]!==appSettings[k])) {
         appSettings={...appSettings,...draft};closeToTray=appSettings.closeToTray;
         const requestId = `settings-${++settingsSaveSequence}`;
@@ -207,9 +210,76 @@ let currentNav = 'usage';
       const modal = document.getElementById('settings-modal');
       if (modal) modal.classList.add('hidden');
       if (window.chrome && window.chrome.webview) {
-        window.chrome.webview.postMessage({ action: 'modalStateChanged', isOpen: false });
+        window.chrome.webview.postMessage({ action: 'modalStateChanged', isOpen: !document.getElementById('hub-update-modal').classList.contains('hidden') });
       }
       if (!window.chrome?.webview && needsRestart) showClientRestartPrompt();
+    }
+
+    let hubUpdateState = {state:'idle',currentVersion:'',latestVersion:'',message:'尚未检查',progress:0,notes:''};
+    let dismissedHubVersion = '';
+    let hubInstallAfterSettings = false;
+    let hubFrontendReady = false;
+    function hubUpdateBusy() { return hubInstallAfterSettings || ['downloading','verifying','restarting'].includes(hubUpdateState.state); }
+    function checkHubUpdates() {
+      if (hubUpdateBusy() || hubUpdateState.state === 'checking') return;
+      if (!window.chrome?.webview) { showToast('请在 AntigravityHub 中检查更新',false); return; }
+      dismissedHubVersion = '';
+      window.chrome.webview.postMessage({action:'checkHubUpdate'});
+    }
+    function onHubUpdateStatus(data) {
+      hubUpdateState = {...hubUpdateState,...data};
+      const busy = hubUpdateBusy(), hasUpdate = !!hubUpdateState.latestVersion;
+      document.getElementById('hub-current-version').innerText = hubUpdateState.currentVersion ? `v${hubUpdateState.currentVersion}` : '';
+      const status = document.getElementById('hub-update-status');
+      status.innerText = hubUpdateState.message;
+      status.dataset.error = String(hubUpdateState.state === 'error');
+      const check = document.getElementById('hub-check-update');
+      check.disabled = busy || hubUpdateState.state === 'checking';
+      check.innerText = hubUpdateState.state === 'checking' ? '检查中…' : '检查更新';
+      check.classList.remove('hidden');
+      const update = document.getElementById('hub-settings-update');
+      update.classList.toggle('hidden',!hasUpdate || busy); update.disabled = busy;
+      document.getElementById('hub-update-version').innerText = `v${hubUpdateState.currentVersion}  →  v${hubUpdateState.latestVersion}`;
+      const message = document.getElementById('hub-update-message');
+      message.innerText = hubUpdateState.state === 'available' ? '更新后将自动重启 Hub，账号和设置会保留。' : hubUpdateState.message;
+      const progress = Math.max(0,Math.min(100,Number(hubUpdateState.progress)||0));
+      const bar = document.getElementById('hub-update-progress');
+      bar.classList.toggle('hidden',!busy); bar.setAttribute('aria-valuenow',String(progress));
+      document.getElementById('hub-update-progress-fill').style.width = `${progress}%`;
+      const install = document.getElementById('hub-update-install');
+      install.disabled = busy || !hasUpdate || hubUpdateState.state === 'checking';
+      install.innerText = busy ? (hubUpdateState.state === 'downloading' ? `下载中 ${progress}%` : '正在更新…') : '更新并重启';
+      document.getElementById('hub-update-dismiss').disabled = busy;
+      document.getElementById('hub-update-later').disabled = busy;
+      document.getElementById('hub-update-notes').classList.toggle('hidden',!hubUpdateState.notes || busy);
+      document.getElementById('hub-update-notes-text').innerText = hubUpdateState.notes || '';
+      if (hubUpdateState.state === 'available' && dismissedHubVersion !== hubUpdateState.latestVersion && !clientRestartBusy) showHubUpdatePrompt();
+    }
+    function showHubUpdatePrompt() {
+      if (!hubUpdateState.latestVersion) return;
+      document.getElementById('hub-update-modal').classList.remove('hidden');
+      window.chrome?.webview?.postMessage({action:'modalStateChanged',isOpen:true});
+      document.getElementById('hub-update-install').focus?.();
+    }
+    function closeHubUpdatePrompt() {
+      if (hubUpdateBusy()) return;
+      dismissedHubVersion = hubUpdateState.latestVersion;
+      document.getElementById('hub-update-modal').classList.add('hidden');
+      const isOpen = !!settingsDraft || !document.getElementById('client-restart-modal').classList.contains('hidden');
+      window.chrome?.webview?.postMessage({action:'modalStateChanged',isOpen});
+    }
+    function startHubUpdate() {
+      if (hubUpdateBusy() || !hubUpdateState.latestVersion) return;
+      if (!window.chrome?.webview) { showToast('请在 AntigravityHub 中更新',false); return; }
+      if (settingsDraft) { closeSettingsModal(); if (settingsDraft) return; }
+      if (pendingSettingsSave) {
+        hubInstallAfterSettings = true;
+        document.getElementById('hub-update-install').disabled = true;
+        document.getElementById('hub-update-install').innerText = '正在保存设置…';
+        return;
+      }
+      onHubUpdateStatus({state:'downloading',message:'正在准备更新…',progress:0});
+      window.chrome.webview.postMessage({action:'installHubUpdate'});
     }
 
     function showClientRestartPrompt() {
@@ -2604,11 +2674,16 @@ let currentNav = 'usage';
       if (window.chrome && window.chrome.webview) {
         window.chrome.webview.addEventListener('message', event => {
           const msg = event.data;
+          if (msg.type === 'hubUpdateStatus') onHubUpdateStatus(msg.data || {});
           if (msg.type === 'clientRestartResult') onClientRestartResult(msg);
-          if (msg.type === 'settingsSaveFailed' && pendingSettingsSave?.requestId === msg.requestId) pendingSettingsSave = null;
+          if (msg.type === 'settingsSaveFailed' && pendingSettingsSave?.requestId === msg.requestId) {
+            pendingSettingsSave = null; hubInstallAfterSettings = false;
+            onHubUpdateStatus({state:'error',message:'设置未能保存，请重试'});
+          }
           if (msg.type === 'settingsSaved' && pendingSettingsSave?.requestId === msg.requestId) {
             const saved = pendingSettingsSave; pendingSettingsSave = null;
-            if (saved.needsRestart) showClientRestartPrompt();
+            if (saved.needsRestart && !hubInstallAfterSettings) showClientRestartPrompt();
+            if (hubInstallAfterSettings) { hubInstallAfterSettings = false; startHubUpdate(); }
           }
           if (msg.type === 'clientEnhancementStatus') {
             document.getElementById('client-enhancement-status').innerText = msg.message;
@@ -2652,6 +2727,7 @@ let currentNav = 'usage';
             root.classList.add('rounded-none');
           } else if (msg.type === 'hubData') {
             renderHubData(msg.data);
+            if (!hubFrontendReady) { hubFrontendReady = true; window.chrome.webview.postMessage({action:'hubUpdateReady'}); }
           } else if (msg.type === 'refreshCompleted') {
             onRefreshFinished(msg);
           } else if (msg.type === 'operationError') {
@@ -2690,6 +2766,7 @@ let currentNav = 'usage';
           }
         });
         window.chrome.webview.postMessage({ action: 'getInitialData' });
+        window.chrome.webview.postMessage({ action: 'getHubUpdateStatus' });
       } else {
         // A browser preview uses synthetic data only.
         const previewNotice = document.createElement('div');
@@ -2712,5 +2789,5 @@ let currentNav = 'usage';
     }
   
 
-document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(settingsDraft){if(isRecordingHotkey){stopRecordHotkey();e.stopPropagation();}else closeSettingsModal();}else if(!document.getElementById('client-restart-modal').classList.contains('hidden'))closeClientRestartPrompt();});
+document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(!document.getElementById('hub-update-modal').classList.contains('hidden')){closeHubUpdatePrompt();return;}if(settingsDraft){if(isRecordingHotkey){stopRecordHotkey();e.stopPropagation();}else closeSettingsModal();}else if(!document.getElementById('client-restart-modal').classList.contains('hidden'))closeClientRestartPrompt();});
 
