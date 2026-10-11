@@ -18,6 +18,8 @@ try {
     Invoke-Check @('run','--project','tests/UpdateHarness','-c','Release')
     node --check 'src/AntigravityHub/wwwroot/app.js'
     if ($LASTEXITCODE -ne 0) { throw '页面脚本语法检查失败。' }
+    node 'client/release-2.22.0/source/hans/tests/test_archive_layouts.js'
+    if ($LASTEXITCODE -ne 0) { throw '归档与历史提示汉化检查失败。' }
     foreach ($test in @('frontend-regression.cjs','hud-regression.cjs','session-speed.cjs','client-settings.cjs','client-quit.cjs','translation-switches.cjs','client-package.cjs')) {
         node (Join-Path 'tests' $test)
         if ($LASTEXITCODE -ne 0) { throw "检查失败：$test" }

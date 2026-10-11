@@ -1,6 +1,6 @@
 {
   "version": "2.22.0",
-  "release": "AntigravityHub1.4.0+normal-client-restart",
+  "release": "AntigravityHub1.4.1+archive-localization",
   "reviewDate": "2026-10-11",
   "baseArchive": "../../release-2.22.0/base/app.asar",
   "baseSha256": "259c83ffa266088dda6ede520a601bbf06cc5c34985cdf56c5d68549c98dbb0e",
@@ -15,12 +15,13 @@
     "62ff1d921be19b9d591d03181f5d6cf3ecf50f73b9d4a338726389d550683de4",
     "1ea5ea9ddb1d1496e78a800630be4a7a528431f643245ee3437783dabc667945",
     "aced95c78ec5001cdc0b1c097a0fe0fe030f14448e9083e7ce1bfbf1a4b191f7",
-    "835cc022ca97e30eea9efcb051e0c08aac2a6a00b7d8d29d172524da8985ef12"
+    "835cc022ca97e30eea9efcb051e0c08aac2a6a00b7d8d29d172524da8985ef12",
+    "a30906ce2887956131cbdafa50624a8509d1eda85c19d461686240484c1fa6f0"
   ],
   "targetModules": {
     "dist/main.js": "33627ee0b33c5af5052fb040a9c945c2713d19b143ce0b2473524588fa06c960",
     "dist/menu.js": "cc9418ca65ddd03c5df32c0debd526028e2a724ac538519b394febb82b4dc026",
-    "dist/preload.js": "c3f58c04b5e5edc4d9699cc5ed0900a293ebc1c92834c6b1785a1a3165daf3f5",
+    "dist/preload.js": "30642e84157c9caf2baf5c5b0581f4bd7095149c5823b6a88913652b941002ff",
     "dist/utils.js": "103b0a2ac7e93fb3fa004820fae1640ee6f8b47bd0fc69706fccc40305a084c3",
     "dist/tray.js": "c32333e53e469e2826611105ca95e30ac99523e0808a503af33b8c6ca2f8178d",
     "dist/codex-layout.js": "3a55ac994b1045e80652b6a8fd720d42428f377acc2d70dfc0d908987ca5cbd7",

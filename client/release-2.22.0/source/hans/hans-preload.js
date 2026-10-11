@@ -410,7 +410,25 @@
     }
     if (element?.closest('[data-hans-external-content]')) return;
     if (element?.closest(NOTICE_FIELD)) return;
-    if (element?.closest('[data-testid="archived-chat-banner"]')) {
+    // Server renderer updates can rename React symbols. Match the reviewed
+    // native layout instead of depending on the old injected bundle marker.
+    const nativeUiAllowed = !protectedBody && !element?.closest(PROTECTED);
+    const historyNotice = nativeUiAllowed ? element?.closest('div.flex.flex-col.gap-0\\.5.text-secondary-foreground') : null;
+    if (/^(This page is going away soon|此页面即将停用)$/.test(historyNotice?.querySelector('span.font-medium.text-foreground')?.textContent || '') &&
+        historyNotice.querySelector('[aria-label="search"]') && historyNotice.querySelector('[aria-label="filter"]')) {
+      const historyText = {
+        'This page is going away soon': '此页面即将停用',
+        'Search conversations with': '搜索对话请点击',
+        'in the top left.': '（位于左上角）。',
+        'View archived in the sidebar': '查看已归档对话请打开侧边栏的',
+        'menu)': '菜单）', '(': '（', '.': '。'
+      };
+      if (historyText[trimmed]) { node.nodeValue = value.replace(trimmed, historyText[trimmed]); return; }
+    }
+    const nativeArchiveBanner = nativeUiAllowed && element?.closest('[data-testid="conversation-view"]') ?
+      element.closest('div.relative.flex.items-center.justify-center.gap-2.p-1.min-h-\\[80px\\].rounded-2xl.bg-muted.border.w-full.text-sm.text-secondary-foreground') : null;
+    if (element?.closest('[data-testid="archived-chat-banner"]') ||
+        nativeArchiveBanner?.querySelector('button')) {
       if (trimmed === 'This chat is archived.') {
         node.nodeValue = value.replace(trimmed, '此对话已归档。');
         return;
