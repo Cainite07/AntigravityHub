@@ -28,28 +28,57 @@ try {
     & (Join-Path $nodeRoot 'npm.cmd') ci --ignore-scripts --no-audit --no-fund
     if ($LASTEXITCODE -ne 0) { throw 'Dependency preparation failed.' }
 } finally { Pop-Location }
-& $DotnetPath publish (Join-Path $PSScriptRoot 'src\AntigravityHub') -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false -o $OutputPath --nologo
+& $DotnetPath publish (Join-Path $PSScriptRoot 'src\AntigravityHub') -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=false -p:IncludeAllContentForSelfExtract=false -p:DebugType=None -p:DebugSymbols=false -o $OutputPath --nologo
 if ($LASTEXITCODE -ne 0) { throw 'Publish failed.' }
+# Keep these two small compatibility files: existing 1.4.0 update validators
+# require them. Managed dependencies load from the bundle without disk extraction.
+$managedOutput = Join-Path $PSScriptRoot 'src\AntigravityHub\bin\Release\net10.0-windows\win-x64'
+Copy-Item -LiteralPath (Join-Path $managedOutput 'AntigravityHub.dll'),(Join-Path $managedOutput 'AntigravityHub.runtimeconfig.json') -Destination $OutputPath -Force
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'src\AntigravityHub\app.ico') -Destination $OutputPath -Force
 $runtime = Join-Path $OutputPath 'client\runtime'
 $nodeDest = Join-Path $runtime 'node'
 New-Item -ItemType Directory -Path $nodeDest -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $nodeRoot 'node.exe'),(Join-Path $nodeRoot 'LICENSE') -Destination $nodeDest -Force
 Expand-Archive -LiteralPath $pythonZip -DestinationPath (Join-Path $runtime 'python') -Force
 $toolDest = Join-Path $OutputPath 'client\maintenance\tools'
-Copy-Item -LiteralPath (Join-Path $tools 'node_modules') -Destination $toolDest -Recurse -Force
+$modulesRoot = Join-Path $tools 'node_modules'
+Get-ChildItem -LiteralPath $modulesRoot -File -Recurse | ForEach-Object {
+    $relative = $_.FullName.Substring($modulesRoot.Length + 1)
+    # Type declarations, source maps and development command shims are never
+    # loaded by the maintenance scripts. Preserve executable JS, metadata and licenses.
+    if ($relative -match '^\.bin[\\/]|\.map$|\.d\.ts$|\.(cmd|ps1)$') { return }
+    $destination = Join-Path (Join-Path $toolDest 'node_modules') $relative
+    New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+    Copy-Item -LiteralPath $_.FullName -Destination $destination -Force
+}
 if ($IncludeLocalBase) {
     # For private local trials only. Public packages cache the user's clean installation automatically.
     $base = Join-Path $PSScriptRoot 'client\release-2.22.0\base'
     Copy-Item -LiteralPath $base -Destination (Join-Path $OutputPath 'client\release-2.22.0') -Recurse -Force
 }
-Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'README.md') -Destination $OutputPath -Force
+$packageReadme = @'
+# AntigravityHub
+
+双击 **AntigravityHub.exe** 启动，无需安装 .NET、Node.js 或 Python。
+
+支持账号切换、用量统计、客户端状态栏、独立汉化开关和窗口尺寸设置。
+首次运行默认最小化到托盘，双击托盘图标打开。
+
+- [使用与配置](docs/USAGE.md)
+- [客户端增强与回退](docs/CLIENT_ENHANCEMENTS.md)
+- [版本说明](docs/RELEASE_NOTES_1.4.0.md)
+- [完整介绍、演示图片与源码](https://github.com/Cainite07/AntigravityHub)
+
+请保留程序旁边的文件和文件夹。账号与设置保存在用户目录中，更新时保留。
+'@
+[IO.File]::WriteAllText((Join-Path $OutputPath 'README.md'), $packageReadme + "`n", (New-Object Text.UTF8Encoding($false)))
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'LICENSE') -Destination $OutputPath -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'THIRD-PARTY-NOTICES.md') -Destination $OutputPath -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'licenses') -Destination $OutputPath -Recurse -Force
 $docsRoot = Join-Path $PSScriptRoot 'docs'
 Get-ChildItem -LiteralPath $docsRoot -File -Recurse | ForEach-Object {
     $relative = $_.FullName.Substring($docsRoot.Length + 1)
-    if ($relative -notmatch '^(history[\\/]|LOCAL_TRIAL_)') {
+    if ($relative -in @('USAGE.md','CLIENT_ENHANCEMENTS.md','RELEASE_NOTES_1.4.0.md')) {
         $destination = Join-Path (Join-Path $OutputPath 'docs') $relative
         New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
         Copy-Item -LiteralPath $_.FullName -Destination $destination -Force

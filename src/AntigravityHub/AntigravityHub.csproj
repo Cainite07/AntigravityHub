@@ -23,7 +23,9 @@
 
   <ItemGroup>
     <Resource Include="app.ico" />
-    <Content Include="app.ico" CopyToOutputDirectory="PreserveNewest" />
+    <!-- WPF content URIs use Assembly.Location, which is empty in a bundle.
+         The embedded Resource above supplies the window icon for single-file builds. -->
+    <Content Include="app.ico" CopyToOutputDirectory="PreserveNewest" Condition="'$(PublishSingleFile)' != 'true'" />
     <Content Include="integration\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

@@ -15,7 +15,7 @@ $manifest = Get-Content -LiteralPath (Join-Path $packageRoot 'update-manifest.js
 $archive = [IO.Compression.ZipFile]::Open($windowsZip,[IO.Compression.ZipArchiveMode]::Create)
 try {
     foreach ($relative in @($manifest.Files.Path) + @('update-manifest.json')) {
-        [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,(Join-Path $packageRoot $relative),"AntigravityHub/$relative",[IO.Compression.CompressionLevel]::Optimal) | Out-Null
+        [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,(Join-Path $packageRoot $relative),"AntigravityHub/$relative",[IO.Compression.CompressionLevel]::SmallestSize) | Out-Null
     }
 } finally { $archive.Dispose() }
 $sourceZip = Join-Path $releaseRoot "AntigravityHub-$version-Source.zip"
