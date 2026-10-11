@@ -31,7 +31,7 @@ internal static class ClientEnhancementService
             // The maintenance launch shares the deployment mutex with the waiting worker.
             // This completes any queued update before the client opens the archive.
             var output = await RunProcess(Path.Combine(Runtime,"python","python.exe"),
-                new[] {Path.Combine(Tools,"maintain.py"), "--launch", "--root", ClientRoot}, Tools);
+                new[] {Path.Combine(Tools,"maintain.py"), "--launch", "--root", ClientRoot, "--", "--hub-show-window"}, Tools);
             using var document = JsonDocument.Parse(output.Trim());
             if (!document.RootElement.TryGetProperty("status",out var state) || state.GetString() != "launched")
                 throw new IOException("未能打开 Antigravity，请稍后重试");

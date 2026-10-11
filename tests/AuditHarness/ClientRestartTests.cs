@@ -42,6 +42,20 @@ internal static class ClientRestartTests
         try { await ClientRestartService.RestartAsync(stopped,cancelled.Token); throw new Exception("Cancelled restart launched"); }
         catch(OperationCanceledException) { }
         if (stopped.Closed || stopped.Launches != 0) throw new Exception("Cancelled restart affected client");
+        var fixture = Path.Combine(Path.GetTempPath(), "hub-quit-csharp-" + Guid.NewGuid());
+        Directory.CreateDirectory(fixture);
+        try
+        {
+            var executable = Environment.ProcessPath!;
+            var ready = Path.Combine(fixture,"ready-42.json");
+            if (ClientQuitChannel.TryRequest(42, executable, fixture)) throw new Exception("Missing capability accepted");
+            File.WriteAllText(ready,System.Text.Json.JsonSerializer.Serialize(new {pid=42,nonce=new string('a',64),executable}));
+            if (ClientQuitChannel.TryRequest(42, executable+".other", fixture)) throw new Exception("Wrong installation accepted");
+            if (!ClientQuitChannel.TryRequest(42, executable, fixture)) throw new Exception("Verified quit capability rejected");
+            using var request = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(fixture,"request-42.json")));
+            if (request.RootElement.GetProperty("action").GetString() != "quit") throw new Exception("Wrong quit command");
+        }
+        finally { foreach(var file in Directory.GetFiles(fixture)) File.Delete(file); Directory.Delete(fixture); }
         var failed = new Host {FailLaunch=true};
         try { await ClientRestartService.RestartAsync(failed,CancellationToken.None); throw new Exception("Launch failure lost"); }
         catch(IOException) { }

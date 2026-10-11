@@ -18,7 +18,7 @@ try {
     Invoke-Check @('run','--project','tests/UpdateHarness','-c','Release')
     node --check 'src/AntigravityHub/wwwroot/app.js'
     if ($LASTEXITCODE -ne 0) { throw '页面脚本语法检查失败。' }
-    foreach ($test in @('frontend-regression.cjs','hud-regression.cjs','session-speed.cjs','client-settings.cjs','translation-switches.cjs','client-package.cjs')) {
+    foreach ($test in @('frontend-regression.cjs','hud-regression.cjs','session-speed.cjs','client-settings.cjs','client-quit.cjs','translation-switches.cjs','client-package.cjs')) {
         node (Join-Path 'tests' $test)
         if ($LASTEXITCODE -ne 0) { throw "检查失败：$test" }
     }

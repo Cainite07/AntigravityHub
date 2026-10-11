@@ -1,7 +1,7 @@
 {
   "version": "2.22.0",
-  "release": "AntigravityHub1.3.3+Hans23.2+session-speed",
-  "reviewDate": "2026-10-10",
+  "release": "AntigravityHub1.4.0+normal-client-restart",
+  "reviewDate": "2026-10-11",
   "baseArchive": "../../release-2.22.0/base/app.asar",
   "baseSha256": "259c83ffa266088dda6ede520a601bbf06cc5c34985cdf56c5d68549c98dbb0e",
   "rendererSha256": "47f36abaabd34f7d54a95df40d942b609c02db9f5c04d56b124a048571b9f16d",
@@ -14,16 +14,17 @@
     "c3c1eccda9b7ae0fda531a31ea0de8e0cd4e555a4a7404f8447323781fba470d",
     "62ff1d921be19b9d591d03181f5d6cf3ecf50f73b9d4a338726389d550683de4",
     "1ea5ea9ddb1d1496e78a800630be4a7a528431f643245ee3437783dabc667945",
-    "aced95c78ec5001cdc0b1c097a0fe0fe030f14448e9083e7ce1bfbf1a4b191f7"
+    "aced95c78ec5001cdc0b1c097a0fe0fe030f14448e9083e7ce1bfbf1a4b191f7",
+    "835cc022ca97e30eea9efcb051e0c08aac2a6a00b7d8d29d172524da8985ef12"
   ],
   "targetModules": {
-    "dist/main.js": "d308cdbb9b4d0a1596469e9147ea08687d0f4f2924f3884b2e61e4dc4876414d",
+    "dist/main.js": "33627ee0b33c5af5052fb040a9c945c2713d19b143ce0b2473524588fa06c960",
     "dist/menu.js": "cc9418ca65ddd03c5df32c0debd526028e2a724ac538519b394febb82b4dc026",
     "dist/preload.js": "c3f58c04b5e5edc4d9699cc5ed0900a293ebc1c92834c6b1785a1a3165daf3f5",
     "dist/utils.js": "103b0a2ac7e93fb3fa004820fae1640ee6f8b47bd0fc69706fccc40305a084c3",
     "dist/tray.js": "c32333e53e469e2826611105ca95e30ac99523e0808a503af33b8c6ca2f8178d",
-    "dist/codex-layout.js": "b6ff740cc6dc85c955acdce6695c1f2ee1f22df9236712435b6f057f52ff4257",
-    "dist/hub-client-settings.js": "547b9b88d55512d3aa3b64ca8c9b0b6301963134c3fbab6770f36d070b301a82",
+    "dist/codex-layout.js": "3a55ac994b1045e80652b6a8fd720d42428f377acc2d70dfc0d908987ca5cbd7",
+    "dist/hub-client-settings.js": "7368196883c726ef940c8b316036820a016e75342937fccbc5e3f54d0664c8f4",
     "dist/hub-hud-main.js": "8e5dcb0b1d2bbca481842b74a059e3a13ea118d893dc1db7a3f4253b742d847d",
     "dist/translation-policy.js": "a00d5aff53404051d9665169336ce98599ae0beb826096538b3a64d68c9282a1",
     "dist/bundle_patch.js": "d5feb88c4ad91151f4b77a96edc0e45a23bf3eb6930a58728c6d0e07146cc102",

@@ -84,6 +84,11 @@ function attach(win) {
     });
     applyBounds(win);
     win.show();
+    if (process.argv.includes('--hub-show-window')) {
+        win.webContents.once('did-finish-load', () => {
+            if (!win.isDestroyed()) { if (win.isMinimized()) win.restore(); win.show(); win.focus(); }
+        });
+    }
 }
 
 function selectWindow() {

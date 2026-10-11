@@ -13,7 +13,7 @@ let settings=config.normalize({EnableClientWindowSize:true,ClientWindowWidth:120
 const area={x:1920,y:0,width:1600,height:900},display={workArea:area,bounds:{x:1920,y:0,width:1600,height:950}};
 const moduleMock={exports:{}};
 vm.runInNewContext(fs.readFileSync(path.join(tools,'layout.js'),'utf8'),{
-  module:moduleMock,require:name=>name==='electron'?{screen:{getDisplayMatching:()=>display,getPrimaryDisplay:()=>display}}:{read:()=>settings},setImmediate,clearImmediate
+  module:moduleMock,process:{argv:[]},require:name=>name==='electron'?{screen:{getDisplayMatching:()=>display,getPrimaryDisplay:()=>display}}:{read:()=>settings},setImmediate,clearImmediate
 });
 const layout=moduleMock.exports;
 let target=layout.targetBounds();assert.equal(target.width,1200);assert.equal(target.height,700);assert.equal(target.x,2120);

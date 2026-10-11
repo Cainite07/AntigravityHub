@@ -642,8 +642,10 @@ namespace AntigravityHub
                     try
                     {
                         var executable = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Programs","antigravity","Antigravity.exe");
-                        await Task.Run(() => ClientRestartService.RestartAsync(
-                            new WindowsClientRestartHost(executable, ClientEnhancementService.LaunchAsync),_appCts.Token));
+                        await Task.Run(async () => {
+                            using var host = new WindowsClientRestartHost(executable, ClientEnhancementService.LaunchAsync);
+                            await ClientRestartService.RestartAsync(host, _appCts.Token);
+                        });
                         SafePostWebMessage(JsonSerializer.Serialize(new {type="clientRestartResult",success=true}));
                     }
                     catch (Exception error)

@@ -34,7 +34,7 @@ function changesFromBase(asar,base){
   const gatedEngine = `require('electron').ipcRenderer.invoke('hub-client:settings').then(settings => { if (settings?.localization === true || settings?.thinking === true) { const HUB_OPTIONS = settings;\n${engine.replace('__UI_DICT_JSON__',JSON.stringify(dictionary))}\n} }).catch(() => {});`;
   const preload=originalPreload+'\n\n// === Antigravity-Hans 22 / 2.19.1 ===\n'+gatedEngine+'\n\n'+fs.readFileSync(path.join(hudRoot,'hud-preload.js'),'utf8');
   const changes=new Map([
-    ['dist/main.js',Buffer.from(adapter.patchMain(get('main.js'))+"\nrequire('./hub-hud-main').install(require('electron'));\n")],
+    ['dist/main.js',Buffer.from(adapter.patchMain(get('main.js'))+"\nrequire('./hub-hud-main').install(require('electron'));\nrequire('electron').app.whenReady().then(() => require('./hub-client-settings').installControl(require('electron').app)).catch(error => console.error('[Hub quit]', error));\n")],
     ['dist/menu.js',Buffer.from(adapter.patchMenu(get('menu.js')))],
     ['dist/preload.js',Buffer.from(preload)],
     ['dist/utils.js',Buffer.from(transformed.utils)],['dist/tray.js',Buffer.from(transformed.tray)],
