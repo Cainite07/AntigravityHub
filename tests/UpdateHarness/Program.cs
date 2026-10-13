@@ -78,6 +78,9 @@ string Zip(string source, string name)
 try
 {
     Assert(HubUpdatePackage.ParseVersion("v1.10.0") > HubUpdatePackage.ParseVersion("1.9.9"), "numeric versions");
+    Assert(HubUpdatePackage.ParseVersion("2.23.0") > HubUpdatePackage.ParseVersion("1.4.2"), "client-aligned version migration");
+    Assert(HubUpdatePackage.ParseVersion("2.23.1") > HubUpdatePackage.ParseVersion("2.23.0"), "Hub patch increments");
+    Assert(HubUpdatePackage.ParseVersion("2.24.0") > HubUpdatePackage.ParseVersion("2.23.9"), "next client version");
     foreach (string invalid in new[] { "1.4", "1.4.0-beta", "../../1.4.0", "1.65536.0" }) Reject(() => HubUpdatePackage.ParseVersion(invalid));
     foreach (string invalid in new[] { "../escape", "C:/x", "a\\b", "CON.txt", "x./file", "a/../b", "client/release/base/app.asar", "accounts.json", "app_settings.json", "a/b.dat" })
         Reject(() => HubUpdatePackage.ValidateRelative(invalid));
