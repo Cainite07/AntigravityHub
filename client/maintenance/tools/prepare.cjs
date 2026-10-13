@@ -45,16 +45,15 @@ async function inspect(asar, archive) {
     const known = compat[packageInfo.version];
     const getHash = file => files.find(e => e.path === file)?.sha256;
     const patched = !!known && getHash('dist/utils.js') === known.patchedUtils && getHash('dist/tray.js') === known.patchedTray && getHash('dist/codex-layout.js') === sha(layout);
-    const profilePath = path.join(__dirname, 'unified-profile.json');
-    const profile = fs.existsSync(profilePath) ? JSON.parse(fs.readFileSync(profilePath)) : null;
+    const profile = require('./profiles.cjs').forVersion(packageInfo.version);
     const unified = packageInfo.version === profile?.version && patched &&
         Object.entries(profile.targetModules).every(([file, hash]) => getHash(file) === hash);
-    return { version: packageInfo.version, sha256: sha(fs.readFileSync(archive)), patched, unified, integrityIssues, files };
+    return { version: packageInfo.version, supported: !!profile, sha256: sha(fs.readFileSync(archive)), patched, unified, integrityIssues, files };
 }
 async function prepare(asar, archive, out) {
     if (fs.existsSync(out)) throw Error('Output must be a new directory');
     const before = await inspect(asar, archive);
-    if (before.version === JSON.parse(fs.readFileSync(path.join(__dirname,'unified-profile.json'))).version) {
+    if (require('./profiles.cjs').forVersion(before.version)) {
         if (before.unified && !before.integrityIssues.length) return { status: 'already-installed', version: before.version, sha256: before.sha256, unified: true };
         return require('./unified-build.cjs').buildUnified(asar, archive, out);
     }

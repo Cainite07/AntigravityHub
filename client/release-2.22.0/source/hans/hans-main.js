@@ -22,7 +22,7 @@ function install(electron) {
   installed = true;
   installBundleHook(electron);
   electron.ipcMain.handle('hub-client:settings', event =>
-    isTrustedSender(event) ? require('./hub-client-settings').read() : null);
+    isTrustedSender(event) ? { ...require('./hub-client-settings').read(), appVersion: electron.app.getVersion() } : null);
   electron.ipcMain.handle('hans:status', (event) =>
     isTrustedSender(event) ? getStatus() : null);
   electron.ipcMain.handle('hans:translate-ui', () => []); // UI remains offline.

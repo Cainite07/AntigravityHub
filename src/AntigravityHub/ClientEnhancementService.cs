@@ -60,10 +60,11 @@ internal static class ClientEnhancementService
             if (!install)
             {
                 var version = value.TryGetProperty("version", out var versionValue) ? versionValue.GetString() : null;
-                if (version != "2.22.0") return "暂未适配 Antigravity " + (version ?? "当前版本") + "。";
+                if (!value.TryGetProperty("supported", out var supported) || !supported.GetBoolean())
+                    return "暂未适配 Antigravity " + (version ?? "当前版本") + "。";
                 bool ready = value.TryGetProperty("unified", out var enabled) && enabled.GetBoolean();
                 return ready ? "已就绪。" :
-                    "需要安装或更新组件（2.22.0）。";
+                    "需要安装或更新组件（" + version + "）。";
             }
             string status = value.TryGetProperty("status", out var state) ? state.GetString() ?? "" : "";
             return status switch

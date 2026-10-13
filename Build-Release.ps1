@@ -53,8 +53,14 @@ Get-ChildItem -LiteralPath $modulesRoot -File -Recurse | ForEach-Object {
 }
 if ($IncludeLocalBase) {
     # For private local trials only. Public packages cache the user's clean installation automatically.
-    $base = Join-Path $PSScriptRoot 'client\release-2.22.0\base'
-    Copy-Item -LiteralPath $base -Destination (Join-Path $OutputPath 'client\release-2.22.0') -Recurse -Force
+    Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot 'client') -Directory -Filter 'release-*' | ForEach-Object {
+        $base = Join-Path $_.FullName 'base'
+        if (Test-Path -LiteralPath $base) {
+            $baseDestination = Join-Path $OutputPath ('client\' + $_.Name)
+            New-Item -ItemType Directory -Path $baseDestination -Force | Out-Null
+            Copy-Item -LiteralPath $base -Destination $baseDestination -Recurse -Force
+        }
+    }
 }
 $packageReadme = @'
 # AntigravityHub

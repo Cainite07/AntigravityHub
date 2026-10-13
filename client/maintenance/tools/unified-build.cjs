@@ -4,11 +4,10 @@
 const fs=require('node:fs');const path=require('node:path');const vm=require('node:vm');const os=require('node:os');
 const {Readable}=require('node:stream');
 const packing=require('./prepare.cjs');const adapter=require('./adapter2191.cjs');
-const profileFile=path.join(__dirname,'unified-profile.json');
 const { Pickle }=require('./node_modules/@electron/asar/lib/pickle.js');
 const hansRoot=path.resolve(__dirname,'../../release-2.22.0/source/hans');
 const hudRoot=path.join(__dirname,'hud');
-const MODULES=['translation-policy.js','bundle_patch.js','hans-bundle-hook.js','hans-main.js','hans-translator.js'];
+const MODULES=['translation-policy.js','bundle_patch.js','hans-bundle-hook.js','hans-main.js','hans-translator.js','ui-source-2230.js'];
 function preserveExecutableFlags(asar,candidate,originalEntries){
   // asar 4.3 deliberately omits executable flags on Windows. Keep the three
   // audited upstream JS CLI flags in archive metadata without modifying payloads.
@@ -47,10 +46,12 @@ function changesFromBase(asar,base){
   return changes;
 }
 async function buildUnified(asar,archive,out){
-  const profile=JSON.parse(fs.readFileSync(profileFile));
   const before=await packing.inspect(asar,archive);
+  const profile=require('./profiles.cjs').forVersion(before.version);
+  if (!profile) throw Error('No reviewed profile for installed client version');
+  const profileFile=path.join(__dirname,profile.file);
   if(before.version!==profile.version||!profile.allowedSourceHashes.includes(before.sha256)||before.integrityIssues.length)
-    throw Error('Installed source is not a reviewed 2.19.1 package; no installed files changed');
+    throw Error('Installed source is not a reviewed '+profile.version+' package; no installed files changed');
   const base=path.resolve(__dirname,profile.baseArchive);
   if(packing.sha(fs.readFileSync(base))!==profile.baseSha256)throw Error('Clean base changed');
   const original=await packing.inspect(asar,base);
@@ -83,7 +84,8 @@ async function buildUnified(asar,archive,out){
   preserveExecutableFlags(asar,candidate,items);
   const after=await packing.inspect(asar,candidate);
   const originalMap=new Map(original.files.map(e=>[e.path,e]));
-  if(!after.unified||after.integrityIssues.length||after.files.length!==original.files.length+8)throw Error('Combined candidate failed verification');
+  const addedCount=[...changes.keys()].filter(file=>!originalMap.has(file)).length;
+  if(!after.unified||after.integrityIssues.length||after.files.length!==original.files.length+addedCount)throw Error('Combined candidate failed verification');
   for(const file of after.files){
     const old=originalMap.get(file.path);
     if(!old&&!changes.has(file.path))throw Error('Unexpected new file: '+file.path);

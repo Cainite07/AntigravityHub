@@ -196,7 +196,7 @@ def deploy(root, job):
     validate_unpacked(root, record['unpacked'])
     verified = node_tool('--inspect', candidate)
     if not record.get('rollback') and (not verified['patched'] or verified['integrityIssues'] or
-                                       (verified['version'] == '2.19.1' and not verified.get('unified'))):
+                                       (verified.get('supported') and not verified.get('unified'))):
         raise RuntimeError('Candidate no longer passes complete verification')
     backup = STATE / 'backups' / job.name
     backup.mkdir(parents=True, exist_ok=False)

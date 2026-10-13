@@ -226,6 +226,18 @@ const CONTEXTUAL_PATCHES=[
 
 function patchBundle(source) {
   if (typeof source !== 'string') throw new TypeError('Bundle must be a string');
+  const current=require('./ui-source-2230');
+  if(require('node:crypto').createHash('sha256').update(source).digest('hex')===current.sha256){
+    const parts=[];let end=0;
+    for(const patch of current.patches){
+      if(source.slice(patch.start,patch.end)!==patch.from)return {applied:false,structuralApplied:false,reason:'2.23.0 UI span mismatch',source};
+      parts.push(source.slice(end,patch.start),patch.to);end=patch.end;
+    }
+    parts.push(source.slice(end));
+    // Display text only: preserve native streaming, thinking and collapse behavior.
+    return {applied:true,structuralApplied:false,uiSourceCount:current.patches.length,contextualCount:0,
+      appliedTextMarkers:[],skippedTextMarkers:[],source:parts.join('')};
+  }
   const ui = patchUiSource(source);
   if (!ui.applied) return { applied: false, structuralApplied: false, reason: ui.reason, source };
   let output = ui.source;

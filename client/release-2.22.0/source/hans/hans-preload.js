@@ -49,7 +49,7 @@
 
   try {
     contextBridge.exposeInMainWorld('antigravityHansStatus', {
-      get: () => ({ version: 23, appVersion: '2.22.0', ...statistics }),
+      get: () => ({ version: 23, appVersion: options.appVersion || '2.22.0', ...statistics }),
       bundle: () => ipcRenderer.invoke('hans:status')
     });
   } catch {}

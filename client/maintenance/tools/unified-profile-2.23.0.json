@@ -1,0 +1,27 @@
+{
+  "version": "2.23.0",
+  "release": "AntigravityHub1.4.2+client223",
+  "reviewDate": "2026-10-13",
+  "baseArchive": "../../release-2.23.0/base/app.asar",
+  "baseSha256": "4e99093662d797ecba823e92823d352413e3bf2ca721257df4a255c045df1598",
+  "rendererSha256": "867d1990b61d87f4b9ff8c5ecb1551c8688135267f32e56e02563f2d3e78fd68",
+  "allowedSourceHashes": [
+    "4e99093662d797ecba823e92823d352413e3bf2ca721257df4a255c045df1598"
+  ],
+  "targetModules": {
+    "dist/main.js": "33627ee0b33c5af5052fb040a9c945c2713d19b143ce0b2473524588fa06c960",
+    "dist/menu.js": "cc9418ca65ddd03c5df32c0debd526028e2a724ac538519b394febb82b4dc026",
+    "dist/preload.js": "1b5667067962a24d5950edbb7108be2adaeeaa74dabcb3af40b5e8161bd87f96",
+    "dist/utils.js": "103b0a2ac7e93fb3fa004820fae1640ee6f8b47bd0fc69706fccc40305a084c3",
+    "dist/tray.js": "c32333e53e469e2826611105ca95e30ac99523e0808a503af33b8c6ca2f8178d",
+    "dist/codex-layout.js": "3a55ac994b1045e80652b6a8fd720d42428f377acc2d70dfc0d908987ca5cbd7",
+    "dist/hub-client-settings.js": "7368196883c726ef940c8b316036820a016e75342937fccbc5e3f54d0664c8f4",
+    "dist/hub-hud-main.js": "8e5dcb0b1d2bbca481842b74a059e3a13ea118d893dc1db7a3f4253b742d847d",
+    "dist/translation-policy.js": "a00d5aff53404051d9665169336ce98599ae0beb826096538b3a64d68c9282a1",
+    "dist/bundle_patch.js": "af15aa29ed85fed3807d1cb408a89b0944a6fbe5914ad0abc73af17dba70f4b5",
+    "dist/hans-bundle-hook.js": "577362de895dc36a58a782a758390e619ec66194687163f2ed14d17844f153d4",
+    "dist/hans-main.js": "c55e5f4449160e32d90d4b4480fca7baa8f99f7a224d06c6d38262a2f9c2f914",
+    "dist/hans-translator.js": "36d54862bf3429296b103a0865c8b66e9c63ce4e9389a6c9a698eb9066a36a11",
+    "dist/ui-source-2230.js": "58b4cd229a7dc599918954159e3733be182555ddbfac36de0d4414b967b2dab0"
+  }
+}
