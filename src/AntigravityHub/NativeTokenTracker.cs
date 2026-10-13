@@ -60,7 +60,9 @@ namespace AntigravityHub
                 lock (_syncLock)
                 {
                     var repository = new UsageRepository(UsageRepository.DefaultPath);
+                    UsageHistorySafety.RestoreMissing(UsageRepository.DefaultPath);
                     bool initialized = repository.IsInitialized();
+                    if (initialized) UsageHistorySafety.Protect(UsageRepository.DefaultPath);
                     var cursors = repository.LoadCursors();
                     var knownHours = repository.LoadEventHours();
                     var events = new List<UsageEvent>();
@@ -129,6 +131,7 @@ namespace AntigravityHub
                     // Never baseline a partial first scan: a retry could count unseen historical events twice.
                     if (!initialized && failures.Count > 0) throw new IOException("历史迁移未提交：部分会话数据库暂时无法读取，请重试。");
                     int changed = repository.Commit(events, cursors, _tokensPath);
+                    UsageHistorySafety.Protect(UsageRepository.DefaultPath);
                     if (failures.Count > 0) throw new IOException($"部分用量已更新，{failures.Count} 个会话读取失败，下次将重试。");
                     return changed;
                 }

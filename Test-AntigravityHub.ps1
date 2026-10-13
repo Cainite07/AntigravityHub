@@ -10,7 +10,7 @@ try {
     }
     New-Item -ItemType Directory -Path 'outputs','work' -Force | Out-Null
     Invoke-Check @('build','src/AntigravityHub','-c','Release','--nologo')
-    foreach ($mode in @('--client-restart-only','--client-settings-only','--date-window-only','--settings-cache-only','--reliability-only','--current-login-only','--aggregation-only','--snapshot-cache-only')) {
+    foreach ($mode in @('--client-restart-only','--client-settings-only','--date-window-only','--settings-cache-only','--reliability-only','--current-login-only','--history-safety-only','--aggregation-only','--snapshot-cache-only')) {
         Invoke-Check @('run','--project','tests/AuditHarness','--',$mode)
     }
     Invoke-Check @('run','--project','tests/WpfHarness')

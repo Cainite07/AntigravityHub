@@ -88,6 +88,7 @@ if (args.Contains("--live-metadata-refresh"))
     File.WriteAllText(Path.GetFullPath("outputs/订阅切号_实机资料同步.json"), evidence);
     Console.WriteLine(evidence); return;
 }
+if (args.Contains("--history-safety-only")) { HistorySafetyTests.Run(); return; }
 if (args.Contains("--aggregation-only")) { AggregateTests.Run(); return; }
 if (args.Contains("--snapshot-cache-only")) { SnapshotCacheTests.Run(); return; }
 if (args.Contains("--migration-replay")) { await MigrationReplay.Run(); return; }

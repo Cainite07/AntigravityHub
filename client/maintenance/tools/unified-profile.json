@@ -1,6 +1,6 @@
 {
   "version": "2.22.0",
-  "release": "AntigravityHub2.23.0+client2.22.0",
+  "release": "AntigravityHub2.23.1+client2.22.0",
   "reviewDate": "2026-10-13",
   "baseArchive": "../../release-2.22.0/base/app.asar",
   "baseSha256": "259c83ffa266088dda6ede520a601bbf06cc5c34985cdf56c5d68549c98dbb0e",

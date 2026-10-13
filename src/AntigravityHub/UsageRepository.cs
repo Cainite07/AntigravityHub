@@ -236,6 +236,37 @@ namespace AntigravityHub
             command.ExecuteNonQuery();
         }
 
+        internal void MergeMissingHistory(string backupPath)
+        {
+            using var connection = Open();
+            using (var attach = connection.CreateCommand())
+            {
+                attach.CommandText = "ATTACH DATABASE $path AS history";
+                attach.Parameters.AddWithValue("$path", backupPath); attach.ExecuteNonQuery();
+            }
+            using var transaction = connection.BeginTransaction();
+            using var command = connection.CreateCommand(); command.Transaction = transaction;
+            command.CommandText = @"
+                INSERT OR IGNORE INTO events SELECT * FROM history.events;
+                INSERT INTO legacy_original
+                    SELECT (SELECT COALESCE(max(line),-1) FROM legacy_original) + row_number() OVER (ORDER BY h.line),h.payload
+                    FROM history.legacy_original h WHERE NOT EXISTS(SELECT 1 FROM legacy_original c WHERE c.payload=h.payload);
+                INSERT OR IGNORE INTO legacy_residual SELECT * FROM history.legacy_residual;
+                INSERT OR IGNORE INTO cursors SELECT * FROM history.cursors;";
+            command.ExecuteNonQuery(); transaction.Commit();
+        }
+
+        internal bool HasMissingHistory(string backupPath)
+        {
+            using var connection = Open(); using var command = connection.CreateCommand();
+            command.CommandText = "ATTACH DATABASE $path AS history";
+            command.Parameters.AddWithValue("$path", backupPath); command.ExecuteNonQuery();
+            command.CommandText = @"SELECT EXISTS(SELECT 1 FROM history.events h WHERE NOT EXISTS(SELECT 1 FROM events c WHERE c.source=h.source AND c.idx=h.idx))
+                OR EXISTS(SELECT 1 FROM history.legacy_residual h WHERE NOT EXISTS(SELECT 1 FROM legacy_residual c WHERE c.key=h.key))
+                OR EXISTS(SELECT 1 FROM history.legacy_original h WHERE NOT EXISTS(SELECT 1 FROM legacy_original c WHERE c.payload=h.payload))";
+            return Convert.ToInt64(command.ExecuteScalar()) != 0;
+        }
+
         public IReadOnlyList<string> ReadBuckets()
         {
             using var connection = Open();

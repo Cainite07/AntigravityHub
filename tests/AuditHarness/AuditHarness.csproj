@@ -12,6 +12,7 @@
     <Compile Include="../../src/AntigravityHub/OAuthCallback.cs" Link="Current/OAuthCallback.cs" />
     <Compile Include="../../src/AntigravityHub/AtomicFile.cs" Link="Current/AtomicFile.cs" />
     <Compile Include="../../src/AntigravityHub/UsageRepository.cs" Link="Current/UsageRepository.cs" />
+    <Compile Include="../../src/AntigravityHub/UsageHistorySafety.cs" Link="Current/UsageHistorySafety.cs" />
     <Compile Include="../../src/AntigravityHub/UsageDecoder.cs" Link="Current/UsageDecoder.cs" />
     <Compile Include="../../src/AntigravityHub/AccountSafety.cs" Link="Current/AccountSafety.cs" />
     <Compile Include="../../src/AntigravityHub/IdeActivity.cs" Link="Current/IdeActivity.cs" />
