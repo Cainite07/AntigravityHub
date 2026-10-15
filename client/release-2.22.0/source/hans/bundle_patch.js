@@ -226,11 +226,12 @@ const CONTEXTUAL_PATCHES=[
 
 function patchBundle(source) {
   if (typeof source !== 'string') throw new TypeError('Bundle must be a string');
-  const current=require('./ui-source-2230');
-  if(require('node:crypto').createHash('sha256').update(source).digest('hex')===current.sha256){
+  const hash=require('node:crypto').createHash('sha256').update(source).digest('hex');
+  const current=[require('./ui-source-2230'),require('./ui-source-2231')].find(profile=>profile.sha256===hash);
+  if(current){
     const parts=[];let end=0;
     for(const patch of current.patches){
-      if(source.slice(patch.start,patch.end)!==patch.from)return {applied:false,structuralApplied:false,reason:'2.23.0 UI span mismatch',source};
+      if(source.slice(patch.start,patch.end)!==patch.from)return {applied:false,structuralApplied:false,reason:'Reviewed UI span mismatch',source};
       parts.push(source.slice(end,patch.start),patch.to);end=patch.end;
     }
     parts.push(source.slice(end));

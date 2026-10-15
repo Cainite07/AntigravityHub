@@ -15,7 +15,7 @@ const fs=require('node:fs'),path=require('node:path');
   const hubVersion=fs.readFileSync(path.resolve(__dirname,'../../../src/AntigravityHub/AntigravityHub.csproj'),'utf8').match(/<Version>(\d+\.\d+\.\d+)<\/Version>/)?.[1];
   if (!hubVersion) throw Error('Invalid Hub version');
   profile.release='AntigravityHub'+hubVersion+'+client'+requestedVersion;
-  profile.reviewDate='2026-10-13';
+  profile.reviewDate=new Date().toISOString().slice(0,10);
   const priorRelease='835cc022ca97e30eea9efcb051e0c08aac2a6a00b7d8d29d172524da8985ef12';
   if (requestedVersion==='2.22.0' && !profile.allowedSourceHashes.includes(priorRelease)) profile.allowedSourceHashes.push(priorRelease);
   const priorArchive='a30906ce2887956131cbdafa50624a8509d1eda85c19d461686240484c1fa6f0';
