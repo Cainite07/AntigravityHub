@@ -6,7 +6,7 @@ const parser=require(process.argv[3] || '@babel/parser');
 const source=fs.readFileSync(process.argv[2],'utf8');
 const hash=crypto.createHash('sha256').update(source).digest('hex');
 const version=process.argv[4] || '2.23.0';
-const hashes={'2.23.0':'867d1990b61d87f4b9ff8c5ecb1551c8688135267f32e56e02563f2d3e78fd68','2.23.1':'ad12ecf66061edab6a3835d1360e1bad50787bc7b2f2c9d86568281360864696'};
+const hashes={'2.23.0':'867d1990b61d87f4b9ff8c5ecb1551c8688135267f32e56e02563f2d3e78fd68','2.23.1':'ad12ecf66061edab6a3835d1360e1bad50787bc7b2f2c9d86568281360864696','2.24.0':'7a0bf9576e8ffd8e9fb39716368b1c79c2ccd965da65e049fe846100f34edf88'};
 if(hash!==hashes[version])throw Error('Unreviewed renderer for '+version);
 const root=path.resolve(__dirname,'../client/release-2.22.0/source/hans');
 const dict={...require(path.join(root,'ui_dictionary.json')),...require(path.join(root,'ui_overrides.json'))};
