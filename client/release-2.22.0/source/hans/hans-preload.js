@@ -242,6 +242,8 @@
   }
 
   function translateUiValue(value) {
+    const argonQuota = value.match(/^(Gemini 4 Argon) (Weekly|Daily|5[ -]?hour) Limit( Remaining)?$/i);
+    if (argonQuota) return argonQuota[1] + ' ' + ({weekly:'每周',daily:'每日','5-hour':'五小时','5 hour':'五小时','5hour':'五小时'}[argonQuota[2].toLowerCase()]) + (argonQuota[3] ? '剩余额度' : '额度');
     const earlier = value.match(/^(Load older messages|No more older messages), showing (\d+) of (\d+)$/);
     if (earlier) return (earlier[1] === 'Load older messages' ? '加载更早消息' : '没有更多早期消息') + '，已显示 ' + earlier[2] + ' / ' + earlier[3] + ' 条';
     const more = value.match(/^See (\d+) more(?: (plugins|skills and rules|custom agents))?$/);
@@ -392,6 +394,10 @@
       if (trimmed === 'history') { node.nodeValue = '历史'; return; }
       if (trimmed === '.') { node.nodeValue = '中查看已归档对话。'; return; }
     }
+    if (element?.closest('[role="region"][aria-label="Notifications"],[role="region"][aria-label="通知"]') && archiveParagraph) {
+      const archiveFragments = {'View archived in the sidebar (':'可在侧边栏的（', 'menu).':'菜单）中查看已归档对话。'};
+      if (archiveFragments[trimmed]) { node.nodeValue = value.replace(trimmed, archiveFragments[trimmed]); return; }
+    }
     if (isConversationChrome(element)) {
       const age = trimmed?.match(/^(\d+)(s|m|h|d|w|mo|y) ago$/);
       const units = {s:'秒',m:'分钟',h:'小时',d:'天',w:'周',mo:'个月',y:'年'};
@@ -413,9 +419,18 @@
     // Server renderer updates can rename React symbols. Match the reviewed
     // native layout instead of depending on the old injected bundle marker.
     const nativeUiAllowed = !protectedBody && !element?.closest(PROTECTED);
+    if (nativeUiAllowed && ['New','新建','新增'].includes(trimmed) &&
+        element?.matches?.('div.bg-secondary.rounded-full.px-1\\.5.text-xs') &&
+        element.parentElement?.querySelector('[data-testid="model-selector-effort-group"]')) {
+      for (const name of ['opacity-70','text-secondary-foreground']) {
+        if (!element.classList.contains(name)) element.classList.add(name);
+      }
+      if (trimmed !== '新增') node.nodeValue = value.replace(trimmed, '新增');
+      return;
+    }
     const historyNotice = nativeUiAllowed ? element?.closest('div.flex.flex-col.gap-0\\.5.text-secondary-foreground') : null;
     if (/^(This page is going away soon|此页面即将停用)$/.test(historyNotice?.querySelector('span.font-medium.text-foreground')?.textContent || '') &&
-        historyNotice.querySelector('[aria-label="search"]') && historyNotice.querySelector('[aria-label="filter"]')) {
+        historyNotice.querySelector('[aria-label="search"],[aria-label="搜索"]') && historyNotice.querySelector('[aria-label="filter"],[aria-label="筛选"]')) {
       const historyText = {
         'This page is going away soon': '此页面即将停用',
         'Search conversations with': '搜索对话请点击',
@@ -512,6 +527,10 @@
       const placeholder = element.getAttribute('placeholder');
       if (placeholder === 'Enter a prompt for the agent to run...')
         element.setAttribute('placeholder', '输入供智能体执行的提示词…');
+    }
+    if (element?.closest('[role="region"][aria-label="Notifications"],[role="region"][aria-label="通知"]') && archiveParagraph) {
+      const archiveFragments = {'View archived in the sidebar (':'可在侧边栏的（', 'menu).':'菜单）中查看已归档对话。'};
+      if (archiveFragments[trimmed]) { node.nodeValue = value.replace(trimmed, archiveFragments[trimmed]); return; }
     }
     if (isConversationChrome(element)) {
       for (const name of ['aria-label', 'title']) {

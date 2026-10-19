@@ -19,6 +19,12 @@ function role(node,parents){
   if(parent?.type==='ObjectProperty' && parent.value===node){
     const name=key(parent.key);
     if(props.has(name))return 'property:'+name;
+    // Native archive notifications contain Markdown icons; preserve the markup
+    // and translate only these two exact client-owned message fields.
+    if(['message','plainTextFallback'].includes(name) && [
+      'View archived in the sidebar (![filter](icon://filter_list) menu).',
+      'View archived in the sidebar (Display options menu).'
+    ].includes(node.value))return 'native-archive-notification';
     if(name==='description' && parents.some(p=>p.type==='ObjectProperty' && ['request_review','default','turbo'].includes(key(p.key))))return 'permission-preset-description';
   }
   let child=node;

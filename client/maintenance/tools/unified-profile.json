@@ -1,7 +1,7 @@
 {
   "version": "2.22.0",
-  "release": "AntigravityHub2.24.0+client2.22.0",
-  "reviewDate": "2026-10-17",
+  "release": "AntigravityHub2.24.1+client2.22.0",
+  "reviewDate": "2026-10-19",
   "baseArchive": "../../release-2.22.0/base/app.asar",
   "baseSha256": "259c83ffa266088dda6ede520a601bbf06cc5c34985cdf56c5d68549c98dbb0e",
   "rendererSha256": "47f36abaabd34f7d54a95df40d942b609c02db9f5c04d56b124a048571b9f16d",
@@ -18,12 +18,13 @@
     "835cc022ca97e30eea9efcb051e0c08aac2a6a00b7d8d29d172524da8985ef12",
     "a30906ce2887956131cbdafa50624a8509d1eda85c19d461686240484c1fa6f0",
     "094ab06db060dd6bcd64f063a8dcb9de537ff7de4998c58cce5fd164a03401f4",
-    "9eddbc3ee27b20932972c213b562ba413642113eac0dc7ad4030a77407008977"
+    "9eddbc3ee27b20932972c213b562ba413642113eac0dc7ad4030a77407008977",
+    "8937b79fa61fd6c30bdb16600cf79d9244608c4bb3a3e42608201ad6cb3db140"
   ],
   "targetModules": {
     "dist/main.js": "33627ee0b33c5af5052fb040a9c945c2713d19b143ce0b2473524588fa06c960",
     "dist/menu.js": "cc9418ca65ddd03c5df32c0debd526028e2a724ac538519b394febb82b4dc026",
-    "dist/preload.js": "fa1fc87f9c69ec457e88337294ac6719dca437acfca4a3757c5485954a21264e",
+    "dist/preload.js": "555500d495e1eb68ece3c46ca24a84982e8f0208cfa2e00094433453fd6c2146",
     "dist/utils.js": "103b0a2ac7e93fb3fa004820fae1640ee6f8b47bd0fc69706fccc40305a084c3",
     "dist/tray.js": "c32333e53e469e2826611105ca95e30ac99523e0808a503af33b8c6ca2f8178d",
     "dist/codex-layout.js": "3a55ac994b1045e80652b6a8fd720d42428f377acc2d70dfc0d908987ca5cbd7",
@@ -36,6 +37,6 @@
     "dist/hans-translator.js": "36d54862bf3429296b103a0865c8b66e9c63ce4e9389a6c9a698eb9066a36a11",
     "dist/ui-source-2230.js": "58b4cd229a7dc599918954159e3733be182555ddbfac36de0d4414b967b2dab0",
     "dist/ui-source-2231.js": "2a192af811dac01b539f1e0b45a86202cf94e0da75fc7869ca29318e246ddf3d",
-    "dist/ui-source-2240.js": "4137b8e02c90ba89d8f87c7f4f302e6de242656bf570b3c2afa266d7d9e0aab7"
+    "dist/ui-source-2240.js": "f1adfc3af2140d81f1e19e20a9bef65f85957c7eefad30745387cf4b943183b3"
   }
 }

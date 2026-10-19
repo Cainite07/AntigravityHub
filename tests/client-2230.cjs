@@ -16,6 +16,8 @@ for(const term of ['Google Docs','Firebase','Science','Chrome DevTools','Android
 if(version==='2.24.0') {
   for(const term of ['Context window','Conversation turns','Refresh all credentials','Time Zone','Context Providers','Console Telemetry','Runs on'])
     assert(reviewed.patches.some(p=>p.from===JSON.stringify(term)),term);
+  for(const term of ['This page is going away soon','Search conversations with','View archived in the sidebar (![filter](icon://filter_list) menu).'])
+    assert(reviewed.patches.some(p=>p.from===JSON.stringify(term)),term);
   const dictionary=require(path.join(root,'ui_overrides.json'));
   for(const term of ['Credentials for one or more automations have expired.','Play a sound when your action is needed or the agent finishes.','Event triggers need Cloud'])
     assert(dictionary[term] && dictionary[term]!==term,term);

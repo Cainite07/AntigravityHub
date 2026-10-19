@@ -3171,5 +3171,12 @@
   "Schedules only.": "仅定时触发。",
   "Uses your local files and tools. Schedules only.": "使用本机文件和工具，仅支持定时触发。",
   "Runs on": "运行位置",
-  "Event triggers need Cloud": "事件触发需要云端运行"
+  "Event triggers need Cloud": "事件触发需要云端运行",
+  "This page is going away soon": "此页面即将停用",
+  "Search conversations with": "搜索对话请点击",
+  "in the top left.": "（位于左上角）。",
+  "View archived in the sidebar": "查看已归档对话请打开侧边栏的",
+  "Gemini 4 Argon Weekly Limit": "Gemini 4 Argon 每周额度",
+  "View archived in the sidebar (![filter](icon://filter_list) menu).": "可在侧边栏的（![filter](icon://filter_list) 菜单）中查看已归档对话。",
+  "View archived in the sidebar (Display options menu).": "可在侧边栏的“显示选项”菜单中查看已归档对话。"
 }

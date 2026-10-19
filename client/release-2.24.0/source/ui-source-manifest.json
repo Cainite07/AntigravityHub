@@ -12424,6 +12424,15 @@
       "role": "react-child"
     },
     {
+      "start": 5801963,
+      "end": 5802031,
+      "from": "\"View archived in the sidebar (![filter](icon://filter_list) menu).\"",
+      "to": "\"可在侧边栏的（![filter](icon://filter_list) 菜单）中查看已归档对话。\"",
+      "text": "View archived in the sidebar (![filter](icon://filter_list) menu).",
+      "translation": "可在侧边栏的（![filter](icon://filter_list) 菜单）中查看已归档对话。",
+      "role": "native-archive-notification"
+    },
+    {
       "start": 5802070,
       "end": 5802093,
       "from": "\"Conversation Archived\"",
@@ -12431,6 +12440,15 @@
       "text": "Conversation Archived",
       "translation": "对话已归档",
       "role": "property:title"
+    },
+    {
+      "start": 5802126,
+      "end": 5802180,
+      "from": "\"View archived in the sidebar (Display options menu).\"",
+      "to": "\"可在侧边栏的“显示选项”菜单中查看已归档对话。\"",
+      "text": "View archived in the sidebar (Display options menu).",
+      "translation": "可在侧边栏的“显示选项”菜单中查看已归档对话。",
+      "role": "native-archive-notification"
     },
     {
       "start": 5802203,
@@ -13018,6 +13036,24 @@
       "role": "react-child"
     },
     {
+      "start": 5907280,
+      "end": 5907310,
+      "from": "\"This page is going away soon\"",
+      "to": "\"此页面即将停用\"",
+      "text": "This page is going away soon",
+      "translation": "此页面即将停用",
+      "role": "react-child"
+    },
+    {
+      "start": 5907340,
+      "end": 5907367,
+      "from": "\"Search conversations with\"",
+      "to": "\"搜索对话请点击\"",
+      "text": "Search conversations with",
+      "translation": "搜索对话请点击",
+      "role": "react-child"
+    },
+    {
       "start": 5907427,
       "end": 5907435,
       "from": "\"search\"",
@@ -13025,6 +13061,24 @@
       "text": "search",
       "translation": "搜索",
       "role": "property:aria-label"
+    },
+    {
+      "start": 5907512,
+      "end": 5907530,
+      "from": "\"in the top left.\"",
+      "to": "\"（位于左上角）。\"",
+      "text": "in the top left.",
+      "translation": "（位于左上角）。",
+      "role": "react-child"
+    },
+    {
+      "start": 5907560,
+      "end": 5907590,
+      "from": "\"View archived in the sidebar\"",
+      "to": "\"查看已归档对话请打开侧边栏的\"",
+      "text": "View archived in the sidebar",
+      "translation": "查看已归档对话请打开侧边栏的",
+      "role": "react-child"
     },
     {
       "start": 5908134,
@@ -23321,6 +23375,24 @@
       "text": "Deprecated",
       "translation": "已弃用",
       "role": "react-child"
+    },
+    {
+      "start": 6864615,
+      "end": 6864683,
+      "from": "\"View archived in the sidebar (![filter](icon://filter_list) menu).\"",
+      "to": "\"可在侧边栏的（![filter](icon://filter_list) 菜单）中查看已归档对话。\"",
+      "text": "View archived in the sidebar (![filter](icon://filter_list) menu).",
+      "translation": "可在侧边栏的（![filter](icon://filter_list) 菜单）中查看已归档对话。",
+      "role": "native-archive-notification"
+    },
+    {
+      "start": 6864702,
+      "end": 6864756,
+      "from": "\"View archived in the sidebar (Display options menu).\"",
+      "to": "\"可在侧边栏的“显示选项”菜单中查看已归档对话。\"",
+      "text": "View archived in the sidebar (Display options menu).",
+      "translation": "可在侧边栏的“显示选项”菜单中查看已归档对话。",
+      "role": "native-archive-notification"
     },
     {
       "start": 6866585,

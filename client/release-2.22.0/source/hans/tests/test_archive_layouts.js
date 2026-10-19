@@ -69,6 +69,36 @@ function testUpdatedNativeArchiveLayouts() {
   console.log('PASS: updated native history/archive layouts; conversation, plugin, code and unscoped text protected');
 }
 
+function testModelAndNotificationChrome() {
+  assert.equal(translateUiValue('Gemini 4 Argon Weekly Limit'), 'Gemini 4 Argon 每周额度');
+  assert.equal(translateUiValue('Gemini 4 Argon Weekly Limit Remaining'), 'Gemini 4 Argon 每周剩余额度');
+  for (const protectedKind of [null, '.prose', '[data-plugin-content]', 'pre']) {
+    const classes=new Set();
+    const element={matches:()=>true, parentElement:{querySelector:()=>({})},
+      classList:{contains:x=>classes.has(x),add:x=>classes.add(x)}, closest(selector) {
+        return protectedKind && selector.includes(protectedKind) ? {} : null;
+      }};
+    const node={nodeType:3,nodeValue:'New',parentElement:element};
+    translateStaticText(node);
+    assert.equal(node.nodeValue,protectedKind?'New':'新增');
+    assert.equal(classes.has('opacity-70'),!protectedKind);
+    if(!protectedKind){translateStaticText(node);assert.equal(node.nodeValue,'新增');}
+  }
+  for (const [original,expected] of Object.entries({'View archived in the sidebar (':'可在侧边栏的（','menu).':'菜单）中查看已归档对话。'})) {
+    for(const notification of [true,false]) {
+      const element={matches:()=>false,closest(selector) {
+        if(selector==='p')return {querySelector:()=>null};
+        if(selector.startsWith('[role="region"]'))return notification?{}:null;
+        if(selector.includes('.prose'))return {};
+        return null;
+      }};
+      const node={nodeType:3,nodeValue:original,parentElement:element};
+      translateStaticText(node);assert.equal(node.nodeValue,notification?expected:original);
+    }
+  }
+  console.log('PASS: Argon quota text, contextual new-model badge/opacity, native Markdown notification and protected user/plugin content.');
+}
 testUpdatedNativeArchiveLayouts();
+testModelAndNotificationChrome();
 context.HUB_OPTIONS.localization = false;
 testUpdatedNativeArchiveLayouts();
