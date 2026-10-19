@@ -422,9 +422,6 @@
     if (nativeUiAllowed && ['New','新建','新增'].includes(trimmed) &&
         element?.matches?.('div.bg-secondary.rounded-full.px-1\\.5.text-xs') &&
         element.parentElement?.querySelector('[data-testid="model-selector-effort-group"]')) {
-      for (const name of ['opacity-70','text-secondary-foreground']) {
-        if (!element.classList.contains(name)) element.classList.add(name);
-      }
       if (trimmed !== '新增') node.nodeValue = value.replace(trimmed, '新增');
       return;
     }
@@ -527,10 +524,6 @@
       const placeholder = element.getAttribute('placeholder');
       if (placeholder === 'Enter a prompt for the agent to run...')
         element.setAttribute('placeholder', '输入供智能体执行的提示词…');
-    }
-    if (element?.closest('[role="region"][aria-label="Notifications"],[role="region"][aria-label="通知"]') && archiveParagraph) {
-      const archiveFragments = {'View archived in the sidebar (':'可在侧边栏的（', 'menu).':'菜单）中查看已归档对话。'};
-      if (archiveFragments[trimmed]) { node.nodeValue = value.replace(trimmed, archiveFragments[trimmed]); return; }
     }
     if (isConversationChrome(element)) {
       for (const name of ['aria-label', 'title']) {

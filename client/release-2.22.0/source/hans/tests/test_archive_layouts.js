@@ -31,6 +31,8 @@ const context = {
   })
 };
 
+assert(!/\.classList\.(?:add|remove|toggle)|insertCSS|\.style[.\[]|\.className\s*=|\.innerHTML\s*=|appendChild|replaceChild/.test(engine),
+  'Localization may replace text and accessible labels only; native styles and structure must stay intact');
 vm.runInNewContext(engine, context);
 const { translateStaticText, translateStaticAttributes, isProtected, translateUiValue } = context.harness;
 
@@ -81,7 +83,7 @@ function testModelAndNotificationChrome() {
     const node={nodeType:3,nodeValue:'New',parentElement:element};
     translateStaticText(node);
     assert.equal(node.nodeValue,protectedKind?'New':'新增');
-    assert.equal(classes.has('opacity-70'),!protectedKind);
+    assert.equal(classes.size,0,'Translation must preserve native classes and opacity');
     if(!protectedKind){translateStaticText(node);assert.equal(node.nodeValue,'新增');}
   }
   for (const [original,expected] of Object.entries({'View archived in the sidebar (':'可在侧边栏的（','menu).':'菜单）中查看已归档对话。'})) {
@@ -94,9 +96,10 @@ function testModelAndNotificationChrome() {
       }};
       const node={nodeType:3,nodeValue:original,parentElement:element};
       translateStaticText(node);assert.equal(node.nodeValue,notification?expected:original);
+      translateStaticAttributes({...element,nodeType:1,getAttribute:()=>null});
     }
   }
-  console.log('PASS: Argon quota text, contextual new-model badge/opacity, native Markdown notification and protected user/plugin content.');
+  console.log('PASS: Argon quota text, contextual new-model badge with native styling, native Markdown notification and protected user/plugin content.');
 }
 testUpdatedNativeArchiveLayouts();
 testModelAndNotificationChrome();
