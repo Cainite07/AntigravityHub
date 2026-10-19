@@ -15,6 +15,10 @@ namespace AntigravityHub
         public bool IdeRestartPending { get; set; }
         public int Gemini5hQuota { get; set; } = -1;
         public int GeminiWeeklyQuota { get; set; } = -1;
+        public int Argon5hQuota { get; set; } = -1;
+        public int ArgonWeeklyQuota { get; set; } = -1;
+        public string ArgonResetTime5h { get; set; } = "";
+        public string ArgonResetTimeWeekly { get; set; } = "";
         public int Claude5hQuota { get; set; } = -1;
         public int ClaudeWeeklyQuota { get; set; } = -1;
         public int Quota5hPercent => Gemini5hQuota;

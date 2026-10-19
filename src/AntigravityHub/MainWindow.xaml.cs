@@ -1080,6 +1080,7 @@ namespace AntigravityHub
                 today = _latestHudStats?.TodayFormatted ?? "—", todayCost = _latestHudStats?.TodayCostFormatted ?? "",
                 accounts = accounts.ConvertAll(a => new { a.Id, a.Name, a.Email, a.IsCurrent, a.IdeRestartPending, a.AvatarDataUrl, a.Tier,
                     a.Gemini5hQuota, a.GeminiWeeklyQuota, a.Claude5hQuota, a.ClaudeWeeklyQuota,
+                    a.Argon5hQuota, a.ArgonWeeklyQuota, a.ArgonResetTime5h, a.ArgonResetTimeWeekly,
                     a.ResetTime5h, a.ResetTimeWeekly, a.ClaudeResetTime5h, a.ClaudeResetTimeWeekly, a.LastQuotaRefreshTime, a.QuotaStatus }) });
         }
 

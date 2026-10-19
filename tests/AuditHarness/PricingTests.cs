@@ -15,8 +15,8 @@ internal static class PricingTests
             var prices = ModelPricingService.ReadSnapshot();
             Check(prices.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase).SetEquals(new[] {
                 "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.1-pro",
-                "claude-sonnet-4-6", "claude-opus-4-6-thinking", "gpt-oss-120b" }),
-                "Built-in current catalog contains exactly the seven menu models");
+                "claude-sonnet-5-5", "claude-opus-5-5", "gemini-4-argon", "gpt-oss-120b" }),
+                "Built-in current catalog contains the updated menu models");
             foreach (var model in new[] { "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.8-flash" })
             {
                 Check(ModelPricingService.TryResolve(prices, model, out var price, out var basis) && basis == "exact" &&
@@ -35,9 +35,9 @@ internal static class PricingTests
             }
             foreach (var model in new[] { "claude-opus-4-6", "Claude Opus 4.6 (Thinking)", "claude-sonnet-4-6-thinking", "Claude Sonnet 4.6" })
             {
-                Check(ModelPricingService.TryResolve(prices, model, out _, out var basis) && basis == "alias", model + " resolves through a known alias");
+                Check(ModelPricingService.TryResolve(prices, model, out _, out var basis) && basis == "historical", model + " retains the historical 4.6 rate");
             }
-            foreach (var model in new[] { "gemini-3.8-flash-n", "gemini-3.8-flash-n2", "gemini-3.8-flash-exp-a", "gemini-3.8-flash-tiered", "Gemini 3.8 Flash (Medium)", "claude-sonnet-4-6-n", "gpt-oss-120b-tiered" })
+            foreach (var model in new[] { "gemini-3.8-flash-n", "gemini-3.8-flash-n2", "gemini-3.8-flash-exp-a", "gemini-3.8-flash-tiered", "Gemini 3.8 Flash (Medium)", "claude-sonnet-5-5-n", "gpt-oss-120b-tiered" })
             {
                 Check(ModelPricingService.TryResolve(prices, model, out var inherited, out var basis) && basis == "base-variant" &&
                     ModelPricingService.CatalogKey(model) is string canonical && inherited == prices[canonical],
@@ -49,17 +49,24 @@ internal static class PricingTests
                 Check(!ModelPricingService.TryResolve(prices, model, out _, out _), model + " cannot inherit an unrelated reference rate");
             Check(!ModelPricingService.TryResolve(prices, null, out _, out _), "Null model is unpriced without throwing");
 
+            foreach (var model in new[] {"gemini-4-argon", "gemini-4-argon-trial", "Gemini 4 Argon (High)"}) {
+                Check(ModelPricingService.TryResolve(prices, model, out var promo, out _, DateTimeOffset.Parse("2026-11-30T23:59:59Z")) && promo.Input==2 && promo.CacheRead==.10 && promo.Output==10, model+" introductory price");
+                Check(ModelPricingService.TryResolve(prices, model, out var standard, out _, DateTimeOffset.Parse("2026-12-01T00:00:00Z")) && standard.Input==4 && standard.CacheRead==.20 && standard.Output==20, model+" scheduled standard price");
+            }
+            Check(ModelPricingService.TryResolve(prices,"Claude Opus 5.5 (Thinking)",out var opus55,out _) && opus55.Input==4 && opus55.CacheRead==.20 && opus55.Output==20 && opus55.CacheWrite==5,"Opus 5.5 complete official reference");
+            Check(ModelPricingService.TryResolve(prices,"Claude Sonnet 5.5",out var sonnet55,out _) && sonnet55.Input==2 && sonnet55.CacheRead==.10 && sonnet55.Output==10 && sonnet55.CacheWrite==2.5,"Sonnet 5.5 complete official reference");
             string config = Path.Combine(HubStorage.HubDir, "model_pricing.json");
             var custom = new ModelPrice(10, 2, 20, .5, "fixture");
             File.WriteAllText(config, JsonSerializer.Serialize(new Dictionary<string, ModelPrice> {
                 ["gemini-3.9-flash"] = custom, ["claude-sonnet-4-6-thinking"] = custom,
-                ["gpt-oss-120b"] = custom, ["gemini-3.8-flash"] = custom }));
+                ["gpt-oss-120b"] = custom, ["gemini-3.8-flash"] = custom, ["gemini-4-argon"] = custom }));
             prices = ModelPricingService.ReadSnapshot();
             Check(ModelPricingService.TryResolve(prices, "gemini-3.9-flash", out var exact, out var exactBasis) && exact == custom && exactBasis == "exact", "Exact future-model configuration wins over family fallback");
             Check(ModelPricingService.TryResolve(prices, "claude-sonnet-4-6-thinking", out exact, out exactBasis) && exact == custom && exactBasis == "exact", "Exact thinking configuration wins over alias");
             Check(ModelPricingService.TryResolve(prices, "gpt-oss", out exact, out _) && exact == custom, "OSS alias inherits canonical user override");
             Check(ModelPricingService.TryResolve(prices, "gemini-3.8-flash-n", out exact, out exactBasis) && exact == custom && exactBasis == "base-variant", "Known routing variant inherits its customized base rate");
             Check(!ModelPricingService.TryResolve(prices, "gemini-4.0-flash", out _, out _), "A new base version is not silently priced by an older model");
+            Check(ModelPricingService.TryResolve(prices,"gemini-4-argon-trial",out var customArgon,out _,DateTimeOffset.Parse("2027-01-01T00:00:00Z")) && customArgon==custom,"User Argon override takes precedence over automatic price dates");
             var variantOverride = new ModelPrice(2, 1, 4, 0, "fixture-variant");
             File.WriteAllText(config, JsonSerializer.Serialize(new Dictionary<string, ModelPrice> { ["gemini-3.8-flash-n"] = variantOverride }));
             prices = ModelPricingService.ReadSnapshot();

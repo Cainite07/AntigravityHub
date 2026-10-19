@@ -511,7 +511,20 @@ namespace AntigravityHub
                             string countdown = FormatResetCountdown(resetTime);
                             string formatted = FormatResetExact(resetTime);
 
-                            if (gName.Contains("Gemini", StringComparison.OrdinalIgnoreCase))
+                            if (gName.Contains("Argon", StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (window.Equals("5h", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    parsed.Argon5hQuota = pct;
+                                    parsed.ArgonResetTime5h = resetTime;
+                                }
+                                else if (window.Equals("weekly", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    parsed.ArgonWeeklyQuota = pct;
+                                    parsed.ArgonResetTimeWeekly = resetTime;
+                                }
+                            }
+                            else if (gName.Contains("Gemini", StringComparison.OrdinalIgnoreCase))
                             {
                                 if (window == "5h")
                                 {
@@ -550,7 +563,11 @@ namespace AntigravityHub
                         }
                     }
                 }
-                if (parsed.Gemini5hQuota < 0 && parsed.GeminiWeeklyQuota < 0 && parsed.Claude5hQuota < 0 && parsed.ClaudeWeeklyQuota < 0) return false;
+                if (parsed.Gemini5hQuota < 0 && parsed.GeminiWeeklyQuota < 0 && parsed.Claude5hQuota < 0 && parsed.ClaudeWeeklyQuota < 0 && parsed.Argon5hQuota < 0 && parsed.ArgonWeeklyQuota < 0) return false;
+                acc.Argon5hQuota = parsed.Argon5hQuota;
+                acc.ArgonWeeklyQuota = parsed.ArgonWeeklyQuota;
+                acc.ArgonResetTime5h = parsed.ArgonResetTime5h;
+                acc.ArgonResetTimeWeekly = parsed.ArgonResetTimeWeekly;
                 acc.Gemini5hQuota = parsed.Gemini5hQuota;
                 acc.GeminiWeeklyQuota = parsed.GeminiWeeklyQuota;
                 acc.Claude5hQuota = parsed.Claude5hQuota;

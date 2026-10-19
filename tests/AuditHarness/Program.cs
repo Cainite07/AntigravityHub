@@ -58,6 +58,12 @@ if (args.Contains("--live-login-read-only"))
         hasEmail = !string.IsNullOrWhiteSpace(profile?.Email) }));
     return;
 }
+if (args.Contains("--live-quota-cache")) {
+    HubStorage.HubDir=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),".antigravity_hub");
+    var items=new AccountService().GetAccounts();
+    Console.WriteLine(JsonSerializer.Serialize(items.Select((a,i)=>new {index=i,current=a.IsCurrent,gemini5h=a.Gemini5hQuota,geminiWeekly=a.GeminiWeeklyQuota,argon5h=a.Argon5hQuota,argonWeekly=a.ArgonWeeklyQuota,claude5h=a.Claude5hQuota,claudeWeekly=a.ClaudeWeeklyQuota})));
+    return;
+}
 if (args.Contains("--live-current-login-import"))
 {
     // Explicit import acceptance mode: same backend as the UI, no login/switch/restart.
@@ -92,6 +98,7 @@ if (args.Contains("--history-safety-only")) { HistorySafetyTests.Run(); return; 
 if (args.Contains("--aggregation-only")) { AggregateTests.Run(); return; }
 if (args.Contains("--snapshot-cache-only")) { SnapshotCacheTests.Run(); return; }
 if (args.Contains("--migration-replay")) { await MigrationReplay.Run(); return; }
+if (args.Contains("--pricing-only")) { Console.WriteLine("PASS: "+PricingTests.Run().Count+" pricing checks."); return; }
 if (args.Contains("--reliability-only")) { await ReliabilityTests.Run(); return; }
 var results = new List<object>();
 void Result(string name, object evidence) => results.Add(new { name, evidence });

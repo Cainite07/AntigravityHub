@@ -125,6 +125,9 @@ internal static class ReliabilityTests
         const string validQuota = "{\"groups\":[{\"displayName\":\"Gemini\",\"buckets\":[{\"window\":\"5h\",\"remainingFraction\":0}]}]}";
         Check(ParseQuota(quotaAccount, validQuota) && quotaAccount.Gemini5hQuota == 0 && quotaAccount.GeminiWeeklyQuota == -1,
             "Real zero quota is preserved and missing windows remain unknown");
+        const string argonQuota = """{"groups":[{"displayName":"Gemini","buckets":[{"window":"5h","remainingFraction":0.75},{"window":"weekly","remainingFraction":0.83}]},{"displayName":"Gemini 4 Argon","buckets":[{"window":"weekly","remainingFraction":0.96,"resetTime":"2026-10-29T12:00:00Z"}]}]}""";
+        Check(ParseQuota(quotaAccount,argonQuota) && quotaAccount.GeminiWeeklyQuota==83 && quotaAccount.Gemini5hQuota==75 && quotaAccount.ArgonWeeklyQuota==96 && quotaAccount.Argon5hQuota==-1 && quotaAccount.ArgonResetTimeWeekly=="2026-10-29T12:00:00Z","Argon weekly quota is independent and never overwrites Gemini or fabricates a 5h limit");
+        Check(ParseQuota(quotaAccount,"""{"groups":[{"display_name":"Gemini 4 Argon","buckets":[{"window":"weekly","remaining_fraction":0}]}]}""") && quotaAccount.ArgonWeeklyQuota==0 && quotaAccount.GeminiWeeklyQuota==-1,"Argon-only and zero quota responses retain unknown shared quotas");
         var updateToken = typeof(AccountService).GetMethod("UpdateAccountTokenInJson", BindingFlags.NonPublic | BindingFlags.Instance)!;
         var saveQuota = typeof(AccountService).GetMethod("SaveQuotaToDetailJson", BindingFlags.NonPublic | BindingFlags.Instance)!;
         using (var quotaDoc = JsonDocument.Parse(validQuota))

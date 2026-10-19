@@ -734,7 +734,7 @@ let currentNav = 'usage';
               <span class="truncate" title="${escapeHtml(m.name)}">${escapeHtml(m.name)}</span>
             </span>
             <div class="flex items-center gap-2">
-              ${m.costFormatted ? `<span title="${m.pricingBasis === 'base-variant' ? '该衍生模型沿用基座参考费率；画像与历史记录保留独立模型名' : m.pricingBasis === 'historical' ? '历史模型参考费率；不属于当前七种菜单模型' : m.pricingBasis === 'mixed' ? '按各条记录的参考费率分别计算，不代表订阅账单' : '项目参考估值，不代表订阅账单'}" class="text-[10px] font-bold text-[color:var(--text-9e6c18)] tone-bg-d4a338-15 border tone-border-d4a338-25 px-1.5 py-0.2 rounded num-cell">${escapeHtml(m.costFormatted)}</span>` : ''}
+              ${m.costFormatted ? `<span title="${m.pricingBasis === 'base-variant' ? '该衍生模型沿用基座参考费率；画像与历史记录保留独立模型名' : m.pricingBasis === 'historical' ? '历史模型参考费率；不属于当前模型目录' : m.pricingBasis === 'mixed' ? '按各条记录的参考费率分别计算，不代表订阅账单' : '项目参考估值，不代表订阅账单'}" class="text-[10px] font-bold text-[color:var(--text-9e6c18)] tone-bg-d4a338-15 border tone-border-d4a338-25 px-1.5 py-0.2 rounded num-cell">${escapeHtml(m.costFormatted)}</span>` : ''}
               <span class="text-[color:var(--text-276b38)] font-bold num-cell text-[11px] shrink-0">${escapeHtml(m.formatted)}</span>
               <span class="text-[color:var(--text-7a7367)] text-[10px] shrink-0">· ${quotaWidth(quotaValue(m.percentage))}%</span>
             </div>

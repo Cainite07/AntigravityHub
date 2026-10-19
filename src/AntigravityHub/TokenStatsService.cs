@@ -183,7 +183,8 @@ namespace AntigravityHub
                         long parts = checked(inTok + cachedTok + cacheWriteTok + outTok + reasonTok);
                         if (tokens < 0 || inTok < 0 || cachedTok < 0 || cacheWriteTok < 0 || outTok < 0 || reasonTok < 0) throw new InvalidDataException("用量记录含负数。");
                         tokens = Math.Max(tokens, parts);
-                        bool priced = ModelPricingService.TryResolve(prices, model, out var price, out var basis);
+                        bool priced = ModelPricingService.TryResolve(prices, model, out var price, out var basis,
+                            DateTimeOffset.TryParse(hourStart, out var usageTime) ? usageTime : null);
                         // Preserve each recorded model name in every usage breakdown. Pricing may
                         // inherit a base rate, but that must not merge the model's usage portrait.
                         string displayModel = model;

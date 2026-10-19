@@ -12,7 +12,7 @@ function request(message,timeout=2200){return new Promise((resolve,reject)=>{
 });}
 function trusted(event,BrowserWindow){try{const u=new URL(event.senderFrame.url);return event.senderFrame===event.sender.mainFrame && !!BrowserWindow.fromWebContents(event.sender) && u.protocol==='https:' && u.hostname==='127.0.0.1' && !u.username && !u.password;}catch{return false;}}
 function install({ipcMain,BrowserWindow}){
-  const collector=createSpeedCollector();
+  const collector=createSpeedCollector(),quotaCollector=createQuotaCollector();
   let currentAccount=null;
   ipcMain.handle('hub-hud:speed',async(event,id)=>{
     if(!trusted(event,BrowserWindow)||cached?.enabled===false||!GUID.test(id||''))return null;
@@ -27,7 +27,7 @@ function install({ipcMain,BrowserWindow}){
     if(!trusted(event,BrowserWindow))return {available:false};
     const now=Date.now(),last=snapshots.get(event.sender.id)||0;if(now-last<500)return cached||{available:false};snapshots.set(event.sender.id,now);
     if(cached?.available&&now-at<1000)return cached;
-    if(!flight)flight=request({action:'snapshot'}).then(v=>{const account=v?.accounts?.find(a=>a.isCurrent)?.id||null;if(account!==currentAccount){currentAccount=account;collector.clear();}cached=v;at=Date.now();return v;}).catch(()=>{cached=null;return {available:false};}).finally(()=>flight=null);
+    if(!flight)flight=request({action:'snapshot'}).then(async v=>{const account=v?.accounts?.find(a=>a.isCurrent)?.id||null;if(account!==currentAccount){currentAccount=account;collector.clear();quotaCollector.clear();}if(v?.available&&v.enabled!==false&&account){const quota=await quotaCollector.read(account);if(quota)v={...v,accounts:v.accounts.map(a=>a.isCurrent?{...a,...quota}:a)};}cached=v;at=Date.now();return v;}).catch(()=>{cached=null;return {available:false};}).finally(()=>flight=null);
     return flight;
   });
   ipcMain.handle('hub-hud:open',async event=>{if(!trusted(event,BrowserWindow))return false;try{await request({action:'open'});return true;}catch{return false;}});
@@ -90,6 +90,33 @@ function localCall(server,method,body){return new Promise((resolve,reject)=>{
     res.on('error',reject);res.on('end',()=>{if(res.statusCode!==200)return reject(Error('Metadata unavailable'));try{resolve(JSON.parse(Buffer.concat(chunks).toString()));}catch{reject(Error('Invalid metadata'));}});
   });req.on('error',reject);req.setTimeout(5000,()=>req.destroy(Error('Metadata timeout')));req.end(payload);
 });}
+// Read the native client's own quota service, which includes newly rolled-out pools.
+// Only allowlisted quota counters leave the main process; no credentials or RPC body.
+function argonQuota(response){
+  const groups=response?.response?.groups||response?.groups;
+  if(!Array.isArray(groups))return null;
+  const value={argon5hQuota:-1,argonWeeklyQuota:-1,argonResetTime5h:'',argonResetTimeWeekly:''};let found=false;
+  for(const group of groups){if(!/argon/i.test(group.displayName||''))continue;
+    for(const b of group.buckets||[]){const fraction=b.remainingFraction??(b.remaining?.case==='remainingFraction'?b.remaining.value:null);
+      if(typeof fraction!=='number'||!Number.isFinite(fraction)||fraction<0||fraction>1)continue;
+      const key=b.window==='5h'?'5h':b.window==='weekly'?'Weekly':null;if(!key)continue;
+      value['argon'+key+'Quota']=Math.round(fraction*100);value['argonResetTime'+key]=typeof b.resetTime==='string'?b.resetTime:'';found=true;
+    }
+  }return found?value:null;
+}
+function createQuotaCollector({server=nativeServer,call=localCall,now=()=>Date.now()}={}){
+  let entry=null,epoch=0;
+  return {clear(){entry=null;epoch++;},async read(account){
+    let backend;try{backend=server();}catch{return null;}
+    const key=`${backend.pid}:${backend.port}:${account}`,generation=epoch;
+    if(entry?.key===key&&(entry.flight||now()-entry.at<30000))return entry.flight||entry.value;
+    const current={key,at:now(),value:null};entry=current;
+    current.flight=(async()=>{try{const result=await call(backend,'RetrieveUserQuotaSummary',{forceRefresh:false});const check=server();
+      if(epoch!==generation||check.pid!==backend.pid||check.port!==backend.port||check.csrf!==backend.csrf)return null;
+      return argonQuota(result);
+    }catch{return null;}})().then(value=>{current.value=value;current.at=now();current.flight=null;return value;});return current.flight;
+  }};
+}
 function createSpeedCollector({server=nativeServer,call=localCall,now=()=>Date.now()}={}){
   const cache=new Map();let epoch=0;
   function clear(){epoch++;cache.clear();}
@@ -123,4 +150,4 @@ function createSpeedCollector({server=nativeServer,call=localCall,now=()=>Date.n
   }
   return {read,clear};
 }
-module.exports={install,request,trusted,pipeName,seconds,tokens,sessionSpeed,createSpeedCollector};
+module.exports={install,request,trusted,pipeName,seconds,tokens,sessionSpeed,createSpeedCollector,argonQuota,createQuotaCollector};
