@@ -2689,8 +2689,7 @@ let currentNav = 'usage';
           if (msg.type === 'clientEnhancementStatus') {
             document.getElementById('client-enhancement-status').innerText = msg.message;
             const status = document.getElementById('client-enhancement-status');
-            if (msg.message === '已就绪。') status.classList.add('hidden');
-            else status.classList.remove('hidden');
+            status.classList.remove('hidden');
           }
           if (msg.type === 'settingsData'  || msg.type === 'closeToTrayChanged' || msg.type === 'settingsSaved') {
             if (msg.data) {

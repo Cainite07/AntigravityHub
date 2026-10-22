@@ -6,7 +6,7 @@
   const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const quota=v=>Number.isFinite(v)&&v>=0&&v<=100?v:null;
   const label=v=>quota(v)===null?'—':`${v}%`;
-  const reset=v=>{const ms=Date.parse(v)-Date.now();if(!Number.isFinite(ms)||ms<=0)return '—';const m=Math.ceil(ms/60000);return m<60?`${m}m`:m<1440?`${Math.floor(m/60)}h${m%60?String(m%60).padStart(2,'0'):''}`:`${Math.floor(m/1440)}d${Math.floor(m%1440/60)}h`;};
+  const reset=v=>{const ms=Date.parse(v)-Date.now();if(!Number.isFinite(ms)||ms<=0)return '—';const m=Math.ceil(ms/60000);return m<60?`${m}分钟`:m<1440?`${Math.floor(m/60)}小时${m%60?m%60+'分钟':''}`:`${Math.floor(m/1440)}天${Math.floor(m%1440/60)}小时`;};
   function avatar(a){const src=typeof a.avatarDataUrl==='string'&&a.avatarDataUrl.length<700000&&/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/]+=*$/.test(a.avatarDataUrl)?a.avatarDataUrl:'';return src?`<img class="avatar" src="${src}" alt="">`:`<span class="avatar initial">${escape((a.name||a.email||'?').slice(0,1).toUpperCase())}</span>`;}
   const css=`
     :host{display:inline-flex;align-items:center;flex-shrink:0;margin-right:4px;font-family:var(--font-family,system-ui),sans-serif;font-size:11px;line-height:1.4;font-weight:500;color-scheme:dark;color:var(--fg);--fg:#D5D5D2;--title:#ECEAE4;--muted:#A0A39F;--jade:#9EB9A8;--native:#25282C;--panel:color-mix(in srgb,var(--native) 88%,#373A3C);--line:#FFFFFF0D;--hover:#FFFFFF07;--track:#FFFFFF12;--tier:#C9B58C;--shadow:#0005;--quota-lightness:65%}

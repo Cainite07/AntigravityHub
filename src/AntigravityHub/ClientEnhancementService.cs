@@ -19,7 +19,8 @@ internal static class ClientEnhancementService
     {
         var status = await RunAsync(false);
         if (status == "已就绪。" || !status.StartsWith("需要安装", StringComparison.Ordinal)) return status;
-        return await RunAsync(true);
+        var installed = await RunAsync(true);
+        return installed == "已就绪。" ? await RunAsync(false) : installed;
     }
 
     public static async Task LaunchAsync(CancellationToken cancellation)
@@ -61,9 +62,9 @@ internal static class ClientEnhancementService
             {
                 var version = value.TryGetProperty("version", out var versionValue) ? versionValue.GetString() : null;
                 if (!value.TryGetProperty("supported", out var supported) || !supported.GetBoolean())
-                    return "暂未适配 Antigravity " + (version ?? "当前版本") + "。";
+                    return "暂未适配 Antigravity " + (version ?? "当前版本") + "。" + CompatibilityNote(value);
                 bool ready = value.TryGetProperty("unified", out var enabled) && enabled.GetBoolean();
-                return ready ? "已就绪。" :
+                return ready ? "已适配 Antigravity " + version + "。" + CompatibilityNote(value) :
                     "需要安装或更新组件（" + version + "）。";
             }
             string status = value.TryGetProperty("status", out var state) ? state.GetString() ?? "" : "";
@@ -81,6 +82,14 @@ internal static class ClientEnhancementService
             return "客户端连接失败，重新打开 Hub 后会再试。";
         }
         finally { Gate.Release(); }
+    }
+
+    private static string CompatibilityNote(JsonElement value)
+    {
+        if (!value.TryGetProperty("supportedVersions", out var versions) || versions.ValueKind != JsonValueKind.Array) return "";
+        var supported = new System.Collections.Generic.List<string>();
+        foreach (var version in versions.EnumerateArray()) if (version.GetString() is string text) supported.Add(text);
+        return " 支持版本：" + string.Join("、", supported) + "。升级或降级后自动选择对应适配。";
     }
 
     private static async Task<string> RunProcess(string file, string[] arguments, string workingDirectory)

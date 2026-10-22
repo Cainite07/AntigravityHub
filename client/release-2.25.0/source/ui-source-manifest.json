@@ -2425,6 +2425,204 @@
       "role": "property:label"
     },
     {
+      "start": 3676113,
+      "end": 3676116,
+      "from": "\"h\"",
+      "to": "\"小时\"",
+      "text": "h",
+      "translation": "小时",
+      "role": "relative-time-units"
+    },
+    {
+      "start": 3676121,
+      "end": 3676124,
+      "from": "\"d\"",
+      "to": "\"天\"",
+      "text": "d",
+      "translation": "天",
+      "role": "relative-time-units"
+    },
+    {
+      "start": 3676130,
+      "end": 3676133,
+      "from": "\"w\"",
+      "to": "\"周\"",
+      "text": "w",
+      "translation": "周",
+      "role": "relative-time-units"
+    },
+    {
+      "start": 3676140,
+      "end": 3676144,
+      "from": "\"mo\"",
+      "to": "\"个月\"",
+      "text": "mo",
+      "translation": "个月",
+      "role": "relative-time-units"
+    },
+    {
+      "start": 3676150,
+      "end": 3676153,
+      "from": "\"y\"",
+      "to": "\"年\"",
+      "text": "y",
+      "translation": "年",
+      "role": "relative-time-units"
+    },
+    {
+      "start": 3676161,
+      "end": 3676164,
+      "from": "\"m\"",
+      "to": "\"分钟\"",
+      "text": "m",
+      "translation": "分钟",
+      "role": "relative-time-units"
+    },
+    {
+      "start": 3676347,
+      "end": 3676357,
+      "from": "\"just now\"",
+      "to": "\"刚刚\"",
+      "text": "just now",
+      "translation": "刚刚",
+      "role": "relative-time-ago"
+    },
+    {
+      "start": 3676363,
+      "end": 3676367,
+      "from": " ago",
+      "to": "前",
+      "text": " ago",
+      "translation": "前",
+      "role": "relative-time-ago"
+    },
+    {
+      "start": 3676685,
+      "end": 3676686,
+      "from": "s",
+      "to": "秒",
+      "text": "s",
+      "translation": "秒",
+      "role": "duration"
+    },
+    {
+      "start": 3676730,
+      "end": 3676731,
+      "from": "m",
+      "to": "分钟",
+      "text": "m",
+      "translation": "分钟",
+      "role": "duration"
+    },
+    {
+      "start": 3676797,
+      "end": 3676799,
+      "from": "d ",
+      "to": "天 ",
+      "text": "d ",
+      "translation": "天 ",
+      "role": "duration"
+    },
+    {
+      "start": 3676806,
+      "end": 3676808,
+      "from": "h ",
+      "to": "小时 ",
+      "text": "h ",
+      "translation": "小时 ",
+      "role": "duration"
+    },
+    {
+      "start": 3676812,
+      "end": 3676813,
+      "from": "m",
+      "to": "分钟",
+      "text": "m",
+      "translation": "分钟",
+      "role": "duration"
+    },
+    {
+      "start": 3676824,
+      "end": 3676826,
+      "from": "h ",
+      "to": "小时 ",
+      "text": "h ",
+      "translation": "小时 ",
+      "role": "duration"
+    },
+    {
+      "start": 3676830,
+      "end": 3676831,
+      "from": "m",
+      "to": "分钟",
+      "text": "m",
+      "translation": "分钟",
+      "role": "duration"
+    },
+    {
+      "start": 3676838,
+      "end": 3676839,
+      "from": "h",
+      "to": "小时",
+      "text": "h",
+      "translation": "小时",
+      "role": "duration"
+    },
+    {
+      "start": 3676897,
+      "end": 3676899,
+      "from": "ms",
+      "to": "毫秒",
+      "text": "ms",
+      "translation": "毫秒",
+      "role": "duration"
+    },
+    {
+      "start": 3676949,
+      "end": 3676950,
+      "from": "s",
+      "to": "秒",
+      "text": "s",
+      "translation": "秒",
+      "role": "duration"
+    },
+    {
+      "start": 3676968,
+      "end": 3676969,
+      "from": "s",
+      "to": "秒",
+      "text": "s",
+      "translation": "秒",
+      "role": "duration"
+    },
+    {
+      "start": 3677026,
+      "end": 3677028,
+      "from": "m ",
+      "to": "分钟 ",
+      "text": "m ",
+      "translation": "分钟 ",
+      "role": "duration"
+    },
+    {
+      "start": 3677032,
+      "end": 3677033,
+      "from": "s",
+      "to": "秒",
+      "text": "s",
+      "translation": "秒",
+      "role": "duration"
+    },
+    {
+      "start": 3677040,
+      "end": 3677041,
+      "from": "m",
+      "to": "分钟",
+      "text": "m",
+      "translation": "分钟",
+      "role": "duration"
+    },
+    {
       "start": 3811478,
       "end": 3811488,
       "from": "\"Mentions\"",
@@ -8500,6 +8698,24 @@
       "role": "react-child"
     },
     {
+      "start": 5425671,
+      "end": 5425682,
+      "from": "\"Analyzing\"",
+      "to": "\"正在分析\"",
+      "text": "Analyzing",
+      "translation": "正在分析",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5425683,
+      "end": 5425693,
+      "from": "\"Analyzed\"",
+      "to": "\"已分析\"",
+      "text": "Analyzed",
+      "translation": "已分析",
+      "role": "native-activity-prefix"
+    },
+    {
       "start": 5425870,
       "end": 5425888,
       "from": "\"Open in Critique\"",
@@ -8570,6 +8786,24 @@
       "text": " more",
       "translation": " 更多",
       "role": "react-child"
+    },
+    {
+      "start": 5428831,
+      "end": 5428842,
+      "from": "\"Analyzing\"",
+      "to": "\"正在分析\"",
+      "text": "Analyzing",
+      "translation": "正在分析",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5428843,
+      "end": 5428853,
+      "from": "\"Analyzed\"",
+      "to": "\"已分析\"",
+      "text": "Analyzed",
+      "translation": "已分析",
+      "role": "native-activity-prefix"
     },
     {
       "start": 5429086,
@@ -9193,6 +9427,15 @@
       "role": "react-child"
     },
     {
+      "start": 5522875,
+      "end": 5522885,
+      "from": "\"Analyzed\"",
+      "to": "\"已分析\"",
+      "text": "Analyzed",
+      "translation": "已分析",
+      "role": "native-activity-prefix"
+    },
+    {
       "start": 5523001,
       "end": 5523010,
       "from": "\" result\"",
@@ -9227,6 +9470,24 @@
       "text": "for",
       "translation": "：",
       "role": "react-child"
+    },
+    {
+      "start": 5527462,
+      "end": 5527473,
+      "from": "\"Analyzing\"",
+      "to": "\"正在分析\"",
+      "text": "Analyzing",
+      "translation": "正在分析",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5527474,
+      "end": 5527484,
+      "from": "\"Analyzed\"",
+      "to": "\"已分析\"",
+      "text": "Analyzed",
+      "translation": "已分析",
+      "role": "native-activity-prefix"
     },
     {
       "start": 5529055,
@@ -9533,6 +9794,24 @@
       "text": ". The LLM decided that this would yield the best results. If this is not desired, you can simply tell the agent to search without a domain filter.",
       "translation": "。语言模型判断这样能获得更好的结果。如果不需要，可直接让智能体在搜索时取消域名筛选。",
       "role": "react-child"
+    },
+    {
+      "start": 5548858,
+      "end": 5548869,
+      "from": "\"Searching\"",
+      "to": "\"正在搜索\"",
+      "text": "Searching",
+      "translation": "正在搜索",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5548870,
+      "end": 5548880,
+      "from": "\"Searched\"",
+      "to": "\"已搜索\"",
+      "text": "Searched",
+      "translation": "已搜索",
+      "role": "native-activity-prefix"
     },
     {
       "start": 5548991,
@@ -9886,6 +10165,42 @@
       "role": "react-child"
     },
     {
+      "start": 5571034,
+      "end": 5571043,
+      "from": "\"Editing\"",
+      "to": "\"正在编辑\"",
+      "text": "Editing",
+      "translation": "正在编辑",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5571063,
+      "end": 5571071,
+      "from": "\"Edited\"",
+      "to": "\"已编辑\"",
+      "text": "Edited",
+      "translation": "已编辑",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5572655,
+      "end": 5572664,
+      "from": "\"Reading\"",
+      "to": "\"正在读取\"",
+      "text": "Reading",
+      "translation": "正在读取",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5572665,
+      "end": 5572671,
+      "from": "\"Read\"",
+      "to": "\"已读取\"",
+      "text": "Read",
+      "translation": "已读取",
+      "role": "native-activity-prefix"
+    },
+    {
       "start": 5573647,
       "end": 5573657,
       "from": "\"Starting\"",
@@ -9956,6 +10271,42 @@
       "text": "Accept",
       "translation": "接受",
       "role": "react-child"
+    },
+    {
+      "start": 5658422,
+      "end": 5658428,
+      "from": "\"file\"",
+      "to": "\"文件\"",
+      "text": "file",
+      "translation": "文件",
+      "role": "activity-objects"
+    },
+    {
+      "start": 5658429,
+      "end": 5658436,
+      "from": "\"files\"",
+      "to": "\"文件\"",
+      "text": "files",
+      "translation": "文件",
+      "role": "activity-objects"
+    },
+    {
+      "start": 5658447,
+      "end": 5658457,
+      "from": "\"artifact\"",
+      "to": "\"产物\"",
+      "text": "artifact",
+      "translation": "产物",
+      "role": "activity-objects"
+    },
+    {
+      "start": 5658458,
+      "end": 5658469,
+      "from": "\"artifacts\"",
+      "to": "\"产物\"",
+      "text": "artifacts",
+      "translation": "产物",
+      "role": "activity-objects"
     },
     {
       "start": 5662110,
@@ -19649,6 +20000,159 @@
       "text": "Best-of-N Ended",
       "translation": "多方案择优已结束",
       "role": "property:label"
+    },
+    {
+      "start": 6476141,
+      "end": 6476158,
+      "from": "\"Running command\"",
+      "to": "\"正在运行命令\"",
+      "text": "Running command",
+      "translation": "正在运行命令",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476178,
+      "end": 6476186,
+      "from": "Editing ",
+      "to": "正在编辑",
+      "text": "Editing ",
+      "translation": "正在编辑",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476215,
+      "end": 6476226,
+      "from": "\"Exploring\"",
+      "to": "\"正在浏览\"",
+      "text": "Exploring",
+      "translation": "正在浏览",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476444,
+      "end": 6476453,
+      "from": "\"Working\"",
+      "to": "\"正在处理\"",
+      "text": "Working",
+      "translation": "正在处理",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476454,
+      "end": 6476464,
+      "from": "\"Thinking\"",
+      "to": "\"正在思考\"",
+      "text": "Thinking",
+      "translation": "正在思考",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476603,
+      "end": 6476612,
+      "from": "Explored ",
+      "to": "已浏览",
+      "text": "Explored ",
+      "translation": "已浏览",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476618,
+      "end": 6476628,
+      "from": "\"Explored\"",
+      "to": "\"已浏览\"",
+      "text": "Explored",
+      "translation": "已浏览",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476666,
+      "end": 6476671,
+      "from": "\"Ran\"",
+      "to": "\"已运行\"",
+      "text": "Ran",
+      "translation": "已运行",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476672,
+      "end": 6476677,
+      "from": "\"ran\"",
+      "to": "\"已运行\"",
+      "text": "ran",
+      "translation": "已运行",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476678,
+      "end": 6476679,
+      "from": " ",
+      "to": "",
+      "text": " ",
+      "translation": "",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476694,
+      "end": 6476703,
+      "from": "\"command\"",
+      "to": "\"命令\"",
+      "text": "command",
+      "translation": "命令",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476704,
+      "end": 6476714,
+      "from": "\"commands\"",
+      "to": "\"命令\"",
+      "text": "commands",
+      "translation": "命令",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476766,
+      "end": 6476774,
+      "from": "\"Edited\"",
+      "to": "\"已编辑\"",
+      "text": "Edited",
+      "translation": "已编辑",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476775,
+      "end": 6476783,
+      "from": "\"edited\"",
+      "to": "\"已编辑\"",
+      "text": "edited",
+      "translation": "已编辑",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476784,
+      "end": 6476785,
+      "from": " ",
+      "to": "",
+      "text": " ",
+      "translation": "",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476818,
+      "end": 6476822,
+      "from": "\", \"",
+      "to": "\"、\"",
+      "text": ", ",
+      "translation": "、",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6476824,
+      "end": 6476830,
+      "from": "\"Done\"",
+      "to": "\"已完成\"",
+      "text": "Done",
+      "translation": "已完成",
+      "role": "activity-summary"
     },
     {
       "start": 6489360,

@@ -48,7 +48,7 @@ async function inspect(asar, archive) {
     const profile = require('./profiles.cjs').forVersion(packageInfo.version);
     const unified = packageInfo.version === profile?.version && patched &&
         Object.entries(profile.targetModules).every(([file, hash]) => getHash(file) === hash);
-    return { version: packageInfo.version, supported: !!profile, sha256: sha(fs.readFileSync(archive)), patched, unified, integrityIssues, files };
+    return { version: packageInfo.version, supportedVersions: require('./profiles.cjs').profiles.map(p=>p.version), supported: !!profile, sha256: sha(fs.readFileSync(archive)), patched, unified, integrityIssues, files };
 }
 async function prepare(asar, archive, out) {
     if (fs.existsSync(out)) throw Error('Output must be a new directory');

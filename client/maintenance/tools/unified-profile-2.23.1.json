@@ -1,6 +1,6 @@
 {
   "version": "2.23.1",
-  "release": "AntigravityHub2.25.0+client2.23.1",
+  "release": "AntigravityHub2.25.1+client2.23.1",
   "reviewDate": "2026-10-22",
   "baseArchive": "../../release-2.23.1/base/app.asar",
   "baseSha256": "b8ec3628df2a12ee9deac5dc06367f238065af146bfe6298fdad6db5f9790d9c",
@@ -8,12 +8,13 @@
   "allowedSourceHashes": [
     "b8ec3628df2a12ee9deac5dc06367f238065af146bfe6298fdad6db5f9790d9c",
     "da322d4eddbe4dd6320cdc1ad6c1e3123bfe15760545a6a405ef543f39bc1ea6",
-    "b3b793bca76e905eb4ac794834c577d27c145d715d506f2b1eb5d30cd0b1f5ae"
+    "b3b793bca76e905eb4ac794834c577d27c145d715d506f2b1eb5d30cd0b1f5ae",
+    "6b0c97cb3bef2754b5441bc8de76669b008a2cfaf03dc1e655bf809581d9f796"
   ],
   "targetModules": {
     "dist/main.js": "33627ee0b33c5af5052fb040a9c945c2713d19b143ce0b2473524588fa06c960",
     "dist/menu.js": "cc9418ca65ddd03c5df32c0debd526028e2a724ac538519b394febb82b4dc026",
-    "dist/preload.js": "0d62ab411ad691bc64a50afcea138a45135173f8d610747602c7e6e50c878993",
+    "dist/preload.js": "f6e6be7e13b35b3f375b6ec5c335569bbbd4406523a05191892446df91ac907c",
     "dist/utils.js": "103b0a2ac7e93fb3fa004820fae1640ee6f8b47bd0fc69706fccc40305a084c3",
     "dist/tray.js": "c32333e53e469e2826611105ca95e30ac99523e0808a503af33b8c6ca2f8178d",
     "dist/codex-layout.js": "3a55ac994b1045e80652b6a8fd720d42428f377acc2d70dfc0d908987ca5cbd7",
@@ -25,8 +26,8 @@
     "dist/hans-main.js": "c55e5f4449160e32d90d4b4480fca7baa8f99f7a224d06c6d38262a2f9c2f914",
     "dist/hans-translator.js": "36d54862bf3429296b103a0865c8b66e9c63ce4e9389a6c9a698eb9066a36a11",
     "dist/ui-source-2230.js": "58b4cd229a7dc599918954159e3733be182555ddbfac36de0d4414b967b2dab0",
-    "dist/ui-source-2231.js": "2a192af811dac01b539f1e0b45a86202cf94e0da75fc7869ca29318e246ddf3d",
-    "dist/ui-source-2240.js": "f1adfc3af2140d81f1e19e20a9bef65f85957c7eefad30745387cf4b943183b3",
-    "dist/ui-source-2250.js": "4b3dc7957b5a357f0c24bbb4b53eb92f23d015c30368aac5896c76274edf7f5c"
+    "dist/ui-source-2231.js": "e7e3920d017f352f8fcb23b756b5e738def9ca9a5e49dfe96d4e1875ad996604",
+    "dist/ui-source-2240.js": "ebb865a404f6b479a94db662316571a760db41efca243bc47c5f877b7d738cf2",
+    "dist/ui-source-2250.js": "274f9e28f8d16b996a9873a124c554ff2357b392fdfc7013298d5faa2d3afea1"
   }
 }

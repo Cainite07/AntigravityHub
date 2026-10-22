@@ -1,0 +1,33 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const {patchBundle}=require('../client/release-2.22.0/source/hans/bundle_patch');
+let checked=0;
+for(const variable of ['ANTIGRAVITY_RENDERER_2240','ANTIGRAVITY_RENDERER_2250']){
+ if(!process.env[variable])continue;
+ const original=fs.readFileSync(process.env[variable],'utf8'),result=patchBundle(original),source=result.source;
+ assert(result.applied);assert.equal(result.structuralApplied,false);
+ const time=source.match(/var ([\w$]+)=a=>\{a=([\w$]+)\(a\);if\(a.endsWith\("second"\)/);
+ assert(time,'native relative-time formatter');
+ const code=source.slice(time.index,source.indexOf(';const ',time.index)),ago=code.match(/},([\w$]+)=a=>/);
+ const context=vm.createContext({[time[2]]:x=>x});
+ vm.runInContext(code+';globalThis.short='+time[1]+';globalThis.ago='+ago[1],context);
+ for(const [input,expected] of [['2 days','2天'],['15 minutes','15分钟'],['3 hours','3小时'],['2 weeks','2周'],['1 month','1个月'],['2 years','2年']])assert.equal(context.short(input),expected);
+ assert.equal(context.ago('3 hours'),'3小时前');assert.equal(context.ago('2 seconds'),'刚刚');
+ const summary=source.match(/function ([\w$]+)\(\{steps:a,isRunning:b,artifactsDir:c\}\)\{/);
+ assert(summary);const summaryCode=source.slice(summary.index,source.indexOf('\nvar ',summary.index));
+ const ignored=summaryCode.match(/filter\(g=>!([\w$]+)\(g\)&&!g.error\)/)[1];
+ const classify=summaryCode.match(/([\w$]+)\(g\)==="other"/)[1];
+ const nouns=summaryCode.match(/b=([\w$]+)\(b,c\)/)[1];
+ const summaryContext=vm.createContext({[ignored]:()=>false,[classify]:s=>s.kind,[nouns]:()=> '文件'});
+ vm.runInContext(summaryCode+';globalThis.summary='+summary[1],summaryContext);
+ assert.equal(summaryContext.summary({steps:[{kind:'other'},{kind:'terminal'}],isRunning:false}),'已浏览文件、已运行命令');
+ assert.equal(summaryContext.summary({steps:[{kind:'edit'}],isRunning:false}),'已编辑文件');
+ assert.equal(summaryContext.summary({steps:[],isRunning:false}),'已完成');
+ const start=source.match(/([\w$]+)=a=>\{a=Math.max\(1,Math.floor\(a\/1E3\)\)/);assert(start);
+ const durationCode='var '+source.slice(start.index,source.indexOf(';function ',start.index));
+ const precise=durationCode.match(/},([\w$]+)=a=>\{a=Math.max\(0,a\)/);assert(precise);
+ const durationContext=vm.createContext({});vm.runInContext(durationCode+';globalThis.elapsed='+start[1]+';globalThis.precise='+precise[1],durationContext);
+ assert.equal(durationContext.elapsed(9000),'9秒');assert.equal(durationContext.elapsed(120000),'2分钟');
+ assert.equal(durationContext.precise(500),'500毫秒');
+ assert.equal(patchBundle(original+'\n').applied,false,'unreviewed renderer stays untouched');checked++;
+}
+console.log('PASS: '+checked+' reviewed renderers execute Chinese activity summaries, relative ages and durations; unknown sources rejected.');

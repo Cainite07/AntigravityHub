@@ -5,6 +5,11 @@ const {spawnSync}=require('node:child_process');
 const tools=path.resolve(__dirname,'../client/maintenance/tools');
 for (const profile of require(path.join(tools,'profiles.cjs')).profiles) {
 const base=path.resolve(tools,profile.baseArchive);
+const inspected=spawnSync(process.execPath,[path.join(tools,'prepare.cjs'),'--inspect',base],{cwd:tools,encoding:'utf8'});
+assert.equal(inspected.status,0,inspected.stderr);
+const supported=JSON.parse(inspected.stdout);assert.equal(supported.version,profile.version);assert(supported.supported);
+assert(supported.supportedVersions.includes('2.24.0') && supported.supportedVersions.includes('2.25.0'));
+
 const out=path.resolve(__dirname,'../work/package-check-'+Date.now());
 assert(fs.existsSync(path.join(tools,'package.json')));
 const result=spawnSync(process.execPath,[path.join(tools,'prepare.cjs'),'--prepare',base,out],{cwd:tools,encoding:'utf8'});

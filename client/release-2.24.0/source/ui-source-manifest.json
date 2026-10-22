@@ -2866,6 +2866,204 @@
       "role": "property:label"
     },
     {
+      "start": 3630355,
+      "end": 3630358,
+      "from": "\"h\"",
+      "to": "\"小时\"",
+      "text": "h",
+      "translation": "小时",
+      "role": "relative-time-units"
+    },
+    {
+      "start": 3630363,
+      "end": 3630366,
+      "from": "\"d\"",
+      "to": "\"天\"",
+      "text": "d",
+      "translation": "天",
+      "role": "relative-time-units"
+    },
+    {
+      "start": 3630372,
+      "end": 3630375,
+      "from": "\"w\"",
+      "to": "\"周\"",
+      "text": "w",
+      "translation": "周",
+      "role": "relative-time-units"
+    },
+    {
+      "start": 3630382,
+      "end": 3630386,
+      "from": "\"mo\"",
+      "to": "\"个月\"",
+      "text": "mo",
+      "translation": "个月",
+      "role": "relative-time-units"
+    },
+    {
+      "start": 3630392,
+      "end": 3630395,
+      "from": "\"y\"",
+      "to": "\"年\"",
+      "text": "y",
+      "translation": "年",
+      "role": "relative-time-units"
+    },
+    {
+      "start": 3630403,
+      "end": 3630406,
+      "from": "\"m\"",
+      "to": "\"分钟\"",
+      "text": "m",
+      "translation": "分钟",
+      "role": "relative-time-units"
+    },
+    {
+      "start": 3630589,
+      "end": 3630599,
+      "from": "\"just now\"",
+      "to": "\"刚刚\"",
+      "text": "just now",
+      "translation": "刚刚",
+      "role": "relative-time-ago"
+    },
+    {
+      "start": 3630605,
+      "end": 3630609,
+      "from": " ago",
+      "to": "前",
+      "text": " ago",
+      "translation": "前",
+      "role": "relative-time-ago"
+    },
+    {
+      "start": 3630927,
+      "end": 3630928,
+      "from": "s",
+      "to": "秒",
+      "text": "s",
+      "translation": "秒",
+      "role": "duration"
+    },
+    {
+      "start": 3630972,
+      "end": 3630973,
+      "from": "m",
+      "to": "分钟",
+      "text": "m",
+      "translation": "分钟",
+      "role": "duration"
+    },
+    {
+      "start": 3631039,
+      "end": 3631041,
+      "from": "d ",
+      "to": "天 ",
+      "text": "d ",
+      "translation": "天 ",
+      "role": "duration"
+    },
+    {
+      "start": 3631048,
+      "end": 3631050,
+      "from": "h ",
+      "to": "小时 ",
+      "text": "h ",
+      "translation": "小时 ",
+      "role": "duration"
+    },
+    {
+      "start": 3631054,
+      "end": 3631055,
+      "from": "m",
+      "to": "分钟",
+      "text": "m",
+      "translation": "分钟",
+      "role": "duration"
+    },
+    {
+      "start": 3631066,
+      "end": 3631068,
+      "from": "h ",
+      "to": "小时 ",
+      "text": "h ",
+      "translation": "小时 ",
+      "role": "duration"
+    },
+    {
+      "start": 3631072,
+      "end": 3631073,
+      "from": "m",
+      "to": "分钟",
+      "text": "m",
+      "translation": "分钟",
+      "role": "duration"
+    },
+    {
+      "start": 3631080,
+      "end": 3631081,
+      "from": "h",
+      "to": "小时",
+      "text": "h",
+      "translation": "小时",
+      "role": "duration"
+    },
+    {
+      "start": 3631139,
+      "end": 3631141,
+      "from": "ms",
+      "to": "毫秒",
+      "text": "ms",
+      "translation": "毫秒",
+      "role": "duration"
+    },
+    {
+      "start": 3631191,
+      "end": 3631192,
+      "from": "s",
+      "to": "秒",
+      "text": "s",
+      "translation": "秒",
+      "role": "duration"
+    },
+    {
+      "start": 3631210,
+      "end": 3631211,
+      "from": "s",
+      "to": "秒",
+      "text": "s",
+      "translation": "秒",
+      "role": "duration"
+    },
+    {
+      "start": 3631268,
+      "end": 3631270,
+      "from": "m ",
+      "to": "分钟 ",
+      "text": "m ",
+      "translation": "分钟 ",
+      "role": "duration"
+    },
+    {
+      "start": 3631274,
+      "end": 3631275,
+      "from": "s",
+      "to": "秒",
+      "text": "s",
+      "translation": "秒",
+      "role": "duration"
+    },
+    {
+      "start": 3631282,
+      "end": 3631283,
+      "from": "m",
+      "to": "分钟",
+      "text": "m",
+      "translation": "分钟",
+      "role": "duration"
+    },
+    {
       "start": 3764522,
       "end": 3764532,
       "from": "\"Mentions\"",
@@ -3019,6 +3217,33 @@
       "role": "property:alt"
     },
     {
+      "start": 3901314,
+      "end": 3901332,
+      "from": "\"Back 5s (\\u2190)\"",
+      "to": "\"后退 5 秒（←）\"",
+      "text": "Back 5s (←)",
+      "translation": "后退 5 秒（←）",
+      "role": "property:label"
+    },
+    {
+      "start": 3901409,
+      "end": 3901430,
+      "from": "\"Forward 5s (\\u2192)\"",
+      "to": "\"前进 5 秒（→）\"",
+      "text": "Forward 5s (→)",
+      "translation": "前进 5 秒（→）",
+      "role": "property:label"
+    },
+    {
+      "start": 3901857,
+      "end": 3901865,
+      "from": "\"Volume\"",
+      "to": "\"音量\"",
+      "text": "Volume",
+      "translation": "音量",
+      "role": "property:label"
+    },
+    {
       "start": 3905363,
       "end": 3905369,
       "from": "\"Zoom\"",
@@ -3070,6 +3295,24 @@
       "to": "\"关闭（Esc）\"",
       "text": "Close (Esc)",
       "translation": "关闭（Esc）",
+      "role": "property:label"
+    },
+    {
+      "start": 3911216,
+      "end": 3911235,
+      "from": "\"Previous (\\u2190)\"",
+      "to": "\"上一项（←）\"",
+      "text": "Previous (←)",
+      "translation": "上一项（←）",
+      "role": "property:label"
+    },
+    {
+      "start": 3911401,
+      "end": 3911416,
+      "from": "\"Next (\\u2192)\"",
+      "to": "\"下一项（→）\"",
+      "text": "Next (→)",
+      "translation": "下一项（→）",
       "role": "property:label"
     },
     {
@@ -5563,6 +5806,15 @@
       "to": "\"连接\"",
       "text": "Connected",
       "translation": "连接",
+      "role": "react-child"
+    },
+    {
+      "start": 4659800,
+      "end": 4659844,
+      "from": "\"Waiting for you to finish signing in\\u2026\"",
+      "to": "\"正在等待你完成登录…\"",
+      "text": "Waiting for you to finish signing in…",
+      "translation": "正在等待你完成登录…",
       "role": "react-child"
     },
     {
@@ -8770,6 +9022,24 @@
       "role": "react-child"
     },
     {
+      "start": 5373081,
+      "end": 5373092,
+      "from": "\"Analyzing\"",
+      "to": "\"正在分析\"",
+      "text": "Analyzing",
+      "translation": "正在分析",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5373093,
+      "end": 5373103,
+      "from": "\"Analyzed\"",
+      "to": "\"已分析\"",
+      "text": "Analyzed",
+      "translation": "已分析",
+      "role": "native-activity-prefix"
+    },
+    {
       "start": 5373280,
       "end": 5373298,
       "from": "\"Open in Critique\"",
@@ -8840,6 +9110,24 @@
       "text": " more",
       "translation": " 更多",
       "role": "react-child"
+    },
+    {
+      "start": 5376241,
+      "end": 5376252,
+      "from": "\"Analyzing\"",
+      "to": "\"正在分析\"",
+      "text": "Analyzing",
+      "translation": "正在分析",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5376253,
+      "end": 5376263,
+      "from": "\"Analyzed\"",
+      "to": "\"已分析\"",
+      "text": "Analyzed",
+      "translation": "已分析",
+      "role": "native-activity-prefix"
     },
     {
       "start": 5376496,
@@ -9463,6 +9751,15 @@
       "role": "react-child"
     },
     {
+      "start": 5468131,
+      "end": 5468141,
+      "from": "\"Analyzed\"",
+      "to": "\"已分析\"",
+      "text": "Analyzed",
+      "translation": "已分析",
+      "role": "native-activity-prefix"
+    },
+    {
       "start": 5468257,
       "end": 5468266,
       "from": "\" result\"",
@@ -9497,6 +9794,24 @@
       "text": "for",
       "translation": "：",
       "role": "react-child"
+    },
+    {
+      "start": 5472718,
+      "end": 5472729,
+      "from": "\"Analyzing\"",
+      "to": "\"正在分析\"",
+      "text": "Analyzing",
+      "translation": "正在分析",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5472730,
+      "end": 5472740,
+      "from": "\"Analyzed\"",
+      "to": "\"已分析\"",
+      "text": "Analyzed",
+      "translation": "已分析",
+      "role": "native-activity-prefix"
     },
     {
       "start": 5474311,
@@ -9785,6 +10100,24 @@
       "text": ". The LLM decided that this would yield the best results. If this is not desired, you can simply tell the agent to search without a domain filter.",
       "translation": "。语言模型判断这样能获得更好的结果。如果不需要，可直接让智能体在搜索时取消域名筛选。",
       "role": "react-child"
+    },
+    {
+      "start": 5493227,
+      "end": 5493238,
+      "from": "\"Searching\"",
+      "to": "\"正在搜索\"",
+      "text": "Searching",
+      "translation": "正在搜索",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5493239,
+      "end": 5493249,
+      "from": "\"Searched\"",
+      "to": "\"已搜索\"",
+      "text": "Searched",
+      "translation": "已搜索",
+      "role": "native-activity-prefix"
     },
     {
       "start": 5493360,
@@ -10138,6 +10471,42 @@
       "role": "react-child"
     },
     {
+      "start": 5515391,
+      "end": 5515400,
+      "from": "\"Editing\"",
+      "to": "\"正在编辑\"",
+      "text": "Editing",
+      "translation": "正在编辑",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5515420,
+      "end": 5515428,
+      "from": "\"Edited\"",
+      "to": "\"已编辑\"",
+      "text": "Edited",
+      "translation": "已编辑",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5517012,
+      "end": 5517021,
+      "from": "\"Reading\"",
+      "to": "\"正在读取\"",
+      "text": "Reading",
+      "translation": "正在读取",
+      "role": "native-activity-prefix"
+    },
+    {
+      "start": 5517022,
+      "end": 5517028,
+      "from": "\"Read\"",
+      "to": "\"已读取\"",
+      "text": "Read",
+      "translation": "已读取",
+      "role": "native-activity-prefix"
+    },
+    {
       "start": 5518004,
       "end": 5518014,
       "from": "\"Starting\"",
@@ -10199,6 +10568,42 @@
       "text": "Accept",
       "translation": "接受",
       "role": "react-child"
+    },
+    {
+      "start": 5602747,
+      "end": 5602753,
+      "from": "\"file\"",
+      "to": "\"文件\"",
+      "text": "file",
+      "translation": "文件",
+      "role": "activity-objects"
+    },
+    {
+      "start": 5602754,
+      "end": 5602761,
+      "from": "\"files\"",
+      "to": "\"文件\"",
+      "text": "files",
+      "translation": "文件",
+      "role": "activity-objects"
+    },
+    {
+      "start": 5602772,
+      "end": 5602782,
+      "from": "\"artifact\"",
+      "to": "\"产物\"",
+      "text": "artifact",
+      "translation": "产物",
+      "role": "activity-objects"
+    },
+    {
+      "start": 5602783,
+      "end": 5602794,
+      "from": "\"artifacts\"",
+      "to": "\"产物\"",
+      "text": "artifacts",
+      "translation": "产物",
+      "role": "activity-objects"
     },
     {
       "start": 5606435,
@@ -15187,6 +15592,33 @@
       "role": "react-child"
     },
     {
+      "start": 6063696,
+      "end": 6063704,
+      "from": "\"Volume\"",
+      "to": "\"音量\"",
+      "text": "Volume",
+      "translation": "音量",
+      "role": "property:label"
+    },
+    {
+      "start": 6063717,
+      "end": 6063750,
+      "from": "\"Set the volume of agent sounds.\"",
+      "to": "\"设置智能体提示音的音量。\"",
+      "text": "Set the volume of agent sounds.",
+      "translation": "设置智能体提示音的音量。",
+      "role": "native-sound-volume-description"
+    },
+    {
+      "start": 6063862,
+      "end": 6063876,
+      "from": "\"Chime volume\"",
+      "to": "\"提示音音量\"",
+      "text": "Chime volume",
+      "translation": "提示音音量",
+      "role": "property:aria-label"
+    },
+    {
       "start": 6064504,
       "end": 6064519,
       "from": "\"Notifications\"",
@@ -19660,6 +20092,15 @@
       "role": "property:title"
     },
     {
+      "start": 6363295,
+      "end": 6363328,
+      "from": "\"Uploading to Google Drive\\u2026\"",
+      "to": "\"正在上传到 Google Drive…\"",
+      "text": "Uploading to Google Drive…",
+      "translation": "正在上传到 Google Drive…",
+      "role": "property:title"
+    },
+    {
       "start": 6363878,
       "end": 6363884,
       "from": "\"Open\"",
@@ -19930,6 +20371,159 @@
       "role": "property:label"
     },
     {
+      "start": 6408539,
+      "end": 6408556,
+      "from": "\"Running command\"",
+      "to": "\"正在运行命令\"",
+      "text": "Running command",
+      "translation": "正在运行命令",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6408576,
+      "end": 6408584,
+      "from": "Editing ",
+      "to": "正在编辑",
+      "text": "Editing ",
+      "translation": "正在编辑",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6408613,
+      "end": 6408624,
+      "from": "\"Exploring\"",
+      "to": "\"正在浏览\"",
+      "text": "Exploring",
+      "translation": "正在浏览",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6408842,
+      "end": 6408851,
+      "from": "\"Working\"",
+      "to": "\"正在处理\"",
+      "text": "Working",
+      "translation": "正在处理",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6408852,
+      "end": 6408862,
+      "from": "\"Thinking\"",
+      "to": "\"正在思考\"",
+      "text": "Thinking",
+      "translation": "正在思考",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6409001,
+      "end": 6409010,
+      "from": "Explored ",
+      "to": "已浏览",
+      "text": "Explored ",
+      "translation": "已浏览",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6409016,
+      "end": 6409026,
+      "from": "\"Explored\"",
+      "to": "\"已浏览\"",
+      "text": "Explored",
+      "translation": "已浏览",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6409064,
+      "end": 6409069,
+      "from": "\"Ran\"",
+      "to": "\"已运行\"",
+      "text": "Ran",
+      "translation": "已运行",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6409070,
+      "end": 6409075,
+      "from": "\"ran\"",
+      "to": "\"已运行\"",
+      "text": "ran",
+      "translation": "已运行",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6409076,
+      "end": 6409077,
+      "from": " ",
+      "to": "",
+      "text": " ",
+      "translation": "",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6409092,
+      "end": 6409101,
+      "from": "\"command\"",
+      "to": "\"命令\"",
+      "text": "command",
+      "translation": "命令",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6409102,
+      "end": 6409112,
+      "from": "\"commands\"",
+      "to": "\"命令\"",
+      "text": "commands",
+      "translation": "命令",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6409164,
+      "end": 6409172,
+      "from": "\"Edited\"",
+      "to": "\"已编辑\"",
+      "text": "Edited",
+      "translation": "已编辑",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6409173,
+      "end": 6409181,
+      "from": "\"edited\"",
+      "to": "\"已编辑\"",
+      "text": "edited",
+      "translation": "已编辑",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6409182,
+      "end": 6409183,
+      "from": " ",
+      "to": "",
+      "text": " ",
+      "translation": "",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6409216,
+      "end": 6409220,
+      "from": "\", \"",
+      "to": "\"、\"",
+      "text": ", ",
+      "translation": "、",
+      "role": "activity-summary"
+    },
+    {
+      "start": 6409222,
+      "end": 6409228,
+      "from": "\"Done\"",
+      "to": "\"已完成\"",
+      "text": "Done",
+      "translation": "已完成",
+      "role": "activity-summary"
+    },
+    {
       "start": 6421703,
       "end": 6421722,
       "from": "\"Proceed with Plan\"",
@@ -20062,6 +20656,15 @@
       "to": "\"无消息正文\"",
       "text": "No message text",
       "translation": "无消息正文",
+      "role": "react-child"
+    },
+    {
+      "start": 6447970,
+      "end": 6447985,
+      "from": "\"Loading\\u2026\"",
+      "to": "\"正在加载…\"",
+      "text": "Loading…",
+      "translation": "正在加载…",
       "role": "react-child"
     },
     {
@@ -20827,6 +21430,15 @@
       "to": "\"显示更少\"",
       "text": "Show less",
       "translation": "显示更少",
+      "role": "react-child"
+    },
+    {
+      "start": 6532331,
+      "end": 6532449,
+      "from": "\"Workflows are changing on October 19th\\u2014stay tuned for updates. You can use the agent to migrate your workflows.\"",
+      "to": "\"工作流将于 10 月 19 日调整，敬请关注更新。你可以让智能体迁移现有工作流。\"",
+      "text": "Workflows are changing on October 19th—stay tuned for updates. You can use the agent to migrate your workflows.",
+      "translation": "工作流将于 10 月 19 日调整，敬请关注更新。你可以让智能体迁移现有工作流。",
       "role": "react-child"
     },
     {
@@ -22565,6 +23177,15 @@
       "text": "Select workspace...",
       "translation": "选择工作区...",
       "role": "react-child"
+    },
+    {
+      "start": 6787200,
+      "end": 6787273,
+      "from": "\"Chief of Staff is listening \\u2014 open the Chief of Staff conversation\"",
+      "to": "\"Chief of Staff 正在聆听，打开其对话\"",
+      "text": "Chief of Staff is listening — open the Chief of Staff conversation",
+      "translation": "Chief of Staff 正在聆听，打开其对话",
+      "role": "property:aria-label"
     },
     {
       "start": 6787818,

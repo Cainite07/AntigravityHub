@@ -56,6 +56,8 @@ namespace AntigravityHub
             catch (OperationCanceledException) { }
             catch (Exception ex) { Log($"Renderer visibility: {ex.GetType().Name}"); }
         }
+        private FileSystemWatcher? _clientArchiveWatcher;
+        private int _clientArchiveGeneration;
         private readonly HudPipeServer _hud = new();
         private TokenSummary? _latestHudStats;
         private void SystemThemeChanged(object sender, Microsoft.Win32.UserPreferenceChangedEventArgs e) => Dispatcher.BeginInvoke(new Action(ApplyTheme));
@@ -487,8 +489,31 @@ namespace AntigravityHub
             SafePostWebMessage(JsonSerializer.Serialize(new { type = "clientEnhancementStatus", message = status }, JsonOpts.CamelCase));
         }
 
+        private void MonitorClientArchive()
+        {
+            var resources = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "antigravity", "resources");
+            if (!Directory.Exists(resources) || _clientArchiveWatcher != null) return;
+            _clientArchiveWatcher = new FileSystemWatcher(resources, "app.asar") { NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size };
+            async void Changed(object sender, FileSystemEventArgs args)
+            {
+                int generation = System.Threading.Interlocked.Increment(ref _clientArchiveGeneration);
+                try {
+                    await Task.Delay(3000, _appCts.Token);
+                    if (generation != _clientArchiveGeneration || _appCts.IsCancellationRequested) return;
+                    await PrepareClientComponentsAsync();
+                }
+                catch (OperationCanceledException) { }
+                catch (Exception error) { Log("Client version change: " + error.GetType().Name); }
+            }
+            _clientArchiveWatcher.Changed += Changed;
+            _clientArchiveWatcher.Created += Changed;
+            _clientArchiveWatcher.Renamed += (sender, args) => Changed(sender, args);
+            _clientArchiveWatcher.EnableRaisingEvents = true;
+        }
+
         public async Task StartServicesAsync()
         {
+            MonitorClientArchive();
             _ = PrepareClientComponentsAsync();
             if (_settingsService.GetSettings().CheckUpdatesOnStartup && !HubUpdateInstaller.StartupFailed) _ = _hubUpdates.CheckAsync(_appCts.Token);
             Microsoft.Win32.SystemEvents.UserPreferenceChanged += SystemThemeChanged;
@@ -1132,7 +1157,7 @@ namespace AntigravityHub
             {
                 _isExplicitExit = true;
                 Microsoft.Win32.SystemEvents.UserPreferenceChanged -= SystemThemeChanged;
-                try { _appCts.Cancel(); _accountService.CancelGoogleOAuth(); } catch { }
+                try { _clientArchiveWatcher?.Dispose(); _appCts.Cancel(); _accountService.CancelGoogleOAuth(); } catch { }
                 try { _autoSyncTimer?.Stop(); } catch { }
                 try { _windowSaveTimer?.Stop(); SaveWindowState(); } catch { }
                 try { _trayPopupWindow?.Close(); } catch { }
@@ -1203,7 +1228,7 @@ namespace AntigravityHub
                 return;
             }
 
-            try { _appCts.Cancel(); } catch { }
+            try { _clientArchiveWatcher?.Dispose(); _appCts.Cancel(); } catch { }
             try { _accountService.CancelGoogleOAuth(); } catch { }
             try { _autoSyncTimer?.Stop(); } catch { }
             try { _trayPopupWindow?.Close(); } catch { }

@@ -13,9 +13,37 @@ const dict={...require(path.join(root,'ui_dictionary.json')),...require(path.joi
 const excluded=new Set(['Google Docs','Google Sheets','Google Slides','Google Drive','Google Calendar','Firebase','Science','Chrome DevTools','Android CLI','Gemini API','Google Antigravity SDK']);
 const props=new Set(['label','title','placeholder','aria-label','ariaLabel','tooltip','tooltipText','alt','displayName','shortDisplayName','shortDescription','longDescription','emptyNote']);
 const ast=parser.parse(source,{sourceType:'script'}),patches=[];
+const functionKinds=new WeakMap();
+function displayFunction(parents){
+  const fn=parents.findLast(p=>['FunctionDeclaration','FunctionExpression','ArrowFunctionExpression'].includes(p.type));
+  if(!fn)return null;if(functionKinds.has(fn))return functionKinds.get(fn);
+  const text=source.slice(fn.start,fn.end);let kind=null;
+  if(text.length<2200 && text.includes('`Explored ${') && text.includes('"commands"'))kind='activity-summary';
+  else if(text.length<1800 && text.includes('return"Running command"') && text.includes('`Editing ${'))kind='activity-summary';
+  else if(text.length<1800 && /\?"file":"files"/.test(text) && text.includes('"artifact":"artifacts"'))kind='activity-objects';
+  else if(text.length<1200 && text.includes('hour:"h",day:"d",week:"w"'))kind='relative-time-units';
+  else if(text.length<350 && text.includes('"just now"') && text.includes(' ago`'))kind='relative-time-ago';
+  else if(text.length<600 && text.includes('Math.floor(a/1E3)') && text.includes('Math.floor(a/24)'))kind='duration';
+  else if(text.length<600 && text.includes('Math.round(a)}ms`') && text.includes('.toFixed(2)}s`'))kind='duration';
+  functionKinds.set(fn,kind);return kind;
+}
+const activityWords={Analyzing:'正在分析',Analyzed:'已分析',Exploring:'正在浏览',Explored:'已浏览',Searching:'正在搜索',Searched:'已搜索',Reading:'正在读取',Read:'已读取',Editing:'正在编辑',Edited:'已编辑',Creating:'正在创建',Created:'已创建',Deleting:'正在删除',Deleted:'已删除',Running:'正在运行',Ran:'已运行',ran:'已运行',edited:'已编辑',Working:'正在处理',Thinking:'正在思考',Done:'已完成','Running command':'正在运行命令',command:'命令',commands:'命令',file:'文件',files:'文件',artifact:'产物',artifacts:'产物'};
+const timeUnits={s:'秒',m:'分钟',h:'小时',d:'天',w:'周',mo:'个月',y:'年',ms:'毫秒'};
 function key(node){return node?.name || node?.value;}
 function role(node,parents){
   const parent=parents.at(-1);
+  // Only fixed status prefixes passed to React UI components; never tool output.
+  if(activityWords[node.value]){
+    let index=parents.length-1;
+    while(index>=0 && ['ConditionalExpression','LogicalExpression','BinaryExpression'].includes(parents[index].type))index--;
+    const property=parents[index],object=parents[index-1],call=parents[index-2];
+    if(property?.type==='ObjectProperty' && key(property.key)==='prefix' && object?.type==='ObjectExpression' && call?.type==='CallExpression' && call.callee?.property?.name==='createElement')return 'native-activity-prefix';
+  }
+  const kind=displayFunction(parents);
+  if(kind?.startsWith('activity-') && (activityWords[node.value] || node.value===', '))return kind;
+  if(kind==='relative-time-units' && parent?.type==='ObjectProperty' && ['hour','day','week','month','year','minute'].includes(key(parent.key)))return kind;
+  if(kind==='relative-time-ago' && node.value==='just now')return kind;
+
   if(parent?.type==='ObjectProperty' && parent.value===node){
     const name=key(parent.key);
     if(props.has(name))return 'property:'+name;
@@ -43,8 +71,16 @@ function role(node,parents){
 function walk(node,parents=[]){
   if(!node || typeof node!=='object')return;
   if(node.type==='StringLiteral' && !excluded.has(node.value)){
-    const r=role(node,parents),translation=dict[node.value];
+    const r=role(node,parents);
+    const translation=r==='native-activity-prefix'||r?.startsWith('activity-') ? (node.value===', '?'、':activityWords[node.value]) : r==='relative-time-units'?timeUnits[node.value]:r==='relative-time-ago'?'刚刚':dict[node.value];
     if(r && typeof translation==='string' && translation!==node.value)patches.push({start:node.start,end:node.end,from:source.slice(node.start,node.end),to:JSON.stringify(translation),text:node.value,translation,role:r});
+  }
+  if(node.type==='TemplateElement'){
+    const kind=displayFunction(parents),raw=source.slice(node.start,node.end);let translated=raw;
+    if(kind==='activity-summary')translated=raw===' '?'':raw.replace(/^Explored /,'已浏览').replace(/^Editing /,'正在编辑');
+    if(kind==='relative-time-ago' && raw===' ago')translated='前';
+    if(kind==='duration')translated=raw.replace(/ms/g,'毫秒').replace(/[smhd]/g,c=>timeUnits[c]);
+    if(translated!==raw)patches.push({start:node.start,end:node.end,from:raw,to:translated,text:raw,translation:translated,role:kind});
   }
   for(const [k,v] of Object.entries(node)){
     if(['loc','extra','leadingComments','trailingComments','innerComments','comments','tokens','errors'].includes(k))continue;
