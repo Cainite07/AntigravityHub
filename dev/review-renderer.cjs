@@ -25,6 +25,7 @@ function role(node,parents){
       'View archived in the sidebar (![filter](icon://filter_list) menu).',
       'View archived in the sidebar (Display options menu).'
     ].includes(node.value))return 'native-archive-notification';
+    if(name==='description' && node.value==='Set the volume of agent sounds.' && parents.at(-2)?.type==='ObjectExpression' && parents.at(-2).properties.some(p=>key(p.key)==='label' && p.value?.value==='Volume'))return 'native-sound-volume-description';
     if(name==='description' && parents.some(p=>p.type==='ObjectProperty' && ['request_review','default','turbo'].includes(key(p.key))))return 'permission-preset-description';
   }
   let child=node;

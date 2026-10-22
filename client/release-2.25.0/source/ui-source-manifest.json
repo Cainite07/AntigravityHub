@@ -2596,6 +2596,15 @@
       "role": "property:label"
     },
     {
+      "start": 3949431,
+      "end": 3949439,
+      "from": "\"Volume\"",
+      "to": "\"音量\"",
+      "text": "Volume",
+      "translation": "音量",
+      "role": "property:label"
+    },
+    {
       "start": 3952937,
       "end": 3952943,
       "from": "\"Zoom\"",
@@ -14888,6 +14897,33 @@
       "text": "documentation",
       "translation": "文档",
       "role": "react-child"
+    },
+    {
+      "start": 6125670,
+      "end": 6125678,
+      "from": "\"Volume\"",
+      "to": "\"音量\"",
+      "text": "Volume",
+      "translation": "音量",
+      "role": "property:label"
+    },
+    {
+      "start": 6125691,
+      "end": 6125724,
+      "from": "\"Set the volume of agent sounds.\"",
+      "to": "\"设置智能体提示音的音量。\"",
+      "text": "Set the volume of agent sounds.",
+      "translation": "设置智能体提示音的音量。",
+      "role": "native-sound-volume-description"
+    },
+    {
+      "start": 6125836,
+      "end": 6125850,
+      "from": "\"Chime volume\"",
+      "to": "\"提示音音量\"",
+      "text": "Chime volume",
+      "translation": "提示音音量",
+      "role": "property:aria-label"
     },
     {
       "start": 6126478,

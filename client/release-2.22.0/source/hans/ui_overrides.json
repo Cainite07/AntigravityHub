@@ -3207,5 +3207,8 @@
   "Show in Sidebar": "在侧边栏中显示",
   "Execution Identity": "执行身份",
   "Language server release channel": "语言服务器发布通道",
-  "Web App Version | Language Server Version": "网页应用版本 | 语言服务器版本"
+  "Web App Version | Language Server Version": "网页应用版本 | 语言服务器版本",
+  "Volume": "音量",
+  "Set the volume of agent sounds.": "设置智能体提示音的音量。",
+  "Chime volume": "提示音音量"
 }
