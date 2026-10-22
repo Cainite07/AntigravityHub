@@ -23,7 +23,9 @@ for(const variable of ['ANTIGRAVITY_RENDERER_2240','ANTIGRAVITY_RENDERER_2250'])
  assert.equal(summaryContext.summary({steps:[{kind:'other'},{kind:'terminal'}],isRunning:false}),'已浏览文件、已运行命令');
  assert.equal(summaryContext.summary({steps:[{kind:'edit'}],isRunning:false}),'已编辑文件');
  assert.equal(summaryContext.summary({steps:[],isRunning:false}),'已完成');
- const start=source.match(/([\w$]+)=a=>\{a=Math.max\(1,Math.floor\(a\/1E3\)\)/);assert(start);
+ const durationAt=source.indexOf('=a=>{a=Math.max(1,Math.floor(a/1E3))');assert(durationAt>=0);
+ const durationName=source.slice(durationAt-100,durationAt).match(/([\w$]+)$/)[1];
+ const start={index:durationAt-durationName.length,1:durationName};
  const durationCode='var '+source.slice(start.index,source.indexOf(';function ',start.index));
  const precise=durationCode.match(/},([\w$]+)=a=>\{a=Math.max\(0,a\)/);assert(precise);
  const durationContext=vm.createContext({});vm.runInContext(durationCode+';globalThis.elapsed='+start[1]+';globalThis.precise='+precise[1],durationContext);
