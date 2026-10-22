@@ -227,7 +227,7 @@ const CONTEXTUAL_PATCHES=[
 function patchBundle(source) {
   if (typeof source !== 'string') throw new TypeError('Bundle must be a string');
   const hash=require('node:crypto').createHash('sha256').update(source).digest('hex');
-  const current=[require('./ui-source-2230'),require('./ui-source-2231'),require('./ui-source-2240')].find(profile=>profile.sha256===hash);
+  const current=[require('./ui-source-2230'),require('./ui-source-2231'),require('./ui-source-2240'),require('./ui-source-2250')].find(profile=>profile.sha256===hash);
   if(current){
     const parts=[];let end=0;
     for(const patch of current.patches){

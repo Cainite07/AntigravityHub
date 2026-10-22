@@ -7,7 +7,7 @@ const packing=require('./prepare.cjs');const adapter=require('./adapter2191.cjs'
 const { Pickle }=require('./node_modules/@electron/asar/lib/pickle.js');
 const hansRoot=path.resolve(__dirname,'../../release-2.22.0/source/hans');
 const hudRoot=path.join(__dirname,'hud');
-const MODULES=['translation-policy.js','bundle_patch.js','hans-bundle-hook.js','hans-main.js','hans-translator.js','ui-source-2230.js','ui-source-2231.js','ui-source-2240.js'];
+const MODULES=['translation-policy.js','bundle_patch.js','hans-bundle-hook.js','hans-main.js','hans-translator.js','ui-source-2230.js','ui-source-2231.js','ui-source-2240.js','ui-source-2250.js'];
 function preserveExecutableFlags(asar,candidate,originalEntries){
   // asar 4.3 deliberately omits executable flags on Windows. Keep the three
   // audited upstream JS CLI flags in archive metadata without modifying payloads.

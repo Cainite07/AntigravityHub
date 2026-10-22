@@ -3,9 +3,9 @@
 
 Antigravity 辅助工具：把账号、配额、用量看板、客户端状态栏，以及界面与思维链汉化和窗口设置放进同一个 Hub。
 
-[下载 Windows 版](https://github.com/Cainite07/AntigravityHub/releases/latest) · [版本说明](docs/RELEASE_NOTES_2.24.2.md) · [MIT 许可证](LICENSE)
+[下载 Windows 版](https://github.com/Cainite07/AntigravityHub/releases/latest) · [版本说明](docs/RELEASE_NOTES_2.25.0.md) · [MIT 许可证](LICENSE)
 
-**v2.24.2 · Windows x64 · 客户端增强适配 Antigravity 2.24.0（兼容 2.22.0 / 2.23.x）**
+**v2.25.0 · Windows x64 · 客户端增强适配 Antigravity 2.25.0（兼容 2.22.0 / 2.23.x / 2.24.0）**
 
 版本号跟随客户端：适配 Antigravity 2.23.0 时，Hub 为 2.23.0；Hub 自身修复递增为 2.23.1、2.23.2，下一代客户端适配从 2.24.0 开始。
 

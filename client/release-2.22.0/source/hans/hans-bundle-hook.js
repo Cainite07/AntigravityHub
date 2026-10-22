@@ -2,7 +2,7 @@
 const crypto = require('node:crypto');
 const { patchBundle } = require('./bundle_patch');
 const REVIEWED_RENDERER_SHA256 = '47f36abaabd34f7d54a95df40d942b609c02db9f5c04d56b124a048571b9f16d';
-const CURRENT_RENDERER_HASHES = [require('./ui-source-2230').sha256, require('./ui-source-2231').sha256, require('./ui-source-2240').sha256];
+const CURRENT_RENDERER_HASHES = [require('./ui-source-2230').sha256, require('./ui-source-2231').sha256, require('./ui-source-2240').sha256,require('./ui-source-2250').sha256];
 let installed = false;
 let status = { version: 23, appVersion: '2.22.0', structuralApplied: false, reason: 'not-requested' };
 const logged = new Set();

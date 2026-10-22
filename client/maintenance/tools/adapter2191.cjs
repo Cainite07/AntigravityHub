@@ -9,7 +9,7 @@ const INPUTS = {
   menu: '0bb689f3f77f5f30d9345302ff94ebabbe461c4b94de9ffdb711a19eeca0f04f'
 };
 function one(source,from,to){if(source.split(from).length!==2)throw Error('Missing/ambiguous 2.19.1 anchor: '+from.slice(0,90));return source.replace(from,to);}
-function check(name,bytes){if(!(name === 'preload' ? [INPUTS[name],'81d220de63447d27db95adf67d9711b59ee317b2338ba538f419b354a54b1f60'] : [INPUTS[name]]).includes(sha(bytes)))throw Error('Unreviewed 2.19.1 module: '+name);return bytes.toString().replace(/\r\n/g,'\n');}
+function check(name,bytes){if(!(name === 'preload' ? [INPUTS[name],'81d220de63447d27db95adf67d9711b59ee317b2338ba538f419b354a54b1f60'] : name === 'main' ? [INPUTS[name],'afadfbb9c0880f081dd763caa2b9525b2590631ab8fd58cd82e2d67075df1a42'] : [INPUTS[name]]).includes(sha(bytes)))throw Error('Unreviewed 2.19.1 module: '+name);return bytes.toString().replace(/\r\n/g,'\n');}
 function transform2191(utilsBytes,trayBytes){
   let utils=check('utils',utilsBytes),tray=check('tray',trayBytes);
   utils=one(utils,'const electron_1 = require("electron");','const electron_1 = require("electron");\n// Codex unified Antigravity 2.19.1 window policy\nconst codexLayout = require("./codex-layout");');

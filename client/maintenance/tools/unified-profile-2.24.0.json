@@ -1,7 +1,7 @@
 {
   "version": "2.24.0",
-  "release": "AntigravityHub2.24.2+client2.24.0",
-  "reviewDate": "2026-10-19",
+  "release": "AntigravityHub2.25.0+client2.24.0",
+  "reviewDate": "2026-10-22",
   "baseArchive": "../../release-2.24.0/base/app.asar",
   "baseSha256": "bd10a0054ca3ad469142b2c2757566493ecc0afb934b9a61ce45d38a4d09316e",
   "rendererSha256": "7a0bf9576e8ffd8e9fb39716368b1c79c2ccd965da65e049fe846100f34edf88",
@@ -9,24 +9,26 @@
     "bd10a0054ca3ad469142b2c2757566493ecc0afb934b9a61ce45d38a4d09316e",
     "6ef22fbf795a11c537689b8e505e6a1f57d7ec112237267221226667fe89040d",
     "15b67fd50baf79c97892679685c1f4270d4fa398881a4ebbaae0fcd8183a49d7",
-    "2d7269ccdd66f249d172bcfc6c549dfa38670ef9d17d424466b0a6579d0e4e5e"
+    "2d7269ccdd66f249d172bcfc6c549dfa38670ef9d17d424466b0a6579d0e4e5e",
+    "e7da096352c38b2360d0e51f3676ca85945949abf182d7dba1299aa9d04985b0"
   ],
   "targetModules": {
     "dist/main.js": "33627ee0b33c5af5052fb040a9c945c2713d19b143ce0b2473524588fa06c960",
     "dist/menu.js": "cc9418ca65ddd03c5df32c0debd526028e2a724ac538519b394febb82b4dc026",
-    "dist/preload.js": "f70ad496d6a90e5adde26a0dd932a69392392b9da07b1f89e3a7026d16eaedb5",
+    "dist/preload.js": "8e7b7dce4e78ebc5f040e68ca5b23bade16687f9815a925df0725e042691b885",
     "dist/utils.js": "103b0a2ac7e93fb3fa004820fae1640ee6f8b47bd0fc69706fccc40305a084c3",
     "dist/tray.js": "c32333e53e469e2826611105ca95e30ac99523e0808a503af33b8c6ca2f8178d",
     "dist/codex-layout.js": "3a55ac994b1045e80652b6a8fd720d42428f377acc2d70dfc0d908987ca5cbd7",
     "dist/hub-client-settings.js": "7368196883c726ef940c8b316036820a016e75342937fccbc5e3f54d0664c8f4",
     "dist/hub-hud-main.js": "369e549971e45d1cabdde30dbd4ecd1640555cc37580750e4649fdb5d8894491",
     "dist/translation-policy.js": "a00d5aff53404051d9665169336ce98599ae0beb826096538b3a64d68c9282a1",
-    "dist/bundle_patch.js": "be82e69e1b54acab7fee2a6f00d2de15d42918d4a6c031ef864c68a4a9ccead9",
-    "dist/hans-bundle-hook.js": "89da4b5576deb3e42d024f11e19ff970749903694c30b5d3786b82ce63b7f9e9",
+    "dist/bundle_patch.js": "08a4bf4aa2d747439d450e66bfda73cc083653d44efdb4321b1239263a3c5c4c",
+    "dist/hans-bundle-hook.js": "fb3ef35da05a8bb4447898daa7c2b596cdb094a7be06904f54af29864076f33d",
     "dist/hans-main.js": "c55e5f4449160e32d90d4b4480fca7baa8f99f7a224d06c6d38262a2f9c2f914",
     "dist/hans-translator.js": "36d54862bf3429296b103a0865c8b66e9c63ce4e9389a6c9a698eb9066a36a11",
     "dist/ui-source-2230.js": "58b4cd229a7dc599918954159e3733be182555ddbfac36de0d4414b967b2dab0",
     "dist/ui-source-2231.js": "2a192af811dac01b539f1e0b45a86202cf94e0da75fc7869ca29318e246ddf3d",
-    "dist/ui-source-2240.js": "f1adfc3af2140d81f1e19e20a9bef65f85957c7eefad30745387cf4b943183b3"
+    "dist/ui-source-2240.js": "f1adfc3af2140d81f1e19e20a9bef65f85957c7eefad30745387cf4b943183b3",
+    "dist/ui-source-2250.js": "4d52a68954fd6daf23c2a5456417ae0e1c5c9cdeaf3956ca9a069672b47d6ac7"
   }
 }

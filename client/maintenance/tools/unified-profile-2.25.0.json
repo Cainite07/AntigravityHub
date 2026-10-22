@@ -1,0 +1,30 @@
+{
+  "version": "2.25.0",
+  "release": "AntigravityHub2.25.0+client2.25.0",
+  "reviewDate": "2026-10-22",
+  "baseArchive": "../../release-2.25.0/base/app.asar",
+  "baseSha256": "ad7fb1a177a11522490cba910c0970a117bec568cd9ad85233fa62873361ed05",
+  "rendererSha256": "91c2d259d53a16b0cb9afe87e5d9f173ba613a46a076032a179ac5eca5101463",
+  "allowedSourceHashes": [
+    "ad7fb1a177a11522490cba910c0970a117bec568cd9ad85233fa62873361ed05"
+  ],
+  "targetModules": {
+    "dist/main.js": "7a3e389104173100c217343c290550108396685005b9f4e1f0c6861d27dac1de",
+    "dist/menu.js": "cc9418ca65ddd03c5df32c0debd526028e2a724ac538519b394febb82b4dc026",
+    "dist/preload.js": "8e7b7dce4e78ebc5f040e68ca5b23bade16687f9815a925df0725e042691b885",
+    "dist/utils.js": "103b0a2ac7e93fb3fa004820fae1640ee6f8b47bd0fc69706fccc40305a084c3",
+    "dist/tray.js": "c32333e53e469e2826611105ca95e30ac99523e0808a503af33b8c6ca2f8178d",
+    "dist/codex-layout.js": "3a55ac994b1045e80652b6a8fd720d42428f377acc2d70dfc0d908987ca5cbd7",
+    "dist/hub-client-settings.js": "7368196883c726ef940c8b316036820a016e75342937fccbc5e3f54d0664c8f4",
+    "dist/hub-hud-main.js": "369e549971e45d1cabdde30dbd4ecd1640555cc37580750e4649fdb5d8894491",
+    "dist/translation-policy.js": "a00d5aff53404051d9665169336ce98599ae0beb826096538b3a64d68c9282a1",
+    "dist/bundle_patch.js": "08a4bf4aa2d747439d450e66bfda73cc083653d44efdb4321b1239263a3c5c4c",
+    "dist/hans-bundle-hook.js": "fb3ef35da05a8bb4447898daa7c2b596cdb094a7be06904f54af29864076f33d",
+    "dist/hans-main.js": "c55e5f4449160e32d90d4b4480fca7baa8f99f7a224d06c6d38262a2f9c2f914",
+    "dist/hans-translator.js": "36d54862bf3429296b103a0865c8b66e9c63ce4e9389a6c9a698eb9066a36a11",
+    "dist/ui-source-2230.js": "58b4cd229a7dc599918954159e3733be182555ddbfac36de0d4414b967b2dab0",
+    "dist/ui-source-2231.js": "2a192af811dac01b539f1e0b45a86202cf94e0da75fc7869ca29318e246ddf3d",
+    "dist/ui-source-2240.js": "f1adfc3af2140d81f1e19e20a9bef65f85957c7eefad30745387cf4b943183b3",
+    "dist/ui-source-2250.js": "4d52a68954fd6daf23c2a5456417ae0e1c5c9cdeaf3956ca9a069672b47d6ac7"
+  }
+}
