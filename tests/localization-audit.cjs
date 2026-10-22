@@ -1,0 +1,17 @@
+'use strict';
+const assert=require('node:assert/strict'),{candidate,audit}=require('../dev/localization-audit.cjs');
+const make=(text,role,start)=>candidate(text,role,start,start+text.length+2);
+const items=[make('Save','property:label',10),make('Save','property:label',100),make('Google Docs','property:displayName',200),make('New option','property:label',300),make('Plugin description','property:shortDescription',400),make('Explored ','activity-summary',500)];
+const input={version:'2.25.0',rendererSha256:'a'.repeat(64),candidates:items,patches:[{start:10,end:16,from:'"Save"',to:'"保存"',text:'Save',role:'property:label'}]};
+const report=audit(input,{Save:'保存','Explored ':'已浏览'});
+assert.equal(report.summary.translated,1);assert.equal(report.summary['known-unapplied'],2);
+assert.equal(report.summary.preserved,1);assert.equal(report.summary['new-untranslated'],1);assert.equal(report.summary['review-needed'],1);
+assert.equal(candidate('https://service.example','property:label',0,10),null);
+assert.equal(candidate('p156.jpg','property:title',0,10),null);
+const moved=audit({...input,candidates:items.map(c=>({...c,start:c.start+1000,end:c.end+1000})),patches:[]},{},report);
+assert(!moved.summary['missing-previous-marker'],'offset movement does not invent missing strings');
+const removed=audit({...input,candidates:items.filter(c=>c.text!=='Save'),patches:[]},{},report);
+assert.equal(removed.summary['missing-previous-marker'],1);
+const invalid=audit({...input,patches:[{start:20,end:10,text:'Save'}]},{},null);
+assert.equal(invalid.summary['invalid-marker'],1);
+console.log('PASS: known-but-unapplied occurrences, new labels, dynamic content, preserved plugins, moved and retired markers.');

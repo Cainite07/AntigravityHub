@@ -321,8 +321,7 @@ internal static class HubUpdateInstaller
             if (!StartupFailed)
             {
                 var job = ReadJob(StartupJob);
-                var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version!;
-                if (new Version(version.Major, version.Minor, version.Build) != HubUpdatePackage.ParseVersion(job.TargetVersion)) return;
+                if (HubUpdatePackage.InstalledVersion(AppContext.BaseDirectory) != HubUpdatePackage.ParseVersion(job.TargetVersion)) return;
                 File.WriteAllText(Path.Combine(StartupJob, "healthy"), job.TargetVersion);
             }
             string directory = StartupJob;

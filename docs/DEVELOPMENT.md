@@ -80,10 +80,31 @@ docs/                        客户端增强说明、版本说明与演示预览
 ./Package-Release.ps1 -OutputDirectory "C:\path\to\new-empty-release"
 ```
 
-脚本生成完整 Windows x64 包、当前提交的源码包和 `SHA256SUMS.txt`。`update-manifest.json` 由构建脚本生成，列出发布文件及每个文件的 SHA-256；日志、本机原版底包与用户数据不会进入更新清单。发布目录必须为空，避免把上次构建的文件混进去。
+脚本生成完整 Windows x64 包、`Adaptation.zip`、`update-catalog.json`、当前提交的源码包和 `SHA256SUMS.txt`，并在本地留下汉化检查报告 `localization-audit.json`。上传前五项到同一个 Release；检查报告供维护使用，不必上传。`update-manifest.json` 列出全部发布文件的 SHA-256，同时记录主程序版本与源码指纹。日志、本机原版底包与用户数据不会进入更新清单。
+
+仅修改客户端适配层时，递增项目版本，并复用上一版完整发布目录：
+
+```powershell
+./Package-Release.ps1 -OutputDirectory "C:\path\to\new-release" -CorePackageDirectory "C:\path\to\previous-release\AntigravityHub"
+```
+
+脚本校验主程序源码指纹与旧包核心文件，复用原有二进制，重新收集完整适配层；C#、Hub 前端、构建逻辑或依赖变化会拒绝此模式。完整包与小包对应同一个目标清单。小包包含所有当前适配文件与完整清单，运行环境、依赖、主程序由本机校验后复制到暂存区，随后使用同一个覆盖、健康确认和回退流程。不需要下载中间补丁。公开版本号与主程序版本可以不同，主程序版本仅供兼容判断。
 
 GitHub 正式 Release 标签为 `v主.次.修订`，Windows 资产名必须为 `AntigravityHub-主.次.修订-Windows-x64.zip`，ZIP 内根目录固定为 `AntigravityHub/`。上传完整包后再发布 Release，GitHub 的资产 `digest` 必须提供 SHA-256。预发布版本和草稿不触发内置更新。
 
 同一进程只执行一个检查或更新请求。更新助手从校验过的暂存包运行，等旧进程退出后持有单实例锁进行覆盖，保留全部被替换文件的回退副本；新版通过前端与本地数据初始化确认后才提交并删除备份。系统临时目录中的每个任务都限定在 `AntigravityHub-updates/随机ID`，清理拒绝链接和越界路径。
 
 隔离更新测试使用独立单实例锁和临时程序副本，包含真实子进程的退出、替换、重启、失败回退与中断恢复；不会退出用户正在运行的 Hub，也不操作真实账号或客户端。
+
+## 汉化漏项检查
+
+`dev/review-renderer.cjs` 审核官方界面时会同时生成 `ui-audit-inventory.json`。发布前自动检查词典、已审核跨度、运行时补丁和客户端配置是否一致；已知译文没有应用或清单不一致会阻止打包。新英文、动态片段、产品名称等按候选类别列出，不把报告数量当作已确认遗漏数量。
+
+新客户端尚未完成审核时，可只生成候选报告，不写入汉化规则：
+
+```powershell
+node dev/review-renderer.cjs "C:\path\to\official-renderer.js" "C:\path\to\@babel\parser" 2.26.0 --audit-only --previous "C:\path\to\previous-ui-report.json" --output "C:\path\to\ui-review.json"
+node dev/check-localization.cjs --output "C:\path\to\release-ui-review.json"
+```
+
+上一版单个 UI 报告用于比较文字与用途，忽略压缩变量名和位置偏移；消失的旧标记列为待核对。固定标签、提示、模板片段和时间/操作前缀分别检查。插件与产品名的保留名单位于 `dev/localization-policy.json`，有歧义的内容继续人工审核。检查只读取本地官方界面与项目规则，不收集聊天、账号或凭据，也不在用户电脑上后台扫描。

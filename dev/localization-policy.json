@@ -1,0 +1,4 @@
+{
+  "preserved": ["Google Docs", "Google Sheets", "Google Slides", "Google Drive", "Google Calendar", "Firebase", "Science", "Chrome DevTools", "Android CLI", "Gemini API", "Google Antigravity SDK", "Gemini", "Claude", "GPT", "Gemini 4 Argon", "Antigravity", "Google", "GitHub", "MCP", "PRO", "Enter", "Escape", "Tab", "Shift", "Ctrl", "Alt"],
+  "reason": "Product and plugin identities, protocols and keyboard key names retain their original spelling. Plugin descriptions and dynamic task content require review and must never be translated automatically."
+}

@@ -24,6 +24,9 @@ internal sealed class HubUpdateService : IDisposable
     private readonly string _target;
     private readonly Version _version;
     private HubRelease? _release;
+    private HubRelease? _download;
+    private HubUpdateCatalog? _catalog;
+    private string _packageNote = "";
     internal event Action<HubUpdateStatus>? Changed;
     internal HubUpdateStatus Status { get; private set; }
     internal bool IsInstalling { get; private set; }
@@ -31,8 +34,7 @@ internal sealed class HubUpdateService : IDisposable
     internal HubUpdateService(string target, HttpMessageHandler? handler = null, Version? version = null)
     {
         _target = Path.GetFullPath(target).TrimEnd(Path.DirectorySeparatorChar);
-        var assembly = Assembly.GetExecutingAssembly().GetName().Version!;
-        _version = version ?? new Version(assembly.Major, assembly.Minor, assembly.Build);
+        _version = version ?? HubUpdatePackage.InstalledVersion(_target);
         _http = new HttpClient(handler ?? new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = Timeout.InfiniteTimeSpan };
         _http.DefaultRequestHeaders.UserAgent.ParseAdd($"AntigravityHub/{_version}");
         _http.DefaultRequestHeaders.Add("X-GitHub-Api-Version", "2022-11-28");
@@ -61,7 +63,19 @@ internal sealed class HubUpdateService : IDisposable
         string tag = root.GetProperty("tag_name").GetString() ?? "";
         var version = HubUpdatePackage.ParseVersion(tag);
         if (version <= current) return null;
-        string name = $"AntigravityHub-{version}-Windows-x64.zip";
+        string notes = root.TryGetProperty("body", out var body) ? body.GetString() ?? "" : "";
+        var full = ParseAsset(root, version, tag, $"AntigravityHub-{version}-Windows-x64.zip", notes);
+        try
+        {
+            return full with {
+                Adaptation = ParseAsset(root, version, tag, $"AntigravityHub-{version}-Adaptation.zip", ""),
+                Catalog = ParseAsset(root, version, tag, "update-catalog.json", "") };
+        }
+        catch (InvalidDataException) { return full; } // Old releases remain usable.
+    }
+
+    private static HubRelease ParseAsset(JsonElement root, Version version, string tag, string name, string notes)
+    {
         var candidates = root.GetProperty("assets").EnumerateArray().Where(a => a.GetProperty("name").GetString() == name).ToArray();
         if (candidates.Length != 1) throw new InvalidDataException("新版本缺少完整 Windows 更新包。");
         var asset = candidates[0];
@@ -73,8 +87,53 @@ internal sealed class HubUpdateService : IDisposable
         if (!Uri.TryCreate(asset.GetProperty("browser_download_url").GetString(), UriKind.Absolute, out var download) ||
             !IsReleaseDownload(download) || download.AbsolutePath != $"/{Repository}/releases/download/{Uri.EscapeDataString(tag)}/{name}")
             throw new InvalidDataException("更新来源无效。");
-        string notes = root.TryGetProperty("body", out var body) ? body.GetString() ?? "" : "";
         return new(version, tag, notes[..Math.Min(notes.Length, 1800)], download, size, digest[7..].ToLowerInvariant());
+    }
+
+    private static string Size(long bytes) => $"{bytes / 1048576d:0.0} MB";
+
+    private async Task SelectPackageAsync(CancellationToken cancellation)
+    {
+        _download = _release; _catalog = null;
+        _packageNote = "完整更新包 " + Size(_release!.Size);
+        if (_release.Adaptation == null || _release.Catalog == null) return;
+        try
+        {
+            var asset = _release.Catalog;
+            if (asset.Size > 64 * 1024) throw new InvalidDataException("适配信息过大。");
+            Uri url = asset.Download;
+            byte[]? data = null;
+            for (int redirects = 0; redirects < 5; redirects++)
+            {
+                using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellation);
+                if ((int)response.StatusCode is 301 or 302 or 303 or 307 or 308)
+                {
+                    var location = response.Headers.Location ?? throw new InvalidDataException("适配信息地址无效。");
+                    url = location.IsAbsoluteUri ? location : new Uri(url, location);
+                    if (!IsAllowedRedirect(url)) throw new InvalidDataException("适配信息来源无效。");
+                    continue;
+                }
+                response.EnsureSuccessStatusCode();
+                data = await ReadBoundedAsync(response.Content, 64 * 1024, cancellation); break;
+            }
+            if (data == null || data.Length != asset.Size ||
+                !Convert.ToHexString(SHA256.HashData(data)).Equals(asset.Sha256, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("适配信息校验失败。");
+            var catalog = JsonSerializer.Deserialize<HubUpdateCatalog>(data, HubUpdatePackage.Json) ?? throw new InvalidDataException("适配信息无效。");
+            var current = HubUpdatePackage.ReadManifest(Path.Combine(_target, HubUpdatePackage.ManifestName));
+            string clientExe = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Antigravity", "Antigravity.exe");
+            string? rawClient = File.Exists(clientExe) ? FileVersionInfo.GetVersionInfo(clientExe).FileVersion : null;
+            string? client = Version.TryParse(rawClient, out var clientVersion) && clientVersion.Build >= 0 ?
+                new Version(clientVersion.Major, clientVersion.Minor, clientVersion.Build).ToString() : rawClient;
+            if (catalog.Version != _release.Version.ToString() || catalog.Clients == null ||
+                client != null && !catalog.Clients.Contains(client) || !HubUpdatePackage.CanAdapt(_target, current, catalog))
+            { _packageNote += "（本机需要更新主程序或客户端适配）"; return; }
+            if (_release.Adaptation.Size >= _release.Size) return;
+            _catalog = catalog; _download = _release.Adaptation;
+            _packageNote = "小型适配包 " + Size(_download.Size) + "，复用现有运行环境";
+        }
+        catch (Exception ex) when (ex is InvalidDataException or IOException or JsonException or HttpRequestException or UnauthorizedAccessException)
+        { _packageNote += "（小包条件未通过）"; }
     }
 
     internal async Task CheckAsync(CancellationToken cancellation)
@@ -91,7 +150,8 @@ internal sealed class HubUpdateService : IDisposable
             byte[] data = await ReadBoundedAsync(response.Content, 512 * 1024, timeout.Token);
             using var document = JsonDocument.Parse(data);
             _release = ParseRelease(document.RootElement, _version);
-            Publish(_release == null ? "current" : "available", _release == null ? "已是最新版本" : $"发现新版本 {_release.Version}");
+            if (_release != null) await SelectPackageAsync(timeout.Token);
+            Publish(_release == null ? "current" : "available", _release == null ? "已是最新版本" : $"发现新版本 {_release.Version} · {_packageNote}");
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
         catch (Exception ex) when (ex is HttpRequestException or InvalidDataException or IOException or JsonException or InvalidOperationException or KeyNotFoundException or OperationCanceledException)
@@ -135,10 +195,11 @@ internal sealed class HubUpdateService : IDisposable
             Publish("downloading", "正在下载更新…");
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
             timeout.CancelAfter(TimeSpan.FromMinutes(15));
-            await DownloadAsync(_release, archive, timeout.Token);
+            await DownloadAsync(_download ?? _release, archive, timeout.Token);
             Publish("verifying", "正在校验更新…", 100);
             string stage = Path.Combine(jobDirectory, "stage");
-            await Task.Run(() => HubUpdatePackage.ExtractVerified(archive, stage, _release.Version, cancellation), cancellation);
+            await Task.Run(() => HubUpdatePackage.ExtractVerified(archive, stage, _release.Version, cancellation,
+                _catalog == null ? null : _target, _catalog), cancellation);
             var parent = Process.GetCurrentProcess();
             var job = new HubUpdateJob(_target, _version.ToString(), _release.Version.ToString(), parent.Id, parent.StartTime.ToUniversalTime().Ticks);
             HubUpdateInstaller.WriteJson(Path.Combine(jobDirectory, "job.json"), job);
@@ -163,7 +224,15 @@ internal sealed class HubUpdateService : IDisposable
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { return false; }
         catch (Exception ex) when (ex is InvalidDataException or IOException or HttpRequestException or JsonException or UnauthorizedAccessException or System.ComponentModel.Win32Exception or OperationCanceledException)
-        { Publish("error", ex is InvalidDataException ? ex.Message : "更新未完成，当前版本已保留，请重试"); return false; }
+        {
+            string message = ex is InvalidDataException ? ex.Message : "更新未完成，当前版本已保留，请重试";
+            if (_catalog != null)
+            {
+                _catalog = null; _download = _release;
+                message += $" 小包更新未完成；再次点击将使用完整包 {Size(_release!.Size)}。";
+            }
+            Publish("error", message); return false;
+        }
         finally
         {
             IsInstalling = false;

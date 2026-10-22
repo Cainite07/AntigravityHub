@@ -6,13 +6,16 @@ const parser=require(process.argv[3] || '@babel/parser');
 const source=fs.readFileSync(process.argv[2],'utf8');
 const hash=crypto.createHash('sha256').update(source).digest('hex');
 const version=process.argv[4] || '2.23.0';
+const auditOnly=process.argv.includes('--audit-only');
+const option=name=>{const index=process.argv.indexOf(name);return index<0?null:process.argv[index+1];};
 const hashes={'2.23.0':'867d1990b61d87f4b9ff8c5ecb1551c8688135267f32e56e02563f2d3e78fd68','2.23.1':'ad12ecf66061edab6a3835d1360e1bad50787bc7b2f2c9d86568281360864696','2.24.0':'7a0bf9576e8ffd8e9fb39716368b1c79c2ccd965da65e049fe846100f34edf88','2.25.0':'91c2d259d53a16b0cb9afe87e5d9f173ba613a46a076032a179ac5eca5101463'};
-if(hash!==hashes[version])throw Error('Unreviewed renderer for '+version);
+if(!auditOnly && hash!==hashes[version])throw Error('Unreviewed renderer for '+version);
 const root=path.resolve(__dirname,'../client/release-2.22.0/source/hans');
 const dict={...require(path.join(root,'ui_dictionary.json')),...require(path.join(root,'ui_overrides.json'))};
 const excluded=new Set(['Google Docs','Google Sheets','Google Slides','Google Drive','Google Calendar','Firebase','Science','Chrome DevTools','Android CLI','Gemini API','Google Antigravity SDK']);
 const props=new Set(['label','title','placeholder','aria-label','ariaLabel','tooltip','tooltipText','alt','displayName','shortDisplayName','shortDescription','longDescription','emptyNote']);
-const ast=parser.parse(source,{sourceType:'script'}),patches=[];
+const auditTool=require('./localization-audit.cjs');
+const ast=parser.parse(source,{sourceType:'script'}),patches=[],candidates=[];
 const functionKinds=new WeakMap();
 function displayFunction(parents){
   const fn=parents.findLast(p=>['FunctionDeclaration','FunctionExpression','ArrowFunctionExpression'].includes(p.type));
@@ -72,6 +75,10 @@ function role(node,parents){
 }
 function walk(node,parents=[]){
   if(!node || typeof node!=='object')return;
+  if(node.type==='StringLiteral'){
+    const r=role(node,parents), item=r && auditTool.candidate(node.value,r,node.start,node.end);
+    if(item)candidates.push(item);
+  }
   if(node.type==='StringLiteral' && !excluded.has(node.value)){
     const r=role(node,parents);
     const translation=r==='native-activity-prefix'||r?.startsWith('activity-') ? (node.value===', '?'、':activityWords[node.value]) : r==='relative-time-units'?timeUnits[node.value]:r==='relative-time-ago'?'刚刚':dict[node.value];
@@ -80,6 +87,8 @@ function walk(node,parents=[]){
   if(node.type==='TemplateElement'){
     const kind=displayFunction(parents),raw=source.slice(node.start,node.end);let translated=raw;
     const template=parents.at(-1);
+    const r=kind || (parents.some(p=>p.type==='ObjectProperty' && props.has(key(p.key)))?'review:dynamic':null);
+    const item=r && auditTool.candidate(raw,r,node.start,node.end);if(item)candidates.push(item);
     if(template?.type==='TemplateLiteral' && template.expressions.length===1 && template.expressions[0]?.callee?.name===elapsedFormatter){
       if(raw==='Worked for ')translated='工作了 ';
       else if(raw==='Stopped after ')translated='运行 ';
@@ -100,7 +109,14 @@ walk(ast);
 patches.sort((a,b)=>a.start-b.start);
 for(let i=1;i<patches.length;i++)if(patches[i-1].end>patches[i].start)throw Error('Overlapping UI spans');
 const profile={schema:1,version,rendererSha256:hash,patches};
+const inventory={schema:1,version,rendererSha256:hash,candidates,patches};
+const previous=option('--previous');
+const report=auditTool.audit(inventory,dict,previous?JSON.parse(fs.readFileSync(previous,'utf8')):null);
+const output=option('--output');
+if(output)fs.writeFileSync(output,JSON.stringify(report,null,2)+'\n');
+if(auditOnly){console.log(JSON.stringify(report.summary));if(!output)console.log(JSON.stringify(report,null,2));process.exit(0);}
 fs.mkdirSync(path.resolve(__dirname,'../client/release-'+version+'/source'),{recursive:true});
+fs.writeFileSync(path.resolve(__dirname,'../client/release-'+version+'/source/ui-audit-inventory.json'),JSON.stringify({schema:1,version,rendererSha256:hash,candidates},null,2)+'\n');
 fs.writeFileSync(path.resolve(__dirname,'../client/release-'+version+'/source/ui-source-manifest.json'),JSON.stringify(profile,null,2)+'\n');
 fs.writeFileSync(path.join(root,'ui-source-'+version.replaceAll('.','')+'.js'),"'use strict';\n// Reviewed client display strings only; model requests and external fields are unchanged.\nmodule.exports="+JSON.stringify({sha256:hash,patches:patches.map(({start,end,from,to})=>({start,end,from,to}))})+';\n');
 console.log('Reviewed UI spans:',patches.length,'renderer:',hash);

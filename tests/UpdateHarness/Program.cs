@@ -5,6 +5,30 @@ using System.Text;
 using System.Text.Json;
 using AntigravityHub;
 
+if (args.Length == 5 && args[0] == "--verify-adaptation")
+{
+    string checkRoot=Path.Combine(Path.GetTempPath(),"AntigravityHub-small-check-"+Guid.NewGuid().ToString("N"));
+    try
+    {
+        var catalog=JsonSerializer.Deserialize<HubUpdateCatalog>(File.ReadAllText(args[3]),HubUpdatePackage.Json)!;
+        var manifest=HubUpdatePackage.ExtractVerified(args[1],checkRoot,HubUpdatePackage.ParseVersion(args[4]),CancellationToken.None,args[2],catalog);
+        HubUpdateInstaller.VerifyFiles(checkRoot,manifest);
+        Console.WriteLine($"PASS: adaptation reconstructs full verified stage, {manifest.Files.Length} files, core {manifest.CoreVersion}.");
+        return 0;
+    }
+    finally {if(Directory.Exists(checkRoot))Directory.Delete(checkRoot,true);}
+}
+if (args.Length == 4 && args[0] == "--small-parent")
+{
+    using var instance = new Mutex(true, HubUpdateInstaller.MutexName);
+    var current=HubUpdatePackage.ReadManifest(Path.Combine(args[1],HubUpdatePackage.ManifestName));
+    using var service = new HubUpdateService(args[1],new FakeSmallGitHub(File.ReadAllBytes(args[2]),File.ReadAllBytes(args[3]),current),HubUpdatePackage.ParseVersion(current.Version));
+    await service.CheckAsync(CancellationToken.None);
+    if(!service.Status.Message.Contains("小型适配包"))throw new Exception(service.Status.Message);
+    bool ready=await service.InstallAsync(CancellationToken.None);
+    if(!ready)Console.Error.WriteLine(service.Status.Message);
+    return ready?0:9;
+}
 if (args.Length == 3 && args[0] == "--verify-package")
 {
     string checkRoot=Path.Combine(Path.GetTempPath(),"AntigravityHub-package-check-"+Guid.NewGuid().ToString("N"));
@@ -112,6 +136,52 @@ try
     }
     passed.Add("valid ZIP extraction; wrong versions, traversal, duplicate names, links, extra files and corrupt files rejected");
 
+    string smallBase=TinyPackage("small-base","1.4.0");
+    Directory.CreateDirectory(Path.Combine(smallBase,"integration"));
+    File.WriteAllText(Path.Combine(smallBase,"integration/obsolete.js"),"old adaptation");
+    var baseManifest=Manifest(smallBase,"1.4.0") with {CoreVersion="1.4.0",CoreSourcesSha256=new string('a',64)};
+    HubUpdateInstaller.WriteJson(Path.Combine(smallBase,HubUpdatePackage.ManifestName),baseManifest);
+    string smallNext=Path.Combine(fixture,"small-next");Directory.CreateDirectory(smallNext);
+    foreach(var f in baseManifest.Files.Where(f=>!HubUpdatePackage.IsAdaptation(f.Path)))
+    {string dest=Path.Combine(smallNext,f.Path);Directory.CreateDirectory(Path.GetDirectoryName(dest)!);File.Copy(Path.Combine(smallBase,f.Path),dest);}
+    Directory.CreateDirectory(Path.Combine(smallNext,"integration"));File.WriteAllText(Path.Combine(smallNext,"integration/latest.js"),"complete latest adaptation");
+    var smallManifest=Manifest(smallNext,"1.4.2") with {CoreVersion="1.4.0",CoreSourcesSha256=new string('a',64)};
+    HubUpdateInstaller.WriteJson(Path.Combine(smallNext,HubUpdatePackage.ManifestName),smallManifest);
+    string smallZip=Path.Combine(fixture,"small.zip");
+    using(var zip=ZipFile.Open(smallZip,ZipArchiveMode.Create))
+        foreach(string relative in smallManifest.Files.Where(f=>HubUpdatePackage.IsAdaptation(f.Path)).Select(f=>f.Path).Append(HubUpdatePackage.ManifestName))
+            zip.CreateEntryFromFile(Path.Combine(smallNext,relative),"AntigravityHub/"+relative);
+    var catalog=new HubUpdateCatalog(1,"1.4.2","1.4.0",HubUpdatePackage.CoreHash(smallManifest),["2.25.0"]);
+    byte[] smallData=File.ReadAllBytes(smallZip),fullData=File.ReadAllBytes(Zip(smallNext,"small-selection-full"));
+    using(var handler=new FakeSmallGitHub(fullData,smallData,baseManifest){CorruptSmall=true})
+    using(var service=new HubUpdateService(smallBase,handler,new Version(1,4,0)))
+    {
+        await service.CheckAsync(CancellationToken.None);Assert(service.Status.Message.Contains("小型适配包"),"small ZIP selected before consent");
+        Assert(!await service.InstallAsync(CancellationToken.None),"corrupt small ZIP rejected");
+        Assert(handler.FullDownloads==0 && handler.SmallDownloads==1,"failed small download never silently downloads full ZIP");
+        Assert(service.Status.Message.Contains("再次点击") && service.Status.Message.Contains("MB"),"explicit full-package retry and size shown");
+        await service.InstallAsync(CancellationToken.None);Assert(handler.FullDownloads==1,"full fallback requires second update action");
+    }
+    using(var handler=new FakeSmallGitHub(fullData,smallData,baseManifest){CatalogCore="1.4.1"})
+    using(var service=new HubUpdateService(smallBase,handler,new Version(1,4,0)))
+    {
+        await service.CheckAsync(CancellationToken.None);
+        Assert(service.Status.Message.Contains("完整更新包") && !service.Status.Message.Contains("小型适配包"),"incompatible core uses announced full update");
+        Assert(handler.FullDownloads==0 && handler.SmallDownloads==0,"checking does not download ZIPs");
+    }
+    Assert(HubUpdatePackage.CanAdapt(smallBase,baseManifest,catalog),"matching core supports skipped adaptation releases");
+    Assert(!HubUpdatePackage.CanAdapt(smallBase,baseManifest,catalog with {CoreVersion="1.4.1"}),"core upgrade requires full ZIP");
+    string smallStage=Path.Combine(fixture,"small-stage");
+    HubUpdatePackage.ExtractVerified(smallZip,smallStage,new Version(1,4,2),CancellationToken.None,smallBase,catalog);
+    HubUpdateInstaller.VerifyFiles(smallStage,smallManifest);
+    Assert(!File.Exists(Path.Combine(smallStage,"integration/obsolete.js")),"small ZIP is a complete adaptation set");
+    File.WriteAllText(Path.Combine(smallBase,"AntigravityHub.dll"),"corrupt core");
+    Reject(()=>HubUpdatePackage.ExtractVerified(smallZip,Path.Combine(fixture,"small-bad-core"),new Version(1,4,2),CancellationToken.None,smallBase,catalog));
+    File.Copy(Path.Combine(smallNext,"AntigravityHub.dll"),Path.Combine(smallBase,"AntigravityHub.dll"),true);
+    using(var zip=ZipFile.Open(smallZip,ZipArchiveMode.Update)){using var w=new StreamWriter(zip.CreateEntry("AntigravityHub/AntigravityHub.exe").Open());w.Write("forbidden core payload");}
+    Reject(()=>HubUpdatePackage.ExtractVerified(smallZip,Path.Combine(fixture,"small-injected"),new Version(1,4,2),CancellationToken.None,smallBase,catalog));
+    passed.Add("small adaptation reconstruction, skipped releases, strict core identity, missing/corrupt core and injected payload rejection");
+
     byte[] data = File.ReadAllBytes(archive);
     using (var handler = new FakeGitHub(data))
     using (var service = new HubUpdateService(fixture, handler, new Version(1,3,9)))
@@ -202,6 +272,41 @@ try
             Assert(!Directory.EnumerateDirectories(HubUpdateInstaller.JobsRoot).Any(d=>File.Exists(Path.Combine(d,"job.json")) && File.ReadAllText(Path.Combine(d,"job.json")).Contains(e2e.Replace("\\","\\\\"))),"completed job removed");
     }
     passed.Add("real helper processes: exit/handoff, same-location overwrite, healthy restart, failed-start rollback, package/backup cleanup");
+    foreach(bool fail in new[]{false,true})
+    {
+        string currentRoot=Path.Combine(fixture,fail?"small-fail-current":"small-ok-current"),nextRoot=Path.Combine(fixture,fail?"small-fail-next":"small-ok-next");
+        foreach(string root in new[]{currentRoot,nextRoot})
+        {
+            Directory.CreateDirectory(root);
+            foreach(string file in Directory.GetFiles(AppContext.BaseDirectory).Where(f=>Path.GetExtension(f)!=".pdb"))File.Copy(file,Path.Combine(root,Path.GetFileName(file)));
+            Directory.CreateDirectory(Path.Combine(root,"wwwroot"));File.WriteAllText(Path.Combine(root,"wwwroot/index.html"),"unchanged core UI");
+            Directory.CreateDirectory(Path.Combine(root,"integration"));
+        }
+        File.WriteAllText(Path.Combine(currentRoot,"integration/old.js"),"obsolete");File.WriteAllText(Path.Combine(nextRoot,"integration/new.js"),"latest");
+        string oldVersion=fail?"1.4.1":"1.4.0";
+        foreach(var (root,version) in new[]{(currentRoot,oldVersion),(nextRoot,"1.4.2")})
+            HubUpdateInstaller.WriteJson(Path.Combine(root,HubUpdatePackage.ManifestName),Manifest(root,version) with {CoreVersion="1.4.0",CoreSourcesSha256=new string('a',64)});
+        File.WriteAllText(Path.Combine(currentRoot,"accounts.json"),"preserved");
+        if(fail)File.WriteAllText(Path.Combine(currentRoot,"fail-start"),"fail");
+        string full=Zip(nextRoot,fail?"small-process-full-fail":"small-process-full-ok"),partial=Path.Combine(fixture,fail?"process-adapt-fail.zip":"process-adapt-ok.zip");
+        using(var zip=ZipFile.Open(partial,ZipArchiveMode.Create))
+        foreach(string file in Directory.GetFiles(nextRoot,"*",SearchOption.AllDirectories))
+        {
+            string relative=Path.GetRelativePath(nextRoot,file).Replace('\\','/');
+            if(relative==HubUpdatePackage.ManifestName || HubUpdatePackage.IsAdaptation(relative))zip.CreateEntryFromFile(file,"AntigravityHub/"+relative);
+        }
+        var start=new ProcessStartInfo(Path.Combine(currentRoot,"AntigravityHub.exe")){UseShellExecute=false,CreateNoWindow=true};
+        foreach(string arg in new[]{"--small-parent",currentRoot,full,partial})start.ArgumentList.Add(arg);
+        using(var parent=Process.Start(start)!){await parent.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(25));Assert(parent.ExitCode==0,"small update parent handoff");}
+        string marker=Path.Combine(currentRoot,fail?"rolledback-marker":"relaunched-marker");var timer=Stopwatch.StartNew();
+        while(!File.Exists(marker) && timer.Elapsed<TimeSpan.FromSeconds(30))await Task.Delay(100);
+        Assert(File.Exists(marker),"small update restart/rollback");
+        Assert(HubUpdatePackage.ReadManifest(Path.Combine(currentRoot,HubUpdatePackage.ManifestName)).Version==(fail?oldVersion:"1.4.2"),"effective version independent of core binary");
+        Assert(File.ReadAllText(Path.Combine(currentRoot,"accounts.json"))=="preserved","small update keeps private data");
+        Assert(File.Exists(Path.Combine(currentRoot,"integration/old.js"))==fail,"obsolete adaptation removed or restored");
+        await Task.Delay(4000);
+    }
+    passed.Add("real small-package processes: 1.4.0/1.4.1 to 1.4.2 on identical 1.4.0 core, healthy restart and failed-start rollback");
     string recoveryTarget=Path.Combine(fixture,"recovery-target"); Directory.CreateDirectory(recoveryTarget);
     foreach(string file in Directory.GetFiles(AppContext.BaseDirectory).Where(f=>Path.GetExtension(f)!=".pdb")) File.Copy(file,Path.Combine(recoveryTarget,Path.GetFileName(file)));
     Directory.CreateDirectory(Path.Combine(recoveryTarget,"wwwroot")); File.WriteAllText(Path.Combine(recoveryTarget,"wwwroot/index.html"),"old UI");
@@ -254,5 +359,35 @@ sealed class FakeGitHub(byte[] archive) : HttpMessageHandler
         if(metadata && MetadataGate!=null) await MetadataGate.Task.WaitAsync(cancellation);
         byte[] bytes=archive.ToArray(); if(CorruptDownload && !metadata) bytes[0]^=1;
         return new HttpResponseMessage(Status) {Content=metadata?new StringContent(Metadata,Encoding.UTF8,"application/json"):new ByteArrayContent(bytes)};
+    }
+}
+
+sealed class FakeSmallGitHub : HttpMessageHandler
+{
+    private readonly Dictionary<string,byte[]> _assets;
+    internal bool CorruptSmall {get;init;}
+    internal string? CatalogCore {get;init;}
+    internal int FullDownloads {get;private set;}
+    internal int SmallDownloads {get;private set;}
+    internal FakeSmallGitHub(byte[] full,byte[] small,HubPackageManifest current)
+    {
+        _assets=new(){["AntigravityHub-1.4.2-Windows-x64.zip"]=full,["AntigravityHub-1.4.2-Adaptation.zip"]=small,
+            ["update-catalog.json"]=JsonSerializer.SerializeToUtf8Bytes(new HubUpdateCatalog(1,"1.4.2","1.4.0",HubUpdatePackage.CoreHash(current),["2.25.0"]),HubUpdatePackage.Json)};
+    }
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,CancellationToken cancellation)
+    {
+        if(CatalogCore!=null)
+        {
+            var catalog=JsonSerializer.Deserialize<HubUpdateCatalog>(_assets["update-catalog.json"],HubUpdatePackage.Json)!;
+            _assets["update-catalog.json"]=JsonSerializer.SerializeToUtf8Bytes(catalog with {CoreVersion=CatalogCore},HubUpdatePackage.Json);
+        }
+        byte[] body=request.RequestUri==HubUpdateService.LatestEndpoint?JsonSerializer.SerializeToUtf8Bytes(new{
+            draft=false,prerelease=false,tag_name="v1.4.2",body="Small update fixture",assets=_assets.Select(a=>new{
+                name=a.Key,state="uploaded",size=a.Value.Length,digest="sha256:"+Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(a.Value)).ToLowerInvariant(),
+                browser_download_url="https://github.com/Cainite07/AntigravityHub/releases/download/v1.4.2/"+a.Key})}):_assets[Path.GetFileName(request.RequestUri!.AbsolutePath)];
+        string name=Path.GetFileName(request.RequestUri!.AbsolutePath);
+        if(name.EndsWith("-Windows-x64.zip"))FullDownloads++;
+        if(name.EndsWith("-Adaptation.zip")){SmallDownloads++;if(CorruptSmall){body=body.ToArray();body[0]^=1;}}
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK){Content=new ByteArrayContent(body)});
     }
 }

@@ -1,6 +1,6 @@
 {
   "version": "2.22.0",
-  "release": "AntigravityHub2.25.1+client2.22.0",
+  "release": "AntigravityHub2.25.2+client2.22.0",
   "reviewDate": "2026-10-22",
   "baseArchive": "../../release-2.22.0/base/app.asar",
   "baseSha256": "259c83ffa266088dda6ede520a601bbf06cc5c34985cdf56c5d68549c98dbb0e",
@@ -20,7 +20,8 @@
     "094ab06db060dd6bcd64f063a8dcb9de537ff7de4998c58cce5fd164a03401f4",
     "9eddbc3ee27b20932972c213b562ba413642113eac0dc7ad4030a77407008977",
     "8937b79fa61fd6c30bdb16600cf79d9244608c4bb3a3e42608201ad6cb3db140",
-    "f906ce81de13466cfd0ccde3d448ac88166deb967822bcff5734493e39a250a9"
+    "f906ce81de13466cfd0ccde3d448ac88166deb967822bcff5734493e39a250a9",
+    "3ca40f814d3d857d6497a4cb28138dba5952949f40f955335b25b360919cd782"
   ],
   "targetModules": {
     "dist/main.js": "33627ee0b33c5af5052fb040a9c945c2713d19b143ce0b2473524588fa06c960",
@@ -36,7 +37,7 @@
     "dist/hans-bundle-hook.js": "fb3ef35da05a8bb4447898daa7c2b596cdb094a7be06904f54af29864076f33d",
     "dist/hans-main.js": "c55e5f4449160e32d90d4b4480fca7baa8f99f7a224d06c6d38262a2f9c2f914",
     "dist/hans-translator.js": "36d54862bf3429296b103a0865c8b66e9c63ce4e9389a6c9a698eb9066a36a11",
-    "dist/ui-source-2230.js": "58b4cd229a7dc599918954159e3733be182555ddbfac36de0d4414b967b2dab0",
+    "dist/ui-source-2230.js": "3c6eadc8a9dda712cbf18bf565492bac8e2b4f45bcc5e358f8935d6ab5050257",
     "dist/ui-source-2231.js": "f37d600ae3ff174857948fda9a5a58c9dfba3b755b2b1da33f31774df4b55f1e",
     "dist/ui-source-2240.js": "9c6511e3e3792fdfc266539ce16b2595a31042a130872274b7e2912afed0146f",
     "dist/ui-source-2250.js": "92233640a0ce6da89e0958520850cedd20776f4945bb3873478f4e6cb7aeaa70"

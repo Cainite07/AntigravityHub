@@ -241,7 +241,7 @@ let currentNav = 'usage';
       update.classList.toggle('hidden',!hasUpdate || busy); update.disabled = busy;
       document.getElementById('hub-update-version').innerText = `v${hubUpdateState.currentVersion}  →  v${hubUpdateState.latestVersion}`;
       const message = document.getElementById('hub-update-message');
-      message.innerText = hubUpdateState.state === 'available' ? '更新后将自动重启 Hub，账号和设置会保留。' : hubUpdateState.message;
+      message.innerText = hubUpdateState.state === 'available' ? `${hubUpdateState.message}。更新后自动重启，账号、设置和历史记录会保留。` : hubUpdateState.message;
       const progress = Math.max(0,Math.min(100,Number(hubUpdateState.progress)||0));
       const bar = document.getElementById('hub-update-progress');
       bar.classList.toggle('hidden',!busy); bar.setAttribute('aria-valuenow',String(progress));

@@ -10,9 +10,12 @@ using System.Threading;
 
 namespace AntigravityHub;
 
-internal sealed record HubRelease(Version Version, string Tag, string Notes, Uri Download, long Size, string Sha256);
+internal sealed record HubRelease(Version Version, string Tag, string Notes, Uri Download, long Size, string Sha256,
+    HubRelease? Adaptation = null, HubRelease? Catalog = null);
 internal sealed record HubPackageFile(string Path, long Size, string Sha256);
-internal sealed record HubPackageManifest(int Schema, string Version, HubPackageFile[] Files);
+internal sealed record HubPackageManifest(int Schema, string Version, HubPackageFile[] Files,
+    string? CoreVersion = null, string? CoreSourcesSha256 = null);
+internal sealed record HubUpdateCatalog(int Schema, string Version, string CoreVersion, string CoreSha256, string[] Clients);
 
 internal static class HubUpdatePackage
 {
@@ -20,6 +23,47 @@ internal static class HubUpdatePackage
     internal const long MaxPackageBytes = 1024L * 1024 * 1024;
     internal const long MaxExpandedBytes = 2L * 1024 * 1024 * 1024;
     internal static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true, WriteIndented = true };
+
+    // Keep executable/runtime/dependency changes on the full update path. An adaptation
+    // always carries the entire current client layer, including additions and removals.
+    internal static bool IsAdaptation(string path) =>
+        path.StartsWith("client/release-", StringComparison.Ordinal) && path.Contains("/source/hans/", StringComparison.Ordinal) ||
+        path.StartsWith("client/maintenance/tools/", StringComparison.Ordinal) &&
+            !path.StartsWith("client/maintenance/tools/node_modules/", StringComparison.Ordinal) &&
+            path is not ("client/maintenance/tools/package.json" or "client/maintenance/tools/package-lock.json") ||
+        path.StartsWith("integration/", StringComparison.Ordinal) || path.StartsWith("docs/", StringComparison.Ordinal) || path == "README.md";
+
+    internal static string CoreHash(HubPackageManifest manifest)
+    {
+        string identity = string.Concat(manifest.Files.Where(f => !IsAdaptation(f.Path)).OrderBy(f => f.Path, StringComparer.Ordinal)
+            .Select(f => $"{f.Path}\t{f.Size.ToString(System.Globalization.CultureInfo.InvariantCulture)}\t{f.Sha256.ToLowerInvariant()}\n"));
+        return Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(identity))).ToLowerInvariant();
+    }
+
+    internal static Version InstalledVersion(string target)
+    {
+        var assembly = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version!;
+        var core = new Version(assembly.Major, assembly.Minor, assembly.Build);
+        try
+        {
+            var manifest = ReadManifest(System.IO.Path.Combine(target, ManifestName));
+            if (manifest.CoreVersion != null && ParseVersion(manifest.CoreVersion) == core)
+            {
+                var executable = manifest.Files.Single(f => f.Path == "AntigravityHub.exe");
+                if (Hash(Resolve(target, executable.Path)) == executable.Sha256) return ParseVersion(manifest.Version);
+            }
+        }
+        catch (Exception ex) when (ex is InvalidDataException or IOException or JsonException or UnauthorizedAccessException or InvalidOperationException) { }
+        return core;
+    }
+
+    internal static bool CanAdapt(string target, HubPackageManifest current, HubUpdateCatalog catalog)
+    {
+        if (catalog.Schema != 1 || current.CoreVersion == null || catalog.CoreVersion != current.CoreVersion ||
+            !IsHash(catalog.CoreSha256) || CoreHash(current) != catalog.CoreSha256) return false;
+        HubUpdateInstaller.VerifyFiles(target, current with { Files = current.Files.Where(f => !IsAdaptation(f.Path)).ToArray() });
+        return true;
+    }
 
     internal static Version ParseVersion(string text)
     {
@@ -86,6 +130,8 @@ internal static class HubUpdatePackage
         if (manifest.Schema != 1 || manifest.Files == null || manifest.Files.Length is < 4 or > 12000)
             throw new InvalidDataException("更新清单无效。");
         ParseVersion(manifest.Version);
+        if (manifest.CoreVersion != null && (ParseVersion(manifest.CoreVersion) > ParseVersion(manifest.Version) || !IsHash(manifest.CoreSourcesSha256)))
+            throw new InvalidDataException("主程序版本清单无效。");
         var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         long size = 0;
         foreach (var file in manifest.Files)
@@ -101,7 +147,8 @@ internal static class HubUpdatePackage
         return manifest;
     }
 
-    internal static HubPackageManifest ExtractVerified(string archivePath, string stage, Version expected, CancellationToken cancellation)
+    internal static HubPackageManifest ExtractVerified(string archivePath, string stage, Version expected, CancellationToken cancellation,
+        string? installed = null, HubUpdateCatalog? catalog = null)
     {
         using var archive = ZipFile.OpenRead(archivePath);
         if (archive.Entries.Count > 12500) throw new InvalidDataException("更新包文件过多。");
@@ -126,16 +173,29 @@ internal static class HubUpdatePackage
         HubPackageManifest manifest;
         using (var stream = manifestEntry.Open()) manifest = ValidateManifest(JsonSerializer.Deserialize<HubPackageManifest>(stream, Json)
             ?? throw new InvalidDataException("更新清单无效。"));
-        if (ParseVersion(manifest.Version) != expected || entries.Count != manifest.Files.Length + 1)
+        bool small = installed != null && catalog != null;
+        var packed = manifest.Files.Where(f => !small || IsAdaptation(f.Path)).ToArray();
+        if (ParseVersion(manifest.Version) != expected || entries.Count != packed.Length + 1)
             throw new InvalidDataException("更新版本或文件清单不匹配。");
+        if (small)
+        {
+            var previous = ReadManifest(System.IO.Path.Combine(installed!, ManifestName));
+            if (catalog!.Version != manifest.Version || catalog.CoreVersion != manifest.CoreVersion ||
+                CoreHash(manifest) != catalog.CoreSha256 || !CanAdapt(installed!, previous, catalog))
+                throw new InvalidDataException("小型适配包与本机主程序不兼容，请重新检查完整更新。");
+        }
         Directory.CreateDirectory(stage);
         foreach (var file in manifest.Files)
         {
             cancellation.ThrowIfCancellationRequested();
-            if (!entries.TryGetValue(file.Path, out var entry) || entry.Length != file.Size) throw new InvalidDataException("更新包不完整。");
             string path = Resolve(stage, file.Path);
             Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
-            entry.ExtractToFile(path, false);
+            if (small && !IsAdaptation(file.Path)) File.Copy(Resolve(installed!, file.Path), path, false);
+            else
+            {
+                if (!entries.TryGetValue(file.Path, out var entry) || entry.Length != file.Size) throw new InvalidDataException("更新包不完整。");
+                entry.ExtractToFile(path, false);
+            }
             if (!Hash(path).Equals(file.Sha256, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("更新文件校验失败。");
         }
         manifestEntry.ExtractToFile(Resolve(stage, ManifestName), false);
