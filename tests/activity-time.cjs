@@ -5,6 +5,7 @@ for(const variable of ['ANTIGRAVITY_RENDERER_2240','ANTIGRAVITY_RENDERER_2250'])
  if(!process.env[variable])continue;
  const original=fs.readFileSync(process.env[variable],'utf8'),result=patchBundle(original),source=result.source;
  assert(result.applied);assert.equal(result.structuralApplied,false);
+ assert(source.includes('headerText:`工作了 ${'),'elapsed header stays Chinese after localizing its duration');
  const time=source.match(/var ([\w$]+)=a=>\{a=([\w$]+)\(a\);if\(a.endsWith\("second"\)/);
  assert(time,'native relative-time formatter');
  const code=source.slice(time.index,source.indexOf(';const ',time.index)),ago=code.match(/},([\w$]+)=a=>/);

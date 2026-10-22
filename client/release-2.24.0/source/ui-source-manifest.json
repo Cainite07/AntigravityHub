@@ -20524,6 +20524,15 @@
       "role": "activity-summary"
     },
     {
+      "start": 6414875,
+      "end": 6414886,
+      "from": "Worked for ",
+      "to": "工作了 ",
+      "text": "Worked for ",
+      "translation": "工作了 ",
+      "role": null
+    },
+    {
       "start": 6421703,
       "end": 6421722,
       "from": "\"Proceed with Plan\"",
@@ -24500,6 +24509,15 @@
       "text": "Files Changed",
       "translation": "已更改文件",
       "role": "property:title"
+    },
+    {
+      "start": 6955426,
+      "end": 6955437,
+      "from": "Worked for ",
+      "to": "工作了 ",
+      "text": "Worked for ",
+      "translation": "工作了 ",
+      "role": null
     },
     {
       "start": 6957180,

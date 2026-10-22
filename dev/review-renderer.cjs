@@ -29,6 +29,7 @@ function displayFunction(parents){
 }
 const activityWords={Analyzing:'正在分析',Analyzed:'已分析',Exploring:'正在浏览',Explored:'已浏览',Searching:'正在搜索',Searched:'已搜索',Reading:'正在读取',Read:'已读取',Editing:'正在编辑',Edited:'已编辑',Creating:'正在创建',Created:'已创建',Deleting:'正在删除',Deleted:'已删除',Running:'正在运行',Ran:'已运行',ran:'已运行',edited:'已编辑',Working:'正在处理',Thinking:'正在思考',Done:'已完成','Running command':'正在运行命令',command:'命令',commands:'命令',file:'文件',files:'文件',artifact:'产物',artifacts:'产物'};
 const timeUnits={s:'秒',m:'分钟',h:'小时',d:'天',w:'周',mo:'个月',y:'年',ms:'毫秒'};
+const elapsedFormatter=source.match(/([\w$]+)=a=>\{a=Math.max\(1,Math.floor\(a\/1E3\)\)/)?.[1];
 function key(node){return node?.name || node?.value;}
 function role(node,parents){
   const parent=parents.at(-1);
@@ -77,6 +78,12 @@ function walk(node,parents=[]){
   }
   if(node.type==='TemplateElement'){
     const kind=displayFunction(parents),raw=source.slice(node.start,node.end);let translated=raw;
+    const template=parents.at(-1);
+    if(template?.type==='TemplateLiteral' && template.expressions.length===1 && template.expressions[0]?.callee?.name===elapsedFormatter){
+      if(raw==='Worked for ')translated='工作了 ';
+      else if(raw==='Stopped after ')translated='运行 ';
+    }
+
     if(kind==='activity-summary')translated=raw===' '?'':raw.replace(/^Explored /,'已浏览').replace(/^Editing /,'正在编辑');
     if(kind==='relative-time-ago' && raw===' ago')translated='前';
     if(kind==='duration')translated=raw.replace(/ms/g,'毫秒').replace(/[smhd]/g,c=>timeUnits[c]);
