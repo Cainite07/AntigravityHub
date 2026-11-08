@@ -76,7 +76,8 @@ function testModelAndNotificationChrome() {
   assert.equal(translateUiValue('Gemini 4 Argon Weekly Limit Remaining'), 'Gemini 4 Argon 每周剩余额度');
   for (const protectedKind of [null, '.prose', '[data-plugin-content]', 'pre']) {
     const classes=new Set();
-    const element={matches:()=>true, parentElement:{querySelector:()=>({})},
+    const element={matches:selector=>selector==='div.bg-secondary.rounded-full.px-1\\.5.text-xs',
+      parentElement:{querySelector:selector=>selector==='[data-testid="model-selector-effort-group"]'?{}:null},
       classList:{contains:x=>classes.has(x),add:x=>classes.add(x)}, closest(selector) {
         return protectedKind && selector.includes(protectedKind) ? {} : null;
       }};

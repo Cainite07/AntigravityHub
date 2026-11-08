@@ -10,12 +10,17 @@ function request(message,timeout=2200){return new Promise((resolve,reject)=>{
   socket.on('connect',()=>socket.write(JSON.stringify(message)+'\n'));
   socket.on('data',chunk=>{data+=chunk;if(data.length>1800000)return finish(Error('oversize'));const i=data.indexOf('\n');if(i>=0){try{finish(null,JSON.parse(data.slice(0,i)));}catch(e){finish(e);}}});
 });}
-function trusted(event,BrowserWindow){try{const u=new URL(event.senderFrame.url);return event.senderFrame===event.sender.mainFrame && !!BrowserWindow.fromWebContents(event.sender) && u.protocol==='https:' && u.hostname==='127.0.0.1' && !u.username && !u.password;}catch{return false;}}
-function install({ipcMain,BrowserWindow}){
+function trusted(event,BrowserWindow,ownsWebContents){try{
+  const u=new URL(event.senderFrame.url);
+  return event.senderFrame===event.sender.mainFrame && u.protocol==='https:' && u.hostname==='127.0.0.1' && !u.username && !u.password &&
+    (ownsWebContents ? ownsWebContents(event.sender) : !!BrowserWindow.fromWebContents(event.sender));
+}catch{return false;}}
+function install({ipcMain,BrowserWindow},ownsWebContents){
+  const trustedEvent=event=>trusted(event,BrowserWindow,ownsWebContents);
   const collector=createSpeedCollector(),quotaCollector=createQuotaCollector();
   let currentAccount=null;
   ipcMain.handle('hub-hud:speed',async(event,id)=>{
-    if(!trusted(event,BrowserWindow)||cached?.enabled===false||!GUID.test(id||''))return null;
+    if(!trustedEvent(event)||cached?.enabled===false||!GUID.test(id||''))return null;
     const route=new URL(event.senderFrame.url).pathname.match(/^\/c\/([0-9a-f-]{36})(?:\/|$)/i)?.[1]?.toLowerCase();
     if(route!==id.toLowerCase())return null;
     const account=currentAccount;
@@ -24,16 +29,16 @@ function install({ipcMain,BrowserWindow}){
   });
   const snapshots=new Map();let flight=null,cached=null,at=0;
   ipcMain.handle('hub-hud:snapshot',async event=>{
-    if(!trusted(event,BrowserWindow))return {available:false};
+    if(!trustedEvent(event))return {available:false};
     const now=Date.now(),last=snapshots.get(event.sender.id)||0;if(now-last<500)return cached||{available:false};snapshots.set(event.sender.id,now);
     if(cached?.available&&now-at<1000)return cached;
     if(!flight)flight=request({action:'snapshot'}).then(async v=>{const account=v?.accounts?.find(a=>a.isCurrent)?.id||null;if(account!==currentAccount){currentAccount=account;collector.clear();quotaCollector.clear();}if(v?.available&&v.enabled!==false&&account){const quota=await quotaCollector.read(account);if(quota)v={...v,accounts:v.accounts.map(a=>a.isCurrent?{...a,...quota}:a)};}cached=v;at=Date.now();return v;}).catch(()=>{cached=null;return {available:false};}).finally(()=>flight=null);
     return flight;
   });
-  ipcMain.handle('hub-hud:open',async event=>{if(!trusted(event,BrowserWindow))return false;try{await request({action:'open'});return true;}catch{return false;}});
+  ipcMain.handle('hub-hud:open',async event=>{if(!trustedEvent(event))return false;try{await request({action:'open'});return true;}catch{return false;}});
   let switching=false;
   ipcMain.handle('hub-hud:switch',async(event,id)=>{
-    if(!trusted(event,BrowserWindow)||switching||typeof id!=='string'||id.length>128||cached?.enabled===false||!cached?.accounts?.some(a=>a.id===id))return false;
+    if(!trustedEvent(event)||switching||typeof id!=='string'||id.length>128||cached?.enabled===false||!cached?.accounts?.some(a=>a.id===id))return false;
     switching=true;try{const result=await request({action:'switch',accountId:id},90000);at=0;if(result.ok===true)collector.clear();return result.ok===true;}catch{return false;}finally{switching=false;}
   });
 }

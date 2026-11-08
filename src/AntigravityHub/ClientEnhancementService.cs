@@ -23,7 +23,10 @@ internal static class ClientEnhancementService
         return installed == "已就绪。" ? await RunAsync(false) : installed;
     }
 
-    public static async Task LaunchAsync(CancellationToken cancellation)
+    public static Task LaunchAsync(CancellationToken cancellation) => LaunchCoreAsync(cancellation, new[] { "--hub-show-window" });
+    public static Task LaunchOnlyAsync(string[] arguments) => LaunchCoreAsync(CancellationToken.None, arguments);
+
+    private static async Task LaunchCoreAsync(CancellationToken cancellation, string[] arguments)
     {
         await Gate.WaitAsync(cancellation);
         try
@@ -31,11 +34,22 @@ internal static class ClientEnhancementService
             cancellation.ThrowIfCancellationRequested();
             // The maintenance launch shares the deployment mutex with the waiting worker.
             // This completes any queued update before the client opens the archive.
-            var output = await RunProcess(Path.Combine(Runtime,"python","python.exe"),
-                new[] {Path.Combine(Tools,"maintain.py"), "--launch", "--root", ClientRoot, "--", "--hub-show-window"}, Tools);
+            var command = new System.Collections.Generic.List<string> { Path.Combine(Tools,"maintain.py"), "--launch", "--root", ClientRoot, "--" };
+            command.AddRange(arguments);
+            var output = await RunProcess(Path.Combine(Runtime,"python","python.exe"), command.ToArray(), Tools);
             using var document = JsonDocument.Parse(output.Trim());
             if (!document.RootElement.TryGetProperty("status",out var state) || state.GetString() != "launched")
                 throw new IOException("未能打开 Antigravity，请稍后重试");
+            // A reviewed full adapter needs no resident guard. The guard checks this
+            // and exits; only an unreviewed future UI uses its display-only fallback.
+            try
+            {
+                ClientLaunchEntry.Enable();
+                var guard = new ProcessStartInfo(Path.Combine(Runtime, "node", "node.exe")) { UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = Tools };
+                guard.ArgumentList.Add(Path.Combine(Tools, "ui-guard.cjs"));
+                Process.Start(guard)?.Dispose();
+            }
+            catch (Exception error) { Logger.Log("Client UI fallback", error.Message); }
         }
         finally { Gate.Release(); }
     }

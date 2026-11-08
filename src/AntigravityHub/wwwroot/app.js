@@ -70,10 +70,29 @@ let currentNav = 'usage';
     function formatSubscriptionTier(rawTier) {
       if (!rawTier) return { label: '', className: '' };
       const lower = String(rawTier).trim().toLowerCase();
+      if (lower.includes('starter') || lower.includes('basic') || lower === '基础') return { label: 'BASIC', className: 'badge-tier-free' };
       if (lower.includes('ultra')) return { label: 'ULTRA', className: 'badge-tier-ultra' };
       if (lower.includes('pro')) return { label: 'PRO', className: 'badge-tier-pro' };
       if (lower.includes('free') || lower.includes('免费')) return { label: 'FREE', className: 'badge-tier-free' };
       return { label: String(rawTier).trim().toUpperCase(), className: 'badge-tier-pro' };
+    }
+
+    function updateHeroModel(model) {
+      const name = model?.name || '';
+      const provider = /gemini|argon/i.test(name) ? 'gemini' : /claude|opus|sonnet|haiku/i.test(name) ? 'claude' : /gpt|openai|codex|^o[134](?:[-_]|$)/i.test(name) ? 'gpt' : 'unknown';
+      const nameEl = document.getElementById('hero-top-model-name');
+      const pctEl = document.getElementById('hero-top-model-pct');
+      if (nameEl) nameEl.innerText = name || '-';
+      if (pctEl) pctEl.innerText = `占比 ${model?.percentage ?? 0}%`;
+      for (const id of ['gemini', 'claude', 'gpt', 'unknown']) {
+        const icon = document.getElementById('hero-model-' + id);
+        if (icon) icon.style.display = id === provider ? '' : 'none';
+      }
+      const container = document.getElementById('hero-model-icon');
+      if (container) {
+        container.dataset.provider = provider;
+        container.title = provider === 'unknown' ? '模型' : {gemini:'Gemini',claude:'Claude',gpt:'OpenAI / GPT'}[provider];
+      }
     }
 
     function quotaSyncLabel(account) {
@@ -563,21 +582,12 @@ let currentNav = 'usage';
 
       // 同步联动用量统计看板顶部的 Hero 卡片 (主力模型名称、占比与周期用量)
       const heroModelTitle = document.getElementById('hero-model-title');
-      const heroTopModelName = document.getElementById('hero-top-model-name');
-      const heroTopModelPct = document.getElementById('hero-top-model-pct');
       const heroTitle = document.getElementById('hero-title');
       const heroBadge = document.getElementById('hero-badge');
       const heroTodayExact = document.getElementById('hero-today-exact');
       const heroSubtext = document.getElementById('hero-subtext');
 
-      if (models && models.length > 0) {
-        const topM = models[0];
-        if (heroTopModelName) heroTopModelName.innerText = topM.name;
-        if (heroTopModelPct) heroTopModelPct.innerText = `占比 ${topM.percentage}%`;
-      } else {
-        if (heroTopModelName) heroTopModelName.innerText = '-';
-        if (heroTopModelPct) heroTopModelPct.innerText = '占比 0%';
-      }
+      updateHeroModel(models?.[0]);
 
       const todayStr = getLocalTodayStr();
       const heroCostBadge = document.getElementById('hero-cost-badge');
@@ -635,9 +645,7 @@ let currentNav = 'usage';
 
           // 若今日存在单日模型记录，优先展示今日主力
           if (stats.dailyModels && stats.dailyModels[todayStr] && stats.dailyModels[todayStr].length > 0) {
-            const tm = stats.dailyModels[todayStr][0];
-            if (heroTopModelName) heroTopModelName.innerText = tm.name;
-            if (heroTopModelPct) heroTopModelPct.innerText = `占比 ${tm.percentage}%`;
+            updateHeroModel(stats.dailyModels[todayStr][0]);
           }
 
           // 恢复为今日 3 个构成 Chips
@@ -2073,6 +2081,8 @@ let currentNav = 'usage';
       return false;
     }
 
+    let renderedStatsKey = null;
+
     // 全量数据渲染总入口
     function renderHubData(data, fromCache = false) {
       if (!data) return;
@@ -2119,7 +2129,10 @@ let currentNav = 'usage';
       if (accCountBadge) accCountBadge.innerText = accounts.length;
 
       // 2. Token 统计数据
-      if (stats) {
+      // Quota-only updates do not need to rebuild history, calendar and charts.
+      const statsKey = stats ? JSON.stringify([appSettings.currency,
+        appSettings.liveUsdToCnyRate, getLocalTodayStr(), stats]) : null;
+      if (stats && statsKey !== renderedStatsKey) {
         window.currentStats = stats;
         allRecords = stats.dailyRecords || [];
 
@@ -2200,13 +2213,7 @@ let currentNav = 'usage';
         }
 
         // 主力模型名称与占比
-        if (stats.models && stats.models.length > 0) {
-          const topM = stats.models[0];
-          const topMName = document.getElementById('hero-top-model-name');
-          if (topMName) topMName.innerText = topM.name;
-          const topMPct = document.getElementById('hero-top-model-pct');
-          if (topMPct) topMPct.innerText = `占比 ${topM.percentage}%`;
-        }
+        updateHeroModel(stats.models?.[0]);
 
         // 模型用量分布 (与当前日历/热力图模式动态联动)
         if (currentHeatMode === 'month') {
@@ -2321,6 +2328,8 @@ let currentNav = 'usage';
           else if (currentFlowMode === 'month') renderMonthlyFlow();
         }
       }
+
+      if (stats) renderedStatsKey = statsKey;
 
       // 3. 侧边栏专属切号卡列表 (暖玉金沙牛皮纸高阶质感 + 双行独立配额微仪表盘)
       window.currentHubAccount = currentAccount;

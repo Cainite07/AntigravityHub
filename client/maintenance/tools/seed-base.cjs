@@ -1,9 +1,8 @@
 'use strict';
 // Cache only an exact, reviewed official base supplied by the user's installation.
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
-(async()=>{
+async function seedBase(source){
 const asar=await import('@electron/asar');
-const source=process.argv[2];
 if(!source)throw Error('Missing installed archive');
 const version=JSON.parse(asar.extractFile(source,'package.json')).version;
 const profile=require('./profiles.cjs').forVersion(version);
@@ -19,6 +18,6 @@ if(fs.existsSync(base)) {
   fs.copyFileSync(source,base);
   if(fs.existsSync(source+'.unpacked'))fs.cpSync(source+'.unpacked',base+'.unpacked',{recursive:true});
 }
-console.log('Verified local base is ready.');
-
-})().catch(error=>{console.error(error.message);process.exitCode=1;});
+}
+module.exports={seedBase};
+if(require.main===module)seedBase(process.argv[2]).then(()=>console.log('Verified local base is ready.')).catch(error=>{console.error(error.message);process.exitCode=1;});

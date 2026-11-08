@@ -35,6 +35,17 @@ namespace AntigravityHub
 
         protected override async void OnStartup(StartupEventArgs e)
         {
+            if (e.Args.Length == 1 && e.Args[0] == "--register-client-entry")
+            {
+                _updateHelper = true; ClientLaunchEntry.Enable(); Shutdown(); return;
+            }
+            if (e.Args.Length > 0 && e.Args[0] == "--launch-client")
+            {
+                _updateHelper = true; ShutdownMode = ShutdownMode.OnExplicitShutdown;
+                try { await ClientEnhancementService.LaunchOnlyAsync(e.Args[1..]); Shutdown(); }
+                catch (Exception error) { MessageBox.Show(error.Message, "Antigravity", MessageBoxButton.OK, MessageBoxImage.Error); Shutdown(1); }
+                return;
+            }
             if (e.Args.Length > 0 && e.Args[0] is "--apply-hub-update" or "--recover-hub-update")
             {
                 _updateHelper = true; ShutdownMode = ShutdownMode.OnExplicitShutdown;

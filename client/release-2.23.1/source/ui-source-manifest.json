@@ -751,6 +751,24 @@
       "role": "property:label"
     },
     {
+      "start": 1781504,
+      "end": 1781536,
+      "from": "\"Mark This Conversation as Read\"",
+      "to": "\"将此对话标为已读\"",
+      "text": "Mark This Conversation as Read",
+      "translation": "将此对话标为已读",
+      "role": "property:label"
+    },
+    {
+      "start": 1781606,
+      "end": 1781640,
+      "from": "\"Mark This Conversation as Unread\"",
+      "to": "\"将此对话标为未读\"",
+      "text": "Mark This Conversation as Unread",
+      "translation": "将此对话标为未读",
+      "role": "property:label"
+    },
+    {
       "start": 1781718,
       "end": 1781744,
       "from": "\"Rename This Conversation\"",
@@ -3208,6 +3226,24 @@
       "role": "property:alt"
     },
     {
+      "start": 3811676,
+      "end": 3811695,
+      "from": "\"2x playback speed\"",
+      "to": "\"2 倍速播放\"",
+      "text": "2x playback speed",
+      "translation": "2 倍速播放",
+      "role": "property:aria-label"
+    },
+    {
+      "start": 3812393,
+      "end": 3812399,
+      "from": "\"Seek\"",
+      "to": "\"定位播放位置\"",
+      "text": "Seek",
+      "translation": "定位播放位置",
+      "role": "property:label"
+    },
+    {
       "start": 3812814,
       "end": 3812832,
       "from": "\"Back 5s (\\u2190)\"",
@@ -3233,6 +3269,15 @@
       "text": "Volume",
       "translation": "音量",
       "role": "property:label"
+    },
+    {
+      "start": 3813836,
+      "end": 3813860,
+      "from": "\"Playback speed (< / >)\"",
+      "to": "\"播放速度（< / >）\"",
+      "text": "Playback speed (< / >)",
+      "translation": "播放速度（< / >）",
+      "role": "property:title"
     },
     {
       "start": 3816722,
@@ -3683,6 +3728,24 @@
       "text": "Not Found",
       "translation": "未找到",
       "role": "react-child"
+    },
+    {
+      "start": 4026556,
+      "end": 4026578,
+      "from": "\"View or edit comment\"",
+      "to": "\"查看或编辑评论\"",
+      "text": "View or edit comment",
+      "translation": "查看或编辑评论",
+      "role": "property:aria-label"
+    },
+    {
+      "start": 4026585,
+      "end": 4026616,
+      "from": "\"Click to view or edit comment\"",
+      "to": "\"点击查看或编辑评论\"",
+      "text": "Click to view or edit comment",
+      "translation": "点击查看或编辑评论",
+      "role": "property:title"
     },
     {
       "start": 4028551,
@@ -5161,6 +5224,33 @@
       "role": "react-child"
     },
     {
+      "start": 4515231,
+      "end": 4515278,
+      "from": "\"Ask the agent to diagnose and fix this server\"",
+      "to": "\"让智能体诊断并修复此服务器\"",
+      "text": "Ask the agent to diagnose and fix this server",
+      "translation": "让智能体诊断并修复此服务器",
+      "role": "property:tooltip"
+    },
+    {
+      "start": 4515380,
+      "end": 4515396,
+      "from": "\"Fix with Agent\"",
+      "to": "\"让智能体修复\"",
+      "text": "Fix with Agent",
+      "translation": "让智能体修复",
+      "role": "react-child"
+    },
+    {
+      "start": 4515553,
+      "end": 4515571,
+      "from": "\"Sign-in required\"",
+      "to": "\"需要登录\"",
+      "text": "Sign-in required",
+      "translation": "需要登录",
+      "role": "property:title"
+    },
+    {
       "start": 4515714,
       "end": 4515721,
       "from": "\"Ready\"",
@@ -5863,6 +5953,33 @@
       "role": "react-child"
     },
     {
+      "start": 4574100,
+      "end": 4574110,
+      "from": "\"Accounts\"",
+      "to": "\"账号\"",
+      "text": "Accounts",
+      "translation": "账号",
+      "role": "property:aria-label"
+    },
+    {
+      "start": 4574183,
+      "end": 4574193,
+      "from": "\"Accounts\"",
+      "to": "\"账号\"",
+      "text": "Accounts",
+      "translation": "账号",
+      "role": "react-child"
+    },
+    {
+      "start": 4574365,
+      "end": 4574489,
+      "from": "\"Services this plugin connects to on your behalf. Credentials stay on this machine and are only sent to the domains listed.\"",
+      "to": "\"此插件代表你连接的服务。凭据保留在本机，仅发送到列出的域名。\"",
+      "text": "Services this plugin connects to on your behalf. Credentials stay on this machine and are only sent to the domains listed.",
+      "translation": "此插件代表你连接的服务。凭据保留在本机，仅发送到列出的域名。",
+      "role": "react-child"
+    },
+    {
       "start": 4575364,
       "end": 4575375,
       "from": "\"Connected\"",
@@ -5881,12 +5998,39 @@
       "role": "react-child"
     },
     {
+      "start": 4575955,
+      "end": 4575996,
+      "from": "\"Paste the code shown after you sign in.\"",
+      "to": "\"粘贴登录后显示的代码。\"",
+      "text": "Paste the code shown after you sign in.",
+      "translation": "粘贴登录后显示的代码。",
+      "role": "react-child"
+    },
+    {
+      "start": 4576267,
+      "end": 4576279,
+      "from": "\"Paste code\"",
+      "to": "\"粘贴代码\"",
+      "text": "Paste code",
+      "translation": "粘贴代码",
+      "role": "property:placeholder"
+    },
+    {
       "start": 4576677,
       "end": 4576685,
       "from": "\"Submit\"",
       "to": "\"提交\"",
       "text": "Submit",
       "translation": "提交",
+      "role": "react-child"
+    },
+    {
+      "start": 4576783,
+      "end": 4576800,
+      "from": "\"Restart sign-in\"",
+      "to": "\"重新开始登录\"",
+      "text": "Restart sign-in",
+      "translation": "重新开始登录",
       "role": "react-child"
     },
     {
@@ -5908,6 +6052,15 @@
       "role": "react-child"
     },
     {
+      "start": 4577411,
+      "end": 4577431,
+      "from": "\"Signed-in accounts\"",
+      "to": "\"已登录账号\"",
+      "text": "Signed-in accounts",
+      "translation": "已登录账号",
+      "role": "property:aria-label"
+    },
+    {
       "start": 4577910,
       "end": 4577919,
       "from": "\"Default\"",
@@ -5917,12 +6070,39 @@
       "role": "react-child"
     },
     {
+      "start": 4578053,
+      "end": 4578068,
+      "from": "\"Needs re-auth\"",
+      "to": "\"需要重新授权\"",
+      "text": "Needs re-auth",
+      "translation": "需要重新授权",
+      "role": "react-child"
+    },
+    {
+      "start": 4578195,
+      "end": 4578206,
+      "from": "\"Reconnect\"",
+      "to": "\"重新连接\"",
+      "text": "Reconnect",
+      "translation": "重新连接",
+      "role": "react-child"
+    },
+    {
       "start": 4578304,
       "end": 4578314,
       "from": "\"Sign out\"",
       "to": "\"注销\"",
       "text": "Sign out",
       "translation": "注销",
+      "role": "react-child"
+    },
+    {
+      "start": 4578424,
+      "end": 4578437,
+      "from": "\"Add account\"",
+      "to": "\"添加账号\"",
+      "text": "Add account",
+      "translation": "添加账号",
       "role": "react-child"
     },
     {
@@ -5941,6 +6121,15 @@
       "to": "\"取消\"",
       "text": "Cancel",
       "translation": "取消",
+      "role": "react-child"
+    },
+    {
+      "start": 4579233,
+      "end": 4579246,
+      "from": "\"Add account\"",
+      "to": "\"添加账号\"",
+      "text": "Add account",
+      "translation": "添加账号",
       "role": "react-child"
     },
     {
@@ -7663,6 +7852,15 @@
       "role": "react-child"
     },
     {
+      "start": 5146609,
+      "end": 5146628,
+      "from": "\"Suggested plugin:\"",
+      "to": "\"推荐插件：\"",
+      "text": "Suggested plugin:",
+      "translation": "推荐插件：",
+      "role": "react-child"
+    },
+    {
       "start": 5156485,
       "end": 5156551,
       "from": "\"The conversation was compacted to fit within the context window.\"",
@@ -7760,6 +7958,24 @@
       "text": "Copy",
       "translation": "复制",
       "role": "react-child"
+    },
+    {
+      "start": 5172797,
+      "end": 5172821,
+      "from": "\"Cancel Sending Message\"",
+      "to": "\"取消发送消息\"",
+      "text": "Cancel Sending Message",
+      "translation": "取消发送消息",
+      "role": "property:tooltip"
+    },
+    {
+      "start": 5172835,
+      "end": 5172859,
+      "from": "\"Cancel Sending Message\"",
+      "to": "\"取消发送消息\"",
+      "text": "Cancel Sending Message",
+      "translation": "取消发送消息",
+      "role": "property:aria-label"
     },
     {
       "start": 5177637,
@@ -11191,6 +11407,15 @@
       "role": "property:aria-label"
     },
     {
+      "start": 5551147,
+      "end": 5551161,
+      "from": "\"Recent files\"",
+      "to": "\"最近的文件\"",
+      "text": "Recent files",
+      "translation": "最近的文件",
+      "role": "property:label"
+    },
+    {
       "start": 5551448,
       "end": 5551473,
       "from": "\"Search file contents...\"",
@@ -11575,6 +11800,15 @@
       "to": "\" 通过电子邮件。\"",
       "text": " via email.",
       "translation": " 通过电子邮件。",
+      "role": "react-child"
+    },
+    {
+      "start": 5593018,
+      "end": 5593039,
+      "from": "\"Accept and continue\"",
+      "to": "\"接受并继续\"",
+      "text": "Accept and continue",
+      "translation": "接受并继续",
       "role": "react-child"
     },
     {
@@ -12116,6 +12350,24 @@
       "text": "Undo",
       "translation": "撤销",
       "role": "property:label"
+    },
+    {
+      "start": 5626518,
+      "end": 5626555,
+      "from": "\"Couldn't mark conversations as read\"",
+      "to": "\"无法将对话标为已读\"",
+      "text": "Couldn't mark conversations as read",
+      "translation": "无法将对话标为已读",
+      "role": "property:title"
+    },
+    {
+      "start": 5626827,
+      "end": 5626845,
+      "from": "\"Mark All as Read\"",
+      "to": "\"全部标为已读\"",
+      "text": "Mark All as Read",
+      "translation": "全部标为已读",
+      "role": "react-child"
     },
     {
       "start": 5627021,
@@ -13027,6 +13279,24 @@
       "role": "property:tooltip"
     },
     {
+      "start": 5752699,
+      "end": 5752736,
+      "from": "\"Couldn't load the suggested plugin.\"",
+      "to": "\"无法加载推荐插件。\"",
+      "text": "Couldn't load the suggested plugin.",
+      "translation": "无法加载推荐插件。",
+      "role": "react-child"
+    },
+    {
+      "start": 5752737,
+      "end": 5752785,
+      "from": "\"The suggested plugin isn't in the marketplace.\"",
+      "to": "\"插件市场中没有此推荐插件。\"",
+      "text": "The suggested plugin isn't in the marketplace.",
+      "translation": "插件市场中没有此推荐插件。",
+      "role": "react-child"
+    },
+    {
       "start": 5753422,
       "end": 5753429,
       "from": "\"Skill\"",
@@ -13045,6 +13315,15 @@
       "role": "react-child"
     },
     {
+      "start": 5753931,
+      "end": 5753980,
+      "from": "\"Disabled. Open the plugin page to finish setup.\"",
+      "to": "\"已停用，请打开插件页面完成设置。\"",
+      "text": "Disabled. Open the plugin page to finish setup.",
+      "translation": "已停用，请打开插件页面完成设置。",
+      "role": "property:title"
+    },
+    {
       "start": 5754014,
       "end": 5754024,
       "from": "\"Disabled\"",
@@ -13060,6 +13339,15 @@
       "to": "\"已启用\"",
       "text": "Enabled",
       "translation": "已启用",
+      "role": "react-child"
+    },
+    {
+      "start": 5761113,
+      "end": 5761126,
+      "from": "\"Get started\"",
+      "to": "\"开始使用\"",
+      "text": "Get started",
+      "translation": "开始使用",
       "role": "react-child"
     },
     {
@@ -13414,6 +13702,15 @@
       "role": "react-child"
     },
     {
+      "start": 5798866,
+      "end": 5798888,
+      "from": "\"Select Billing Model\"",
+      "to": "\"选择计费模式\"",
+      "text": "Select Billing Model",
+      "translation": "选择计费模式",
+      "role": "react-child"
+    },
+    {
       "start": 5798991,
       "end": 5799006,
       "from": "\"Billing model\"",
@@ -13421,6 +13718,24 @@
       "text": "Billing model",
       "translation": "计费模式",
       "role": "property:aria-label"
+    },
+    {
+      "start": 5799168,
+      "end": 5799183,
+      "from": "\"Pay As You Go\"",
+      "to": "\"按量付费\"",
+      "text": "Pay As You Go",
+      "translation": "按量付费",
+      "role": "property:title"
+    },
+    {
+      "start": 5800542,
+      "end": 5800560,
+      "from": "\"Choose a License\"",
+      "to": "\"选择许可证\"",
+      "text": "Choose a License",
+      "translation": "选择许可证",
+      "role": "react-child"
     },
     {
       "start": 5800660,
@@ -16231,6 +16546,15 @@
       "role": "property:title"
     },
     {
+      "start": 5954371,
+      "end": 5954391,
+      "from": "\"Permission Details\"",
+      "to": "\"权限详情\"",
+      "text": "Permission Details",
+      "translation": "权限详情",
+      "role": "property:title"
+    },
+    {
       "start": 5954519,
       "end": 5954532,
       "from": "\"Permissions\"",
@@ -18229,6 +18553,15 @@
       "role": "property:aria-label"
     },
     {
+      "start": 6048094,
+      "end": 6048116,
+      "from": "\"Loading resources...\"",
+      "to": "\"正在加载资源…\"",
+      "text": "Loading resources...",
+      "translation": "正在加载资源…",
+      "role": "react-child"
+    },
+    {
       "start": 6048600,
       "end": 6048609,
       "from": "\"Connect\"",
@@ -18247,6 +18580,24 @@
       "role": "react-child"
     },
     {
+      "start": 6048864,
+      "end": 6048885,
+      "from": "\"Filter resources...\"",
+      "to": "\"筛选资源…\"",
+      "text": "Filter resources...",
+      "translation": "筛选资源…",
+      "role": "property:placeholder"
+    },
+    {
+      "start": 6049297,
+      "end": 6049327,
+      "from": "\"No matching resources found.\"",
+      "to": "\"未找到匹配的资源。\"",
+      "text": "No matching resources found.",
+      "translation": "未找到匹配的资源。",
+      "role": "react-child"
+    },
+    {
       "start": 6050180,
       "end": 6050185,
       "from": "\"Add\"",
@@ -18256,6 +18607,15 @@
       "role": "react-child"
     },
     {
+      "start": 6050935,
+      "end": 6050949,
+      "from": "\"Upload Files\"",
+      "to": "\"上传文件\"",
+      "text": "Upload Files",
+      "translation": "上传文件",
+      "role": "property:label"
+    },
+    {
       "start": 6051705,
       "end": 6051718,
       "from": "\"Open Folder\"",
@@ -18263,6 +18623,15 @@
       "text": "Open Folder",
       "translation": "打开文件夹",
       "role": "react-child"
+    },
+    {
+      "start": 6056874,
+      "end": 6056891,
+      "from": "\"Remove resource\"",
+      "to": "\"移除资源\"",
+      "text": "Remove resource",
+      "translation": "移除资源",
+      "role": "property:aria-label"
     },
     {
       "start": 6059648,
@@ -18380,6 +18749,15 @@
       "text": "example:\nsource ~/.jetski_shell_setup",
       "translation": "示例：\nsource ~/.jetski_shell_setup",
       "role": "property:placeholder"
+    },
+    {
+      "start": 6071939,
+      "end": 6071964,
+      "from": "\"No resources added yet.\"",
+      "to": "\"尚未添加资源。\"",
+      "text": "No resources added yet.",
+      "translation": "尚未添加资源。",
+      "role": "react-child"
     },
     {
       "start": 6071966,
@@ -18577,6 +18955,15 @@
       "to": "\"成果\"",
       "text": "Artifacts",
       "translation": "成果",
+      "role": "property:title"
+    },
+    {
+      "start": 6098082,
+      "end": 6098089,
+      "from": "\"Links\"",
+      "to": "\"链接\"",
+      "text": "Links",
+      "translation": "链接",
       "role": "property:title"
     },
     {
@@ -18964,6 +19351,15 @@
       "to": "\"成果\"",
       "text": "Artifacts",
       "translation": "成果",
+      "role": "property:title"
+    },
+    {
+      "start": 6141948,
+      "end": 6141955,
+      "from": "\"Links\"",
+      "to": "\"链接\"",
+      "text": "Links",
+      "translation": "链接",
       "role": "property:title"
     },
     {
@@ -19570,12 +19966,48 @@
       "role": "property:title"
     },
     {
+      "start": 6185924,
+      "end": 6185951,
+      "from": "\"Artifact updated by agent\"",
+      "to": "\"智能体已更新产物\"",
+      "text": "Artifact updated by agent",
+      "translation": "智能体已更新产物",
+      "role": "react-child"
+    },
+    {
+      "start": 6186507,
+      "end": 6186534,
+      "from": "\"Artifact updated by agent\"",
+      "to": "\"智能体已更新产物\"",
+      "text": "Artifact updated by agent",
+      "translation": "智能体已更新产物",
+      "role": "react-child"
+    },
+    {
+      "start": 6186616,
+      "end": 6186648,
+      "from": "\"Dismiss artifact update notice\"",
+      "to": "\"关闭产物更新通知\"",
+      "text": "Dismiss artifact update notice",
+      "translation": "关闭产物更新通知",
+      "role": "property:aria-label"
+    },
+    {
       "start": 6199612,
       "end": 6199645,
       "from": "\"Uploading to Google Drive\\u2026\"",
       "to": "\"正在上传到 Google Drive…\"",
       "text": "Uploading to Google Drive…",
       "translation": "正在上传到 Google Drive…",
+      "role": "property:title"
+    },
+    {
+      "start": 6199955,
+      "end": 6199981,
+      "from": "\"Uploaded to Google Drive\"",
+      "to": "\"已上传到 Google 云端硬盘\"",
+      "text": "Uploaded to Google Drive",
+      "translation": "已上传到 Google 云端硬盘",
       "role": "property:title"
     },
     {
@@ -19586,6 +20018,15 @@
       "text": "Open",
       "translation": "打开",
       "role": "property:label"
+    },
+    {
+      "start": 6200210,
+      "end": 6200251,
+      "from": "\"Failed to upload HTML artifact to Drive\"",
+      "to": "\"无法将 HTML 产物上传到云端硬盘\"",
+      "text": "Failed to upload HTML artifact to Drive",
+      "translation": "无法将 HTML 产物上传到云端硬盘",
+      "role": "property:title"
     },
     {
       "start": 6200368,
@@ -25213,6 +25654,15 @@
       "role": "property:placeholder"
     },
     {
+      "start": 6962321,
+      "end": 6962330,
+      "from": "\"Trigger\"",
+      "to": "\"触发条件\"",
+      "text": "Trigger",
+      "translation": "触发条件",
+      "role": "react-child"
+    },
+    {
       "start": 6964331,
       "end": 6964338,
       "from": "\"Close\"",
@@ -25337,6 +25787,15 @@
       "text": "New Automation",
       "translation": "新建自动化",
       "role": "property:title"
+    },
+    {
+      "start": 6970402,
+      "end": 6970411,
+      "from": "\"Trigger\"",
+      "to": "\"触发条件\"",
+      "text": "Trigger",
+      "translation": "触发条件",
+      "role": "react-child"
     },
     {
       "start": 6970842,

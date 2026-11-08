@@ -54,7 +54,23 @@ let browser;
  assert.equal(await page.locator('#log').textContent(),'对话记录');assert.equal(await page.locator('#older').textContent(),'加载更早消息');assert.equal(await page.locator('#older').getAttribute('aria-label'),'加载更早消息，已显示 3 / 40 条');assert.equal(await page.locator('#copy').getAttribute('aria-label'),'复制');assert.equal(await page.locator('#rating').getAttribute('aria-label'),'好评');assert.equal(await page.locator('#age').textContent(),'7 小时前');assert.equal(await page.locator('#user-copy').getAttribute('aria-label'),'Copy');assert.equal(await page.locator('#user-copy').textContent(),'Conversation Log');
  const pill=page.locator('#antigravity-hub-hud .pill'),popup=page.locator('#antigravity-hub-hud .popover');
  assert((await pill.innerText()).includes('104.6'));assert(!(await pill.innerText()).includes('5h'));
- await pill.click();assert.equal(await popup.locator('.quota-circle').count(),2);assert.equal(await popup.locator('.meter').count(),2);assert.equal(await popup.locator('.account').count(),1);
+  await pill.click();
+  const primary=popup.locator('.primary-quota'),otherPools=popup.locator('.other-pools');
+  assert.equal(await primary.locator('.primary-title').textContent(),'当前模型');
+  assert.equal(await primary.locator('.primary-top strong').textContent(),'—');
+  assert.equal(await primary.locator('.primary-week').count(),0);
+  await page.getByTestId('agent-input-box').evaluate(box=>{
+    const selector=document.createElement('button');
+    selector.dataset.testid='model-selector-trigger';selector.textContent='Claude Sonnet 5.5';
+    box.prepend(selector);
+  });
+  await primary.getByText('Claude Sonnet 5.5',{exact:true}).waitFor();
+  assert.equal(await primary.getByRole('img').getAttribute('aria-label'),'Claude Sonnet 5.5 5h 剩余 100%');
+  assert.match(await primary.locator('.primary-week').innerText(),/48%/);
+  await otherPools.locator('summary').click();
+  assert.deepEqual(await otherPools.locator('.compact-model').allTextContents(),['Gemini','Argon独立额度']);
+  assert.equal(await popup.locator('.account').count(),1);
+  assert.equal(await popup.locator('.account .name').textContent(),'备用账号');
  assert.equal(await popup.evaluate(e=>getComputedStyle(e).borderRadius),'15px');
  if(process.argv[3]){fs.mkdirSync(process.argv[3],{recursive:true});await popup.screenshot({path:path.join(process.argv[3],'hud-133-light.png')});}
  await page.evaluate(()=>{document.documentElement.dataset.theme='dark';document.body.style.background='#232528';document.querySelector('.justify-between').parentElement.style.background='#232528';});
@@ -66,6 +82,6 @@ let browser;
  for(const width of [850,430,320]){await page.setViewportSize({width,height:950});await page.waitForTimeout(120);const box=await pill.boundingBox();assert(box.x>=0&&box.x+box.width<=width,`Pill overflow at ${width}`);}
  assert.equal((await page.evaluate(()=>ipcCalls)).filter(x=>x.channel.startsWith('hans:translate')).length,0);
  assert.deepEqual(errors,[]);
- console.log(`PASS: ${Object.keys(checks).length} localization/content boundaries, prompt protection, tooltips, light/dark HUD, two rings, alternate-only account list, 15px corners, Escape, conversation change and 320px fit.`);
+  console.log(`PASS: ${Object.keys(checks).length} localization/content boundaries, prompt protection, tooltips, light/dark HUD, selected and alternate quota pools, alternate-only account list, 15px corners, Escape, conversation change and 320px fit.`);
  await browser.close();
 })().catch(async e=>{console.error(e);if(browser)await browser.close();process.exitCode=1;});

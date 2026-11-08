@@ -28,9 +28,9 @@ npm run build
 
 ## 客户端补丁与原版底包
 
-客户端增强从经过 SHA-256 核验的原版 2.22.0 `app.asar` 组合构建，保留无关文件和外置依赖。仓库不分发 Antigravity 原版程序、ASAR、用户记录或历史安装备份。
+客户端增强从各自经过 SHA-256 核验的原版 `app.asar` 组合构建，当前审核版本为 2.22.0、2.23.0、2.23.1、2.24.0、2.25.0、2.26.0、2.28.2、2.29.0，保留无关文件和外置依赖。仓库不分发 Antigravity 原版程序、ASAR、用户记录或历史安装备份。
 
-首次打开时，Hub 自动从当前未经修改的 2.22.0 客户端缓存原版底包。若客户端已经打过旧补丁，需要自己提供同版本原版包：
+首次打开时，Hub 自动从当前未经修改、且指纹已审核的客户端缓存同版本原版底包。若客户端已经打过旧补丁且没有缓存，需要自己提供同版本原版包：
 
 ```powershell
 cd client/maintenance/tools
@@ -38,7 +38,7 @@ npm ci --ignore-scripts
 node seed-base.cjs "C:\path\to\original\app.asar"
 ```
 
-相邻的 `app.asar.unpacked` 必须来自同一原版包。原版 ASAR 的已审核 SHA-256：
+相邻的 `app.asar.unpacked` 必须来自同一原版包。各版已审核 SHA-256 记录于 `unified-profile*.json`；其中 2.22.0 原版 ASAR 的 SHA-256：
 
 ```text
 259c83ffa266088dda6ede520a601bbf06cc5c34985cdf56c5d68549c98dbb0e
@@ -108,3 +108,19 @@ node dev/check-localization.cjs --output "C:\path\to\release-ui-review.json"
 ```
 
 上一版单个 UI 报告用于比较文字与用途，忽略压缩变量名和位置偏移；消失的旧标记列为待核对。固定标签、提示、模板片段和时间/操作前缀分别检查。插件与产品名的保留名单位于 `dev/localization-policy.json`，有歧义的内容继续人工审核。检查只读取本地官方界面与项目规则，不收集聊天、账号或凭据，也不在用户电脑上后台扫描。
+
+## 更新后的独立界面汉化
+
+`AntigravityHub.exe --register-client-entry` 将没有自定义参数的 Antigravity 桌面和开始菜单快捷方式接到 Hub，保留原快捷方式。`--launch-client` 通过维护互斥启动客户端。遇到尚未审核的版本时，启动官方客户端并启用独立界面汉化层。
+
+`tests/fixed-ui.cjs` 使用已有 Playwright / Edge 和隔离目录，检查界面保护、重载、开关还原、完整适配时自行退出和大段流式正文的跳过；`tests/client-2282.cjs` 与 `tests/translation-switches.cjs` 验证原版 renderer 及实际 HTTPS 入口。运行前把现有 Playwright 加入 NODE_PATH，把本机审核输入路径放入 ANTIGRAVITY_RENDERER_2282；不下载测试浏览器。
+
+### 持续复用旧译文
+
+`dev/build-ui-memory.cjs` 合并现有词典、历版审核清单及旧版审核模板，生成 `ui-translation-memory.json`。首次生成模板或旧版模板内容变化时，通过 `--parser` 指向已有的离线 Babel parser；普通词条变更复用已核验模板，不下载依赖。打包会核对源文件摘要和翻译记忆一致性。`portable-ui.cjs` 复用同一份 `hans-preload.js` 界面引擎并加入可还原生命周期，避免再维护一套覆盖较少的兜底词条。它不启用思维链联网翻译。
+
+`tests/persistent-ui-upgrade.cjs` 通过隔离客户端模拟替换版本与脚本、重排控件并移除内置补丁，检查旧词条/模板持续生效、新增英文原样显示及用户内容保护。使用本机已有 Playwright/Edge，不下载浏览器或读取真实用户数据。
+
+2.29.0 的固定译文维护在 `ui-overrides-2290.json`，动态句式维护在 `dev/ui-templates-2290.json`。更改后用 `dev/review-renderer.cjs` 重新审核同一份官方界面脚本，再运行 `dev/build-ui-memory.cjs` 同步独立词库。只在特定控件中有确定含义的词登记在 `dev/localization-policy.json` 的 `contextOnly` 中，重新生成时会清除旧词库中的全局译法。
+
+运行 `tests/client-2290.cjs` 和 `tests/client-context-2290.cjs` 检查正式适配及独立层。将 `ANTIGRAVITY_RENDERER_2290` 指向本机审核过的官方脚本后，`tests/translation-switches.cjs` 还会检查客户端实际使用的界面加载入口。

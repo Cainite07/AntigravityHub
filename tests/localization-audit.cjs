@@ -14,4 +14,13 @@ const removed=audit({...input,candidates:items.filter(c=>c.text!=='Save'),patche
 assert.equal(removed.summary['missing-previous-marker'],1);
 const invalid=audit({...input,patches:[{start:20,end:10,text:'Save'}]},{},null);
 assert.equal(invalid.summary['invalid-marker'],1);
+const {mergeScopedTemplates}=require('../dev/build-ui-memory.cjs');
+const title={parts:['Open ',''],translated:['打开',''],scope:{testId:'file-button',attribute:'title'}};
+const placeholder={...title,scope:{attribute:'placeholder'}};
+const corrected={...title,translated:['查看','']};
+const scoped=mergeScopedTemplates([title,placeholder],[corrected],'test');
+assert.deepEqual(scoped,[corrected,placeholder]);
+assert.deepEqual(mergeScopedTemplates(scoped,[],'next'),scoped);
+assert.throws(()=>mergeScopedTemplates([],[{...title,scope:{}}],'test'));
+assert.throws(()=>mergeScopedTemplates([],[{...title,scope:{attribute:'value'}}],'test'));
 console.log('PASS: known-but-unapplied occurrences, new labels, dynamic content, preserved plugins, moved and retired markers.');

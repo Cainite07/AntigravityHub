@@ -48,7 +48,10 @@ settings={...settings,customSize:false};layout.reveal(window);assert.equal(windo
   assert(changes.get('dist/main.js').toString().includes('read().localization'));
   assert(changes.get('dist/menu.js').toString().includes('read().localization'));
   assert(changes.get('dist/tray.js').toString().includes('read().localization'));
-  for(const [file,bytes] of changes)new vm.Script(bytes.toString(),{filename:file});
+  for(const [file,bytes] of changes) {
+    if(file.endsWith('.json'))JSON.parse(bytes);
+    else new vm.Script(bytes.toString(),{filename:file});
+  }
   const hansMain=changes.get('dist/hans-main.js').toString();
   assert(hansMain.includes("read().thinking || !isTrustedSender(event)"));
   assert(hansMain.includes("'hans:translate-ui', () => []"));

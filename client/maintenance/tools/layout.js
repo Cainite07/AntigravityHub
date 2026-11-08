@@ -10,8 +10,19 @@ function targetBounds(win) {
     const display = win && !win.isDestroyed()
         ? screen.getDisplayMatching(win.getNormalBounds())
         : screen.getPrimaryDisplay();
-    const area = display.workArea;
+    return boundsOnDisplay(display, read());
+}
+
+function initialState(nativeState) {
     const settings = read();
+    if (!settings.customSize) return nativeState;
+    const display = Number.isFinite(nativeState.x) && Number.isFinite(nativeState.y)
+        ? screen.getDisplayMatching(nativeState) : screen.getPrimaryDisplay();
+    return { ...nativeState, ...boundsOnDisplay(display, settings), isMaximized: false, isFullScreen: false };
+}
+
+function boundsOnDisplay(display, settings) {
+    const area = display.workArea;
     const width = Math.min(settings.customSize ? settings.width : 1400, area.width);
     const height = Math.min(settings.customSize ? settings.height : 900, area.height);
     // Retain the requested full-screen center; clamp to the usable area.
@@ -67,7 +78,7 @@ function requestReset(win) {
     });
 }
 
-function attach(win) {
+function attach(win, { nativeVisibility = false } = {}) {
     if (windows.has(win)) return;
     const state = { job: null, requested: false, bias: { x: 0, y: 0, width: 0, height: 0 }, target: null, accepted: null };
     windows.set(win, state);
@@ -83,7 +94,7 @@ function attach(win) {
         if (lastActive === win) lastActive = null;
     });
     applyBounds(win);
-    win.show();
+    if (!nativeVisibility) win.show();
     if (process.argv.includes('--hub-show-window')) {
         win.webContents.once('did-finish-load', () => {
             if (!win.isDestroyed()) { if (win.isMinimized()) win.restore(); win.show(); win.focus(); }
@@ -108,4 +119,11 @@ function reveal(win) {
     win.focus();
 }
 
-module.exports = { targetBounds, attach, selectWindow, reveal };
+function ownsWebContents(sender) {
+    for (const win of windows.keys()) {
+        if (!win.isDestroyed() && win.webContents === sender) return true;
+    }
+    return false;
+}
+
+module.exports = { targetBounds, initialState, attach, selectWindow, reveal, ownsWebContents };

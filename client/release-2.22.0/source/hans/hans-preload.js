@@ -18,6 +18,23 @@
   const CACHE_PREFIX = 'hans21-2191:';
   const CACHE_ORDER = 'hans21-2191:order';
   const PROTECTED = 'script,style,pre,code,kbd,samp,textarea,[contenteditable="true"],div.font-mono.leading-relaxed,[data-hans-external-content]';
+  const PRIVATE_CLIENT_CONTENT = [
+    '[data-testid="live-transcript"]', '[data-testid="transcript-line-text"]', '[data-testid="transcript-work-line"]',
+    '[data-testid="voice-transcript-card"]', '[data-testid="voice-picker-name"]', '[data-testid="voice-settings-name"]',
+    '[data-testid="notebook-viewer"]', '[data-testid="browser-url-display"]', 'webview', 'iframe',
+    '[data-testid="file-title-name"]', '[data-testid="branch-repo-label"]', '[data-testid="branch-pill-label"]',
+    '[data-testid="branch-option"] .truncate', '[data-testid="branch-pill-trigger"] span.truncate',
+    '[data-testid="automation-name"]', '[data-testid="automation-run"] .truncate', '[data-testid="sidecar-project-link"]',
+    '[data-testid="automation-instructions-markdown"]', '[data-testid="new-sidecar-cloud-environment"]',
+    '[data-testid="new-sidecar-cloud-identity"]', '[data-testid="cloud-trigger-editor-environment"]',
+    '[data-testid="cloud-trigger-editor-identity"]', '[data-testid="schedule-timezone"]',
+    '[data-testid="new-sidecar-cloud-environment-option"]', '[data-testid="new-sidecar-cloud-identity-option"]',
+    '[data-testid="cloud-trigger-editor-environment-option"]', '[data-testid="cloud-trigger-editor-identity-option"]',
+    '[data-testid="project-selector-item"]', '[data-testid="project-selector-github-repo-item"]',
+    '[data-file-path]', '[role="treeitem"] .truncate', '[role="treeitem"] [title]'
+  ].join(',');
+  const STATIC_PROTECTED = PROTECTED + ',.prose,.markdown,[data-testid="user-input-step"],' + PRIVATE_CLIENT_CONTENT;
+  const NATIVE_PROMPT = 'textarea[data-testid="new-sidecar-prompt"],textarea[data-testid="schedule-editor-prompt"],textarea[data-testid="cloud-trigger-editor-prompt"]';
   // Reviewed 2.22.0 customization layouts. Only their content fields are
   // protected; category headings, client buttons and empty notes stay localizable.
   const EXTERNAL_FIELDS = [
@@ -29,12 +46,12 @@
     'h1.text-lg.font-medium.tracking-tight.leading-tight.text-foreground.truncate',
     '.w-full.px-4.pb-4.pt-1 p.text-sm.text-muted-foreground.leading-relaxed'
   ].join(',');
-  function isExternalField(element) { return !!element?.closest(EXTERNAL_FIELDS); }
+  function isExternalField(element) { return !!element?.closest(EXTERNAL_FIELDS + ',' + PRIVATE_CLIENT_CONTENT); }
   function isConversationChrome(element) {
     if (!element?.closest('[data-testid="conversation-view"]') ||
         element.closest(PROTECTED + ',.prose,.markdown,[data-testid="user-input-step"]') || isExternalField(element)) return false;
     return element.matches('h1.sr-only,span[data-screenshot-volatile][data-tooltip-id].text-xs.text-muted-foreground.select-none.whitespace-nowrap') ||
-      element.matches('button[aria-disabled][aria-label^="Load older messages"],button[aria-disabled][aria-label^="No more older messages"]') ||
+      (element.matches('button[aria-disabled]') && /^(Load older messages|No more older messages|加载更早消息|没有更多早期消息)/.test(element.getAttribute('aria-label') || '')) ||
       (element.matches('button[data-tooltip-id]') && /^(Copy|Copied|Good response|Bad response|复制|已复制|好评|差评)$/.test(element.getAttribute('aria-label') || ''));
   }
 
@@ -377,6 +394,154 @@
     }
   }
 
+  const scheduleDays = new Map(['日','一','二','三','四','五','六'].flatMap((day, index) => {
+    const name = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][index];
+    return [[name, '周' + day], [name + 's', '周' + day], [name.slice(0, 3), '周' + day]];
+  }));
+  function scheduleDayList(value) {
+    if (/^weekdays$/i.test(value)) return '工作日';
+    if (/^weekends$/i.test(value)) return '周末';
+    const days = value.split(/, | and /).map(day => scheduleDays.get(day));
+    return days.every(Boolean) ? days.join('、') : null;
+  }
+  function displayTime(value) {
+    const match = /^(\d{1,2})(?::([0-5]\d))? (AM|PM)$/.exec(value);
+    if (!match || +match[1] < 1 || +match[1] > 12) return null;
+    const hour = +match[1] % 12 + (match[3] === 'PM' ? 12 : 0);
+    return String(hour).padStart(2, '0') + ':' + (match[2] || '00');
+  }
+  function scheduleDate(value) {
+    const relative = {today:'今天', tomorrow:'明天', yesterday:'昨天'};
+    if (relative[value.toLowerCase()]) return relative[value.toLowerCase()];
+    if (scheduleDays.has(value)) return scheduleDays.get(value);
+    const date = /^([A-Z][a-z]+) (\d{1,2})(?:, (\d{4}))?$/.exec(value);
+    if (!date) return null;
+    const months = 'January February March April May June July August September October November December'.split(' ');
+    const month = months.findIndex(name => name === date[1] || name.slice(0, 3) === date[1]) + 1;
+    if (!month || +date[2] < 1 || +date[2] > 31) return null;
+    return (date[3] ? date[3] + '年' : '') + month + '月' + Number(date[2]) + '日';
+  }
+  function scheduleTiming(value) {
+    const next = /^Next run (?:on )?(.+?) around (\d{1,2}:\d{2} [AP]M)( .*|)$/.exec(value);
+    if (next) {
+      const date = scheduleDate(next[1]), time = displayTime(next[2]);
+      return date && time ? '下次运行：' + date + ' ' + time + ' 左右' + next[3] : null;
+    }
+    const clock = /^(.+?)(?:, | )(\d{1,2}:\d{2} [AP]M)$/.exec(value);
+    if (!clock) return scheduleDate(value);
+    const date = scheduleDate(clock[1]), time = displayTime(clock[2]);
+    return date && time ? date + ' ' + time : null;
+  }
+  function scheduleFrequency(value) {
+    value = value.charAt(0).toUpperCase() + value.slice(1);
+    const interval = /^(Every hour(?: at :(\d{2}))?|Every (\d+) (hours|minutes))(?: on (.+))?$/.exec(value);
+    if (interval) {
+      const days = interval[5] && scheduleDayList(interval[5]);
+      if (interval[5] && !days) return null;
+      const freq = interval[3] ? '每 ' + interval[3] + (interval[4] === 'hours' ? ' 小时' : ' 分钟') :
+        interval[2] ? '每小时第 ' + Number(interval[2]) + ' 分钟' : '每小时';
+      return (days ? days + '，' : '') + freq;
+    }
+    const range = /^Every hour, (\d{1,2} [AP]M) to (\d{1,2} [AP]M)(?:, on (.+))?$/.exec(value);
+    if (range) {
+      const start = displayTime(range[1]), end = displayTime(range[2]), days = range[3] && scheduleDayList(range[3]);
+      return start && end && (!range[3] || days) ? (days ? days + '，' : '') + start + ' 至 ' + end + '，每小时一次' : null;
+    }
+    const recurring = /^(.+?) at (.+)$/.exec(value);
+    if (!recurring) return null;
+    const times = recurring[2].split(/, | and /).map(displayTime);
+    if (!times.every(Boolean)) return null;
+    const monthly = /^Monthly on the (\d{1,2})(?:st|nd|rd|th)$/.exec(recurring[1]);
+    const days = monthly ? '每月' + monthly[1] + '日' : recurring[1] === 'Daily' ? '每天' : scheduleDayList(recurring[1]);
+    return days ? days + ' ' + times.join('、') : null;
+  }
+  function scheduleSummary(value) {
+    const frequency = scheduleFrequency(value);
+    if (frequency) return frequency;
+    const zone = /^(.+) ([^\s]+)$/.exec(value);
+    const zoned = zone && scheduleFrequency(zone[1]);
+    if (zoned) return zoned + ' ' + zone[2];
+    if (value.startsWith('When ')) return '当' + value.slice(5) + '时';
+    return null;
+  }
+
+  function translateAutomationEmpty(element) {
+    if (!element.matches('p') || !element.closest('[data-testid="sidecar-list-empty"]') || element.childElementCount) return false;
+    const nodes = [...element.childNodes].filter(child => child.nodeType === Node.TEXT_NODE);
+    const parts = nodes.map(child => child.nodeValue);
+    const labels = {automations:'自动化任务', 'scheduled tasks':'定时任务', '自动化任务':'自动化任务', '定时任务':'定时任务'};
+    const category = labels[parts[1]];
+    // On a later React update only the query/category node may change. Leave the query untouched.
+    let translated;
+    if (parts.length === 3 && ['No ', '暂无'].includes(parts[0]) && [' yet', ''].includes(parts[2])) {
+      translated = ['暂无', category, ''];
+    } else if (parts.length === 5 && ['No ', '没有'].includes(parts[0]) &&
+               [' match “', '与“'].includes(parts[2]) && ['”.', '”匹配'].includes(parts[4])) {
+      translated = ['没有', category, '与“', parts[3], '”匹配'];
+    } else return false;
+    if (category) nodes.forEach((child, i) => { if (parts[i] !== translated[i]) child.nodeValue = translated[i]; });
+    return true;
+  }
+
+  function translateCurrentControl(node, element, value) {
+    if (!element || !value) return false;
+    if (element.closest('.prose,.markdown,[data-testid="user-input-step"],[contenteditable="true"],pre,code')) return false;
+    // React renders these connectors in separate spans between the native schedule controls.
+    if (['at','on','于'].includes(value) && element.matches('span.text-muted-foreground.select-none') &&
+        element.closest('[data-testid="automation-schedule-editor"]')) {
+      const next = element.nextElementSibling;
+      const time = value === 'at' && next?.matches('[data-testid="schedule-time"]');
+      const weekday = value !== 'at' && (next?.matches('[data-testid="schedule-weekday"]') ||
+        (element.closest('[data-testid="schedule-custom"]') && next?.matches('[aria-label="Days"],[aria-label="天"],[aria-label="星期"]')));
+      if (time || weekday) { node.nodeValue = ''; return true; }
+    }
+    if (translateAutomationEmpty(element)) return true;
+    if (element.closest('[role="menu"]') && !element.childElementCount && /^No projects? found$/.test(element.textContent?.trim() || '')) {
+      [...element.childNodes].filter(child => child.nodeType === Node.TEXT_NODE).forEach((child, i) => { child.nodeValue = i === 0 ? '未找到项目' : ''; });
+      return true;
+    }
+    let translated;
+    if (element.matches('h1') && element.closest('[data-testid="home-greeting"]')) {
+      const named = /^Hi (.+), what can we get done today\?$/.exec(value);
+      const greeting = UI_DICT['What can we get done today?'] || '今天想一起做点什么？';
+      translated = named ? '你好，' + named[1] + '！' + greeting :
+        value === 'What can we get done today?' ? greeting : null;
+      if (!translated) return true;
+    } else if (element.matches('h3') && value === 'Plan' &&
+               /Your Plan:|您的套餐：|你的套餐：/.test(element.closest('.space-y-2')?.textContent || '')) {
+      translated = '套餐';
+    } else if (element.matches('h3') && value === 'Chat' &&
+               /Conversation Steps|对话步骤|会话步骤/.test(element.closest('.space-y-2')?.textContent || '')) {
+      translated = '对话';
+    } else if (element.matches('h2') && ['Instructions', '说明'].includes(value) &&
+               (element.closest('[data-testid="automation-instructions"]') ||
+                (element.closest('[data-testid="new-sidecar-modal"]') && element.closest('section')?.querySelector('textarea[data-testid="new-sidecar-prompt"]')))) {
+      translated = '任务指令';
+    } else if (element.closest('[data-testid="automation-model-value"]') && !element.matches('.uppercase')) {
+      const model = /^(.+) · This computer$/.exec(value);
+      if (!model) return true;
+      translated = model[1] + ' · 此电脑';
+    } else if (element.matches('[data-testid="automation-settings"] > p') && element.querySelector('[data-testid="automation-schedule-value"]')) {
+      translated = {Runs:'运行时间：', in:'，项目：', with:'，模型：', 'on this computer.':'，在此电脑上运行。'}[value];
+    } else if (element.closest('[data-testid="automation-next-run"],[data-testid="automation-last-run"],[data-testid="automation-run"] .tabular-nums')) {
+      translated = scheduleTiming(value);
+    } else if (element.closest('[data-testid="automation-schedule-value"],[data-testid="new-sidecar-summary"]')) {
+      const step = /^Step (\d+) of (\d+)$/.exec(value);
+      const summary = /^(.*) · (This computer|Remote)$/.exec(value);
+      translated = step ? '第 ' + step[1] + ' 步，共 ' + step[2] + ' 步' : summary ?
+        (scheduleSummary(summary[1]) || summary[1]) + ' · ' + (summary[2] === 'Remote' ? '远程' : '此电脑') : scheduleSummary(value);
+    } else if (element.closest('[data-testid="agent-input-box"]') && element.matches('p.pointer-events-none')) {
+      const prompt = /^(Ask anything, @ to mention|Message subagent, @ to mention|想问什么都可以，@ 引用|给子智能体发消息，@ 引用)(, \/ for actions)?$/.exec(value);
+      if (!prompt) return true; // Custom agent scripts supply their own placeholder text.
+      const base = /^(Ask anything|想问什么)/.test(prompt[1]) ? 'Ask anything, @ to mention' : 'Message subagent, @ to mention';
+      const full = base + (prompt[2] || '');
+      translated = UI_DICT[full] || (UI_DICT[base] || '给子智能体发消息，@ 引用') + (prompt[2] ? '，/ 执行动作' : '');
+    }
+    if (!translated) return false;
+    if (translated !== value) node.nodeValue = node.nodeValue.replace(value, () => translated);
+    return true;
+  }
+
   function translateStaticText(node) {
     if (!options.localization) return;
     if (!node || node.nodeType !== Node.TEXT_NODE) return;
@@ -384,6 +549,7 @@
     const value = node.nodeValue;
     const trimmed = value?.trim();
     if (isExternalField(element)) return;
+    if (translateCurrentControl(node, element, trimmed)) return;
     // Native archive notifications render the sentence as Markdown text and a
     // separate history link. Keep this exception inside the notification region
     // so the same wording in messages or plugin content remains untouched.
@@ -419,6 +585,15 @@
     // Server renderer updates can rename React symbols. Match the reviewed
     // native layout instead of depending on the old injected bundle marker.
     const nativeUiAllowed = !protectedBody && !element?.closest(PROTECTED);
+    // The search onboarding reuses the archive sentence without the old notice
+    // heading. Preserve the inline filter icon and translate its native spans.
+    const guideSentence = element?.matches('span.whitespace-nowrap') ? element.parentElement : element;
+    if (nativeUiAllowed && !isProtected(node) &&
+        /^(View archived in the sidebar|可在侧边栏的)/.test(guideSentence?.textContent?.trim() || '') &&
+        guideSentence?.querySelector('[aria-label="filter"],[aria-label="筛选"]')) {
+      const fragments = {'View archived in the sidebar':'可在侧边栏的', 'menu)':'菜单）中查看已归档的对话', '(':'（', '.':'。'};
+      if (fragments[trimmed]) { node.nodeValue = value.replace(trimmed, fragments[trimmed]); return; }
+    }
     if (nativeUiAllowed && ['New','新建','新增'].includes(trimmed) &&
         element?.matches?.('div.bg-secondary.rounded-full.px-1\\.5.text-xs') &&
         element.parentElement?.querySelector('[data-testid="model-selector-effort-group"]')) {
@@ -518,12 +693,21 @@
   function translateStaticAttributes(element) {
     if (!options.localization) return;
     if (isExternalField(element)) return;
+    // This tooltip is the prior run's user-authored summary. Its visible date is client chrome.
+    if (element.matches?.('[data-testid="automation-last-run"] span[title]')) return;
     // Only this reviewed client prompt field gets a translated placeholder.
     // Its value and all user-written text remain untouched.
-    if (element?.matches('textarea[data-testid="new-sidecar-prompt"]')) {
+    if (element?.matches(NATIVE_PROMPT) && !element.closest('.prose,.markdown,[data-testid="user-input-step"],[data-hans-external-content]')) {
       const placeholder = element.getAttribute('placeholder');
-      if (placeholder === 'Enter a prompt for the agent to run...')
-        element.setAttribute('placeholder', '输入供智能体执行的提示词…');
+      const prompts = {
+        'Enter a prompt for the agent to run...':'输入供智能体执行的提示词…',
+        'What should the agent do on each run?':'每次运行时，智能体需要做什么？',
+        'Prompt to run when triggered...':'输入触发时执行的提示词…',
+        'What should the agent do on each run? For example: summarize new bugs assigned to me and anything that changed overnight.':'每次运行时，智能体需要做什么？例如，汇总新分配给我的缺陷，以及昨晚发生的变化。',
+        'For example: every morning, summarize new bugs assigned to me and anything that changed overnight.':'例如，每天早上汇总新分配给我的缺陷，以及昨晚发生的变化。'
+      };
+      if (prompts[placeholder]) element.setAttribute('placeholder', UI_DICT[placeholder] || prompts[placeholder]);
+      if (element.getAttribute('aria-label') === 'Prompt') element.setAttribute('aria-label', '提示词');
     }
     if (isConversationChrome(element)) {
       for (const name of ['aria-label', 'title']) {
@@ -602,6 +786,20 @@
     }
   }
 
+  function visitProtectedControls(element) {
+    if (element.matches(NATIVE_PROMPT)) translateStaticAttributes(element);
+    // The native archive toast uses Markdown too. Visit only its reviewed history link and direct sentence fragments.
+    if (!element.closest('[role="region"][aria-label="Notifications"],[role="region"][aria-label="通知"]') ||
+        isExternalField(element) || element.closest(PROTECTED + ',[data-testid="conversation-view"],[data-testid="user-input-step"]')) return;
+    const link = element.closest('a[href="notification://history"]') || element.querySelector('p > a[href="notification://history"]');
+    const paragraph = link?.parentElement;
+    if (!paragraph?.matches('p') || paragraph.childElementCount !== 1 || isExternalField(paragraph) ||
+        paragraph.closest(PROTECTED + ',[data-testid="conversation-view"],[data-testid="user-input-step"]')) return;
+    for (const part of [...paragraph.childNodes, ...link.childNodes]) {
+      if (part.nodeType === Node.TEXT_NODE) translateStaticText(part);
+    }
+  }
+
   function visitAdded(node) {
     if (node.nodeType === Node.TEXT_NODE) {
       translateStaticText(node);
@@ -609,20 +807,22 @@
       return;
     }
     if (node.nodeType !== Node.ELEMENT_NODE) return;
-    if (node.matches('textarea[data-testid="new-sidecar-prompt"]')) translateStaticAttributes(node);
-    if (node.closest(PROTECTED)) return;
+    if (node.closest(STATIC_PROTECTED)) { visitProtectedControls(node); return; }
     enqueueNotice(node);
     translateStaticAttributes(node);
     const walker = document.createTreeWalker(node, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
-      acceptNode: (candidate) => candidate.nodeType === Node.ELEMENT_NODE
-        ? (candidate.matches(PROTECTED) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_SKIP)
-        : NodeFilter.FILTER_ACCEPT
+      acceptNode(candidate) {
+        if (candidate.nodeType !== Node.ELEMENT_NODE) return NodeFilter.FILTER_ACCEPT;
+        if (candidate.matches(STATIC_PROTECTED)) {
+          visitProtectedControls(candidate);
+          return NodeFilter.FILTER_REJECT;
+        }
+        translateStaticAttributes(candidate);
+        return NodeFilter.FILTER_SKIP;
+      }
     });
     for (let textNode = walker.nextNode(); textNode; textNode = walker.nextNode()) {
       translateStaticText(textNode);
-    }
-    for (const element of node.querySelectorAll('[aria-label],[title],[placeholder]')) {
-      translateStaticAttributes(element);
     }
     if (node.matches(TRIGGER + ',.cursor-edit,.pl-2.border-l.border-border') ||
         node.querySelector(TRIGGER + ',.cursor-edit,.pl-2.border-l.border-border') ||
@@ -836,6 +1036,7 @@
     if (!triggers.length) return;
     const jobs = [];
     for (const trigger of triggers) {
+      if (isExternalField(trigger)) continue;
       translateTrigger(trigger);
       const card = trigger.parentElement;
       const body = card && card.querySelector('.cursor-edit,div.pl-2.border-l.border-border');
@@ -860,19 +1061,27 @@
   }
 
   const observer = new MutationObserver((changes) => {
+    const addedRoots = new Set();
     for (const change of changes) {
       if (change.type === 'characterData') {
         translateStaticText(change.target);
         enqueueNotice(change.target);
         if (change.target.parentElement?.closest('.cursor-edit,.pl-2.border-l.border-border,' + TRIGGER)) scheduleScan();
       } else if (change.type === 'childList') {
-        for (const node of change.addedNodes) visitAdded(node);
+        for (const node of change.addedNodes) addedRoots.add(node);
         enqueueNotice(change.target);
         if (change.target.closest?.('.cursor-edit,.pl-2.border-l.border-border,' + TRIGGER)) scheduleScan();
       } else if (change.type === 'attributes') {
         if (change.attributeName === 'aria-expanded') scheduleScan();
         else translateStaticAttributes(change.target);
       }
+    }
+    // Nested React insertions in one batch are walked once. User Markdown is
+    // pruned at the subtree root, rather than traversed on every streamed token.
+    for (const node of addedRoots) {
+      let parent = node.parentNode;
+      while (parent && !addedRoots.has(parent)) parent = parent.parentNode;
+      if (!parent) visitAdded(node);
     }
   });
   observer.observe(document, {

@@ -8,7 +8,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <RootNamespace>AntigravityHub</RootNamespace>
     <AssemblyName>AntigravityHub</AssemblyName>
-    <Version>2.25.2</Version>
+    <Version>2.29.0</Version>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <RuntimeHostConfigurationOption Include="System.GC.ConserveMemory" Value="7" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.12" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2592.51" />
   </ItemGroup>

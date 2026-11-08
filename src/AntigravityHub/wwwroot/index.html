@@ -700,7 +700,7 @@
               </div>
             </div>
 
-            <!-- 主力模型徽章 (Google 官方原图 1:1 纯正四角星，大号视觉占比) -->
+            <!-- 主力模型徽章，随当前统计范围的模型切换 -->
             <div class="z-10 bg-white border border-[color:var(--border-ddd3c2)] p-3 rounded-2xl shadow-xs flex items-center space-x-3 shrink-0">
               <div class="text-right">
                 <div id="hero-model-title" class="text-[10px] font-bold text-[color:var(--text-8a8172)]">今日主力模型</div>
@@ -708,9 +708,8 @@
                 <div id="hero-top-model-pct" class="text-[10.5px] font-bold text-[color:var(--text-3c804f)] num-cell">占比 0%</div>
               </div>
               
-              <!-- 放大版官方原图 Gemini 四角星容器 -->
-              <div class="w-11 h-11 rounded-2xl bg-[var(--bg-f6f2e9)] border border-[color:var(--border-e2dac8)] flex items-center justify-center shadow-xs">
-                <svg class="w-8 h-8" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div id="hero-model-icon" class="w-11 h-11 rounded-2xl bg-[var(--bg-f6f2e9)] border border-[color:var(--border-e2dac8)] flex items-center justify-center shadow-xs">
+                <svg id="hero-model-gemini" class="w-8 h-8" viewBox="0 0 100 100" fill="none" aria-label="Gemini" xmlns="http://www.w3.org/2000/svg">
                   <path fill-rule="evenodd" clip-rule="evenodd" 
                         d="M46.00 80.50C48.67 86.58 50.00 93.08 50.00 100.00C50.00 93.08 51.29 86.58 53.88 80.50C56.54 74.42 60.12 69.13 64.62 64.63C69.13 60.13 74.42 56.58 80.50 54.00C86.58 51.33 93.08 50.00 100.00 50.00C93.08 50.00 86.58 48.71 80.50 46.13C74.42 43.46 69.13 39.88 64.62 35.38C60.12 30.88 56.54 25.58 53.88 19.50C51.29 13.42 50.00 6.92 50.00 0.00C50.00 6.92 48.67 13.42 46.00 19.50C43.42 25.58 39.88 30.88 35.38 35.38C30.88 39.88 25.58 43.46 19.50 46.13C13.42 48.71 6.92 50.00 0.00 50.00C6.92 50.00 13.42 51.33 19.50 54.00C25.58 56.58 30.88 60.13 35.38 64.63C39.88 69.13 43.42 74.42 46.00 80.50Z" 
                         fill="url(#gemini-official-sparkle)" />
@@ -724,6 +723,9 @@
                     </linearGradient>
                   </defs>
                 </svg>
+                <img id="hero-model-claude" class="w-8 h-8" src="./icons/claude.svg" alt="Claude" style="display:none">
+                <img id="hero-model-gpt" class="w-8 h-8" src="./icons/openai.svg" alt="OpenAI / GPT" style="display:none">
+                <svg id="hero-model-unknown" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-label="模型" style="display:none"><rect x="5" y="5" width="14" height="14" rx="4"/><path d="M9 9h6v6H9zM9 2v3m6-3v3M9 19v3m6-3v3M2 9h3m-3 6h3m14-6h3m-3 6h3"/></svg>
               </div>
             </div>
           </div>

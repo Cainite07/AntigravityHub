@@ -41,6 +41,7 @@ namespace AntigravityHub
         }
         private async void UpdateRendererVisibility()
         {
+            if (_isExplicitExit || _appCts.IsCancellationRequested) return;
             int generation = ++_rendererVisibilityGeneration;
             var core = webView.CoreWebView2;
             if (core == null || _isExplicitExit) return;
@@ -513,6 +514,7 @@ namespace AntigravityHub
 
         public async Task StartServicesAsync()
         {
+            ClientLaunchEntry.RefreshIfEnabled();
             MonitorClientArchive();
             _ = PrepareClientComponentsAsync();
             if (_settingsService.GetSettings().CheckUpdatesOnStartup && !HubUpdateInstaller.StartupFailed) _ = _hubUpdates.CheckAsync(_appCts.Token);

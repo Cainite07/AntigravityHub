@@ -151,7 +151,7 @@ try
     using(var zip=ZipFile.Open(smallZip,ZipArchiveMode.Create))
         foreach(string relative in smallManifest.Files.Where(f=>HubUpdatePackage.IsAdaptation(f.Path)).Select(f=>f.Path).Append(HubUpdatePackage.ManifestName))
             zip.CreateEntryFromFile(Path.Combine(smallNext,relative),"AntigravityHub/"+relative);
-    var catalog=new HubUpdateCatalog(1,"1.4.2","1.4.0",HubUpdatePackage.CoreHash(smallManifest),["2.25.0"]);
+    var catalog=new HubUpdateCatalog(1,"1.4.2","1.4.0",HubUpdatePackage.CoreHash(smallManifest),FakeSmallGitHub.SupportedClients());
     byte[] smallData=File.ReadAllBytes(smallZip),fullData=File.ReadAllBytes(Zip(smallNext,"small-selection-full"));
     using(var handler=new FakeSmallGitHub(fullData,smallData,baseManifest){CorruptSmall=true})
     using(var service=new HubUpdateService(smallBase,handler,new Version(1,4,0)))
@@ -369,10 +369,18 @@ sealed class FakeSmallGitHub : HttpMessageHandler
     internal string? CatalogCore {get;init;}
     internal int FullDownloads {get;private set;}
     internal int SmallDownloads {get;private set;}
+    internal static string[] SupportedClients()
+    {
+        // This fixture models a compatible release regardless of the desktop client on the test machine.
+        var exe=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Programs","Antigravity","Antigravity.exe");
+        var installed=File.Exists(exe)?FileVersionInfo.GetVersionInfo(exe).FileVersion:null;
+        if(string.IsNullOrEmpty(installed))return [];
+        return [Version.TryParse(installed,out var version) && version.Build>=0 ? version.ToString(3) : installed];
+    }
     internal FakeSmallGitHub(byte[] full,byte[] small,HubPackageManifest current)
     {
         _assets=new(){["AntigravityHub-1.4.2-Windows-x64.zip"]=full,["AntigravityHub-1.4.2-Adaptation.zip"]=small,
-            ["update-catalog.json"]=JsonSerializer.SerializeToUtf8Bytes(new HubUpdateCatalog(1,"1.4.2","1.4.0",HubUpdatePackage.CoreHash(current),["2.25.0"]),HubUpdatePackage.Json)};
+            ["update-catalog.json"]=JsonSerializer.SerializeToUtf8Bytes(new HubUpdateCatalog(1,"1.4.2","1.4.0",HubUpdatePackage.CoreHash(current),SupportedClients()),HubUpdatePackage.Json)};
     }
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,CancellationToken cancellation)
     {

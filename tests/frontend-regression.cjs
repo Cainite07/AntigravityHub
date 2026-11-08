@@ -461,6 +461,42 @@ check('50. Incomplete OAuth start replies cannot leave an endless waiting state'
     assert.equal(run('currentAuthUrl'),'');
   }
 });
+check('51. Starter subscription stays compact across current account, sidebar and account list',()=>{
+  run(`renderHubData({accounts:[{id:'starter',email:'starter@example.invalid',tier:'Antigravity Starter Quota',isCurrent:true}],currentAccount:{id:'starter',tier:'Antigravity Starter Quota'},stats:{dailyRecords:[],models:[]}})`);
+  assert.equal(el('sidebar-tier').innerText,'BASIC');
+  for(const id of ['sidebar-accounts-list','accounts-full-list']) {
+    assert(el(id).innerHTML.includes('BASIC'));
+    assert(!el(id).innerHTML.includes('ANTIGRAVITY STARTER QUOTA'));
+  }
+});
+check('52. Hero logo follows model selection and clears stale branding for empty and unknown models',()=>{
+  for(const [name,provider] of [['gemini-4-argon-trial','gemini'],['claude-opus-4-6','claude'],['gpt-oss-120b','gpt'],['o3-mini','gpt'],['unrecognized-model','unknown'],['','unknown']]) {
+    run(`updateHeroModel(${name?JSON.stringify({name,percentage:75}):'null'})`);
+    assert.equal(el('hero-model-icon').dataset.provider,provider);
+    assert.equal(el('hero-top-model-name').innerText,name||'-');
+    for(const icon of ['gemini','claude','gpt','unknown']) assert.equal(el('hero-model-'+icon).style.display,icon===provider?'':'none');
+  }
+  run(`allRecords=[];window.currentStats={models:[{name:'gpt-oss-120b',tokens:200,percentage:100}],dailyModels:{'2026-10-01':[{name:'claude-sonnet-4-6',tokens:100,percentage:100}]}};renderModelDistribution('day','2026-10-01','单日')`);
+  assert.equal(el('hero-model-icon').dataset.provider,'claude');
+  run(`renderModelDistribution('all',null,'全期')`);
+  assert.equal(el('hero-model-icon').dataset.provider,'gpt');
+});
+check('53. Unchanged statistics preserve DOM while accounts, currency and new usage still update', () => {
+  const heatmap=el('heatmap-grid-year');
+  const original=Object.getOwnPropertyDescriptor(heatmap,'innerHTML');
+  let rebuilds=0;
+  Object.defineProperty(heatmap,'innerHTML',{configurable:true,get(){return '';},set(){rebuilds++;}});
+  try {
+    run(`globalThis.refreshFixture={accounts:[],settings:{currency:'CNY',liveUsdToCnyRate:7},stats:{todayTokens:123,heatmap:[{date:'2026-10-01',tokens:123}],dailyRecords:[],models:[]}};renderHubData(refreshFixture)`);
+    assert.equal(rebuilds,1);
+    run(`renderHubData({...refreshFixture,currentAccount:{name:'账号已更新'}})`);
+    assert.equal(rebuilds,1);assert.equal(el('sidebar-name').innerText,'账号已更新');
+    run(`renderHubData({...refreshFixture,settings:{currency:'USD'}})`);
+    assert.equal(rebuilds,2);
+    run(`renderHubData({...refreshFixture,stats:{...refreshFixture.stats,todayTokens:124}})`);
+    assert.equal(rebuilds,3);assert.equal(windowMock.currentStats.todayTokens,124);
+  } finally {Object.defineProperty(heatmap,'innerHTML',original);}
+});
 console.log(passed.map(x => 'PASS ' + x).join('\n'));
 fs.writeFileSync(path.join(__dirname, 'frontend-regression-results.json'), JSON.stringify({ passed }, null, 2));
 

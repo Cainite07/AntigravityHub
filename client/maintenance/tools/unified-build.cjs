@@ -7,7 +7,7 @@ const packing=require('./prepare.cjs');const adapter=require('./adapter2191.cjs'
 const { Pickle }=require('./node_modules/@electron/asar/lib/pickle.js');
 const hansRoot=path.resolve(__dirname,'../../release-2.22.0/source/hans');
 const hudRoot=path.join(__dirname,'hud');
-const MODULES=['translation-policy.js','bundle_patch.js','hans-bundle-hook.js','hans-main.js','hans-translator.js','ui-source-2230.js','ui-source-2231.js','ui-source-2240.js','ui-source-2250.js'];
+const MODULES=['translation-policy.js','bundle_patch.js','hans-bundle-hook.js','hans-main.js','hans-translator.js'];
 function preserveExecutableFlags(asar,candidate,originalEntries){
   // asar 4.3 deliberately omits executable flags on Windows. Keep the three
   // audited upstream JS CLI flags in archive metadata without modifying payloads.
@@ -25,24 +25,37 @@ function preserveExecutableFlags(asar,candidate,originalEntries){
 }
 function changesFromBase(asar,base){
   const get=file=>asar.extractFile(base,path.normalize('dist/'+file));
+  const version=JSON.parse(asar.extractFile(base,'package.json')).version;
   const transformed=adapter.transform2191(get('utils.js'),get('tray.js'));
   const originalPreload=adapter.check('preload',get('preload.js'));
   const dictionary={...JSON.parse(fs.readFileSync(path.join(hansRoot,'ui_dictionary.json'))),...JSON.parse(fs.readFileSync(path.join(hansRoot,'ui_overrides.json')))};
+  if(version==='2.29.0')Object.assign(dictionary,JSON.parse(fs.readFileSync(path.join(hansRoot,'ui-overrides-2290.json'))));
   const engine=fs.readFileSync(path.join(hansRoot,'hans-preload.js'),'utf8');
   if(engine.split('__UI_DICT_JSON__').length!==2)throw Error('Invalid dictionary placeholder');
   const gatedEngine = `require('electron').ipcRenderer.invoke('hub-client:settings').then(settings => { if (settings?.localization === true || settings?.thinking === true) { const HUB_OPTIONS = settings;\n${engine.replace('__UI_DICT_JSON__',JSON.stringify(dictionary))}\n} }).catch(() => {});`;
   const preload=originalPreload+'\n\n// === Antigravity-Hans 22 / 2.19.1 ===\n'+gatedEngine+'\n\n'+fs.readFileSync(path.join(hudRoot,'hud-preload.js'),'utf8');
   const changes=new Map([
-    ['dist/main.js',Buffer.from(adapter.patchMain(get('main.js'))+"\nrequire('./hub-hud-main').install(require('electron'));\nrequire('electron').app.whenReady().then(() => require('./hub-client-settings').installControl(require('electron').app)).catch(error => console.error('[Hub quit]', error));\n")],
+    ['dist/main.js',Buffer.from(adapter.patchMain(get('main.js'))+"\nrequire('./hub-hud-main').install(require('electron'), require('./codex-layout').ownsWebContents);\nrequire('electron').app.whenReady().then(() => require('./hub-client-settings').installControl(require('electron').app)).catch(error => console.error('[Hub quit]', error));\n")],
     ['dist/menu.js',Buffer.from(adapter.patchMenu(get('menu.js')))],
     ['dist/preload.js',Buffer.from(preload)],
     ['dist/utils.js',Buffer.from(transformed.utils)],['dist/tray.js',Buffer.from(transformed.tray)],
     ['dist/codex-layout.js',fs.readFileSync(path.join(__dirname,'layout.js'))]
   ]);
   changes.set('dist/hub-client-settings.js',fs.readFileSync(path.join(__dirname,'hub-client-settings.js')));
+  const sourceIndex=fs.readFileSync(path.join(hansRoot,'ui-source-index.json'));
+  changes.set('dist/ui-source-index.json',sourceIndex);
+  changes.set('dist/hub-update-guard.js',fs.readFileSync(path.join(__dirname,'hub-update-guard.js')));
+  changes.set('dist/main.js',Buffer.from(changes.get('dist/main.js').toString()+"\nrequire('./hub-update-guard').install(require('electron'));\n"));
   changes.set('dist/hub-hud-main.js',fs.readFileSync(path.join(hudRoot,'hub-hud-main.js')));
-  for(const module of MODULES)changes.set('dist/'+module,fs.readFileSync(path.join(hansRoot,module)));
-  for(const [filename,bytes] of changes)new vm.Script(bytes.toString(),{filename});
+  const reviewedModules=Object.values(JSON.parse(sourceIndex)).map(name=>name+'.js');
+  for(const module of [...MODULES,...reviewedModules])changes.set('dist/'+module,fs.readFileSync(path.join(hansRoot,module)));
+  // Git and the Windows checkout can represent the same reviewed scripts with
+  // different line endings. Only canonicalize the generated, modified modules.
+  for(const [filename,bytes] of changes){
+    const source=bytes.toString('utf8').replace(/\r\n/g,'\n');
+    if(filename.endsWith('.json'))JSON.parse(source);else new vm.Script(source,{filename});
+    changes.set(filename,Buffer.from(source,'utf8'));
+  }
   return changes;
 }
 async function buildUnified(asar,archive,out){

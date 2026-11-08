@@ -44,8 +44,9 @@ async function inspect(asar, archive) {
     const packageInfo = JSON.parse(asar.extractFile(archive, 'package.json'));
     const known = compat[packageInfo.version];
     const getHash = file => files.find(e => e.path === file)?.sha256;
-    const patched = !!known && getHash('dist/utils.js') === known.patchedUtils && getHash('dist/tray.js') === known.patchedTray && getHash('dist/codex-layout.js') === sha(layout);
     const profile = require('./profiles.cjs').forVersion(packageInfo.version);
+    const layoutHash = profile?.targetModules['dist/codex-layout.js'] || sha(layout);
+    const patched = !!known && getHash('dist/utils.js') === known.patchedUtils && getHash('dist/tray.js') === known.patchedTray && getHash('dist/codex-layout.js') === layoutHash;
     const unified = packageInfo.version === profile?.version && patched &&
         Object.entries(profile.targetModules).every(([file, hash]) => getHash(file) === hash);
     return { version: packageInfo.version, supportedVersions: require('./profiles.cjs').profiles.map(p=>p.version), supported: !!profile, sha256: sha(fs.readFileSync(archive)), patched, unified, integrityIssues, files };
@@ -55,6 +56,7 @@ async function prepare(asar, archive, out) {
     const before = await inspect(asar, archive);
     if (require('./profiles.cjs').forVersion(before.version)) {
         if (before.unified && !before.integrityIssues.length) return { status: 'already-installed', version: before.version, sha256: before.sha256, unified: true };
+        await require('./seed-base.cjs').seedBase(archive);
         return require('./unified-build.cjs').buildUnified(asar, archive, out);
     }
     if (before.patched && !before.integrityIssues.length) return { status: 'already-installed', version: before.version, sha256: before.sha256 };

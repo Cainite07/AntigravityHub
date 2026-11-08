@@ -25,7 +25,7 @@ const fs=require('node:fs'),path=require('node:path');
   profile.targetModules=Object.fromEntries([...changes].map(([file,bytes])=>[file,packing.sha(bytes)]));
   fs.writeFileSync(file,JSON.stringify(profile,null,2)+'\n');
   const compatFile=path.join(__dirname,'compatibility.json'),compat=JSON.parse(fs.readFileSync(compatFile));
-  compat.versions[profile.version] ||= {utils:require('./adapter2191.cjs').INPUTS.utils,tray:require('./adapter2191.cjs').INPUTS.tray};
+  compat.versions[profile.version] ||= {utils:packing.sha(asar.extractFile(base,path.normalize('dist/utils.js'))),tray:packing.sha(asar.extractFile(base,path.normalize('dist/tray.js')))};
   compat.versions[profile.version].patchedUtils=profile.targetModules['dist/utils.js'];
   compat.versions[profile.version].patchedTray=profile.targetModules['dist/tray.js'];
   fs.writeFileSync(compatFile,JSON.stringify(compat,null,2)+'\n');
